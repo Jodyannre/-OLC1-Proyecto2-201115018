@@ -42,7 +42,7 @@
 
 /*------------Secuencias de escape-----------*/
 "\""[^\n\r]*"\""	return "CADENA";
-"'"[^\n\r]"'"		return "CARACTER";
+"'"[^\n\r]?"'"		return "CARACTER";
 "\\n"				return "SALTO_LINEA_T";
 "\\\\"				return "DOBLE_BARRA_T";
 "\\\""				return "COMILLAS_T";
@@ -61,7 +61,7 @@
 "round"             return "ROUND";
 "typeof"            return "TYPEOF";
 "tostring"          return "TO_STRING";
-"tochararray"       return "TO_CHARARRAY";
+"tochararray"       return "TO_CHAR_ARRAY";
 "exec"              return "EXEC";
 "truncate"          return "TRUNCATE";
 /*-------------------------------------------*/
@@ -82,23 +82,6 @@
 "<"                 return 'MENOR';
 /*-------------------------------------------*/
 
-/*-----------otras palabras reservadas-------*/
-"add"               return "ADD";
-"new"               return "NEW";
-"list"              return "LISTA";
-";"                 return 'PUNTOCOMA';
-"("                 return 'PARENTESIS_A';
-")"                 return 'PARENTESIS_C';
-'{'                 return 'LLAVE_A';
-'}'                 return 'LLAVE_C';
-"true"              return 'TRUE';
-"false"             return 'FALSE';
-"++"                return 'INCREMENTO';
-"--"                return 'DECREMENTO';
-"?"                 return 'TERNARIO';
-"="                 return 'IGUAL';
-/*-------------------------------------------*/
-
 /*---------operaciones aritméticas-----------*/
 "^"				    return "POTENCIA";
 "+"                 return 'MAS';
@@ -108,6 +91,30 @@
 "%"                 return 'MOD';
 /*-------------------------------------------*/
 
+
+/*-----------otras palabras reservadas-------*/
+"add"               return "ADD";
+"new"               return "NEW";
+"list"              return "LISTA";
+";"                 return 'PUNTOCOMA';
+":"					return 'DOSPUNTOS';
+","					return 'COMA';
+"("                 return 'PARENTESIS_A';
+")"                 return 'PARENTESIS_C';
+"["					return 'CORCHETE_A';
+"]"					return 'CORCHETE_C';
+'{'                 return 'LLAVE_A';
+'}'                 return 'LLAVE_C';
+"."					return "PUNTO";
+"true"              return 'TRUE';
+"false"             return 'FALSE';
+//"++"                return 'INCREMENTO';
+//"--"                return 'DECREMENTO';
+"?"                 return 'TERNARIO';
+"="                 return 'ASIGNACION';
+/*-------------------------------------------*/
+
+
 /*-------------operaciones lógicas-----------*/
 "&&"                return 'AND';
 "||"                return 'OR';
@@ -115,8 +122,9 @@
 /*-------------------------------------------*/
 
 /*--------------------identificadores---------------------*/
-[a-z]([a-z]|[0-9])*     				return 'ID'
-[0-9]+("."[0-9]+)?\b    				return 'NUMERO';
+[a-z]([a-z]|[0-9])*     				return 'ID';
+[0-9]+("."[0-9]+)\b    					return 'DECIMAL';
+[0-9]+\b    							return 'ENTERO';
 /*--------------------------------------------------------*/
 
 
@@ -134,30 +142,40 @@
 %left 'MENOR' 'MAYOR' 'MAYOR_I' 'MENOR_I' 
 %left 'MAS' 'MENOS'
 %left 'POR' 'DIV' 'MOD'
-%left UMENOS
+//%left 'POTENCIA'
+%right UMENOS
 
 %start ini
 
 %% /* Definición de la gramática */
 
 ini
-	: ciclo_for EOF {console.log($$)}
+	:creacion_variable EOF {console.log($$)}
 ;
 
-ciclo_for
-    : FOR PARENTESIS_A ciclo_for_variable ID operadores_comparacion NUMERO PUNTOCOMA ID operadores_incremento 
-	  PARENTESIS_C LLAVE_A LLAVE_C {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7+' '+$8+' '+$9+' '+$10+' '+$11+' '+$12}
+
+
+
+
+
+metodos_nativos
+	: LENGTH PARENTESIS_A CADENA PARENTESIS_C 			{$$ = $1+' '+$2+' '+$3+' '+$4}
+	| LENGTH PARENTESIS_A acceso_lista PARENTESIS_C 	{$$ = $1+' '+$2+' '+$3+' '+$4}
+	| LENGTH PARENTESIS_A acceso_vector PARENTESIS_C	{$$ = $1+' '+$2+' '+$3+' '+$4}
+	| LENGTH PARENTESIS_A ID PARENTESIS_C				{$$ = $1+' '+$2+' '+$3+' '+$4}
+	| TRUNCATE PARENTESIS_A numero PARENTESIS_C			{$$ = $1+' '+$2+' '+$3+' '+$4}
+	| TRUNCATE PARENTESIS_A ID PARENTESIS_C				{$$ = $1+' '+$2+' '+$3+' '+$4}
+	| TYPEOF PARENTESIS_A expresion PARENTESIS_C		{$$ = $1+' '+$2+' '+$3+' '+$4}
+	| TO_STRING PARENTESIS_A ID PARENTESIS_C			{$$ = $1+' '+$2+' '+$3+' '+$4}
+	| TO_STRING PARENTESIS_A numero PARENTESIS_C		{$$ = $1+' '+$2+' '+$3+' '+$4}
+	| TO_STRING PARENTESIS_A TRUE PARENTESIS_C			{$$ = $1+' '+$2+' '+$3+' '+$4}
+	| TO_STRING PARENTESIS_A FALSE PARENTESIS_C			{$$ = $1+' '+$2+' '+$3+' '+$4}
+	| TO_CHAR_ARRAY PARENTESIS_A CADENA PARENTESIS_C	{$$ = $1+' '+$2+' '+$3+' '+$4}
+	| TO_CHAR_ARRAY PARENTESIS_A ID PARENTESIS_C		{$$ = $1+' '+$2+' '+$3+' '+$4}
+	| ROUND PARENTESIS_A DECIMAL PARENTESIS_C			{$$ = $1+' '+$2+' '+$3+' '+$4}
+	| ROUND PARENTESIS_A ID PARENTESIS_C				{$$ = $1+' '+$2+' '+$3+' '+$4}
 ;
 
-ciclo_for_variable
-	: creacion_variable {$$ = $1}
-	| asignacion_variable {$$ = $1}
-;
-
-ciclo_for_incremento
-	: ID operadores_incremento
-	| ID IGUAL valor_en_asignacion_variable
-;
 
 creacion_variable
 	: asignacion_tipo asignacion_variable {$$ = $1+' '+$2}
@@ -168,30 +186,17 @@ asignacion_variable
 	: ID asignacion_valor_variable {$$ = $1+' '+$2}
 ;
 
-
-
 asignacion_valor_variable
 	: PUNTOCOMA {$$ = $1+''}	
-	| IGUAL valor_en_asignacion_variable PUNTOCOMA {$$ = $1+' '+$2+' '+$3}
+	| ASIGNACION operacion_aritmetica PUNTOCOMA {$$ = $1+' '+$2+' '+$3}
+	| ASIGNACION TO_UPPER PARENTESIS_A CADENA PARENTESIS_C PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
+	| ASIGNACION TO_LOWER PARENTESIS_A CADENA PARENTESIS_C PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
+	| ASIGNACION PARENTESIS_A INT PARENTESIS_C expresion PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
+	| ASIGNACION PARENTESIS_A CHAR PARENTESIS_C expresion PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
+	| ASIGNACION PARENTESIS_A DOUBLE PARENTESIS_C expresion PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
+	| ASIGNACION metodos_nativos PUNTOCOMA {$$ = $1+' '+$2+' '+$3}
 ;
 
-valor_en_asignacion_variable
-	: NUMERO {$$ = $1+''}	
-	| CADENA {$$ = $1+''}	
-	| TRUE {$$ = $1+''}	
-	| FALSE {$$ = $1+''}	
-	| CARACTER {$$ = $1+''}	
-	| ID {$$ = $1+''}
-	| operaciones_aritmeticas {$$ = $1+''}	
-;
-
-asignacion_tipo
-	: INT {$$ = $1+''}	
-	| BOOLEAN {$$ = $1+''}	
-	| STRING {$$ = $1+''}	
-	| DOUBLE {$$ = $1+''}	
-	| CHAR {$$ = $1+''}	
-;
 
 condiciones_logicas
 	: condicion_logica operadores_logicos condiciones_logicas {$$ = $1+' '+$2+' '+$3}
@@ -203,15 +208,13 @@ operadores_logicos
 	| AND {$$ = $1+''}	
 ;
 
-operadores_incremento
-	: INCREMENTO {$$ = $1+''}	
-	| DECREMENTO {$$ = $1+''}	
-;
 
 condicion_logica		
 	: expresion operadores_comparacion expresion {$$ = $1+' '+$2+' '+$3}
 	| expresion {$$ = $1+''}
 ;
+
+
 
 operadores_comparacion
 	: MAYOR_I {$$ = $1+''}	
@@ -223,33 +226,58 @@ operadores_comparacion
 ;
 
 expresion
-	: MENOS numero 	{$$ = $1+' '+$2}
-	| numero 		{$$ = $1+''}	
-	| NOT ID 		{$$ = $1+' '+$2}
-	| ID 	 		{$$ = $1+''}
+	: numero					{$$ = $1+''}
+	| NOT ID 					{$$ = $1+' '+$2}
+	| ID 	 					{$$ = $1+''}
+	| acceso_lista  			{$$ = $1+''}
+	| acceso_vector				{$$ = $1+''} 
+	| CADENA 					{$$ = $1+''}
+	| CARACTER 					{$$ = $1+''}
+	| TRUE 						{$$ = $1+''}	
+	| FALSE 					{$$ = $1+''}
 ;
 
-operaciones_aritmeticas
-	: operacion_aritmetica operadores_aritmeticos operaciones_aritmeticas
-	| operacion_aritmetica
+expresion_incremento
+	: ID MENOS MENOS			{$$ = $1+' '+$2+' '+$3}
+	| ID MAS MAS				{$$ = $1+' '+$2+' '+$3}
+;
+
+numero	
+	: MENOS DECIMAL %prec UMENOS	{$$ = $1+' '+$2}
+	| MENOS ENTERO %prec UMENOS	 	{$$ = $1+' '+$2}
+	| ENTERO						{$$ = $1+''}
+	| DECIMAL 						{$$ = $1+''}
 ;
 
 operacion_aritmetica
-	: expresion operadores_aritmeticos expresion
-	| expresion
-;
-
-numero
-	: ENTERO {$$ = $1+''}
-	| DECIMAL {$$ = $1+''}
+	: expresion operadores_aritmeticos operacion_aritmetica {$$ = $1+' '+$2+' '+$3}
+	| expresion {$$ = $1+''}
 ;
 
 
 operadores_aritmeticos
-	: MAS
-	| MENOS
-	| POR
-	| DIV
-	| POTENCIA
-	| MOD
+	: MAS {$$ = $1+''}
+	| MENOS {$$ = $1+''}	
+	| POR {$$ = $1+''}
+	| DIV {$$ = $1+''}
+	| POTENCIA {$$ = $1+''}
+	| MOD {$$ = $1+''}
+;
+
+
+asignacion_tipo
+	: INT {$$ = $1+''}	
+	| BOOLEAN {$$ = $1+''}	
+	| STRING {$$ = $1+''}	
+	| DOUBLE {$$ = $1+''}	
+	| CHAR {$$ = $1+''}	
+;
+
+
+acceso_vector
+	: ID CORCHETE_A numero CORCHETE_C {$$ = $1+' '+$2+' '+$3+' '+$4}
+;
+
+acceso_lista
+	: ID CORCHETE_A CORCHETE_A numero CORCHETE_C CORCHETE_C {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
 ;
