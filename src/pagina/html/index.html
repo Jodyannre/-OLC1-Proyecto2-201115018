@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Hojas de estilos para la pagina -->
+    <link rel="stylesheet" type="text/css" href="http://127.0.0.1:3000/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="http://127.0.0.1:3000/style.css">
+
+</head>
+
+<body class="body">
+
+    <!-- Menú superior -->
+    <div class="topnav">
+        <a href="#" id="aImport">Abrir</a><input type="file" id="importFile" onchange="showFile()">
+        <a href="#" id="aCreate">Crear</a>
+        <a href="#" id="aSave">Guardar</a>
+        <a href="#" id="aCompile">Compilar</a>
+        <a href="#" id="aExecute3d">Ejecución 3D</a>
+        <a href="#" id="aReportError">Errores</a>
+        <a href="#" id="aReportTS">Tabla Símbolos</a>
+        <a href="#" id="aReportAST">Generar AST</a>
+        <a href="#" id="aVistaEditor">Editor</a>
+        <a href="#" id="aVista3D">Editor 3d</a>
+    </div>
+
+    <!-- Div que contiene las pestañas de los editores de código -->
+    <div id="tabs" style="width: 1330px;">
+        <ul>
+        </ul>
+    </div>
+
+    <br />
+
+    <!-- Div que contiene las pestañas de Consola y Errores -->
+    <div id="tabs2" style="width: 1330px;">
+        <ul>
+        </ul>
+    </div>
+
+    <button id="btnIniciar" style="position: absolute; top:5%; left:30%; width:6%;" class="close">Iniciar</button>
+    <button id="btnPausar" style="position: absolute; top:5%; left:40%; width:6%;" class="close">Pausar</button>
+    <button id="btnDetener" style="position: absolute; top:5%; left:50%; width:6%;" class="close">Detener</button>
+    <input type="text" id="txtLineaDepurar" placeholder="No. Línea" style="position: absolute; top:5%; left:60%; width:10%;">
+
+    <br/>
+    <br/>
+
+    <div id="editor3D" style="width: 1330px;">
+        <ul>
+        </ul>
+    </div>
+
+    <div id="consola3D" style="position: absolute; top:63%; left:2%; width:95%; height:35%;">
+        <ul>
+        </ul>
+    </div>
+<!-- 
+    <label id="lblReporte" ></label>
+    
+    <div id="divReportErrores" style="width: 1330px;">
+        <img id="imgErrores" src="/images/miImg.png" style="height:480px; width:600px;" >
+    </div>
+
+    <div id="divReportTablaSimbolos" style="width: 1330px;">
+        <img id="imgTS" src="/images/miImg2.png" style="height:480px; width:600px;" >
+    </div>
+      
+    <div id="divReportAST" style="width: 1330px;">
+        <img id="imgAST" src="/images/image0" style="height:480px; width:600px;" >
+    </div>
+    -->
+    <!-- Scripts necesarios para el funcionamiento de operaciones Javascript -->
+    <script src="http://127.0.0.1:3000/ace" type="text/javascript" charset="utf-8"></script>
+    <script src="http://127.0.0.1:3000/ajax"></script>
+    <script src="http://127.0.0.1:3000/jquery"></script>
+    <script src="http://127.0.0.1:3000/fileSaver.js"></script>
+
+    <!-- Script de AWS
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script>
+    -->
+    <script type="text/javascript">
+
+        //Al darse click en la opción Abrir se hace trigger a la apertura del fileDilog para elección de un archivo.
+        $("#aImport").click(function (e) {
+            e.preventDefault();
+            $("#importFile").trigger('click');
+        });
+
+        $("#aVista3D").click(function (e) {
+            document.getElementById('tabs').style.display = "none";
+            document.getElementById('tabs2').style.display = "none";
+            //document.getElementById('divReportErrores').style.display = "none";
+            //document.getElementById('divReportTablaSimbolos').style.display = "none";
+            //document.getElementById('divReportAST').style.display = "none";
+            document.getElementById('editor3D').style.display = "block";
+            document.getElementById('consola3D').style.display = "block";
+            document.getElementById('btnIniciar').style.display = "block";
+            document.getElementById('btnPausar').style.display = "block";
+            document.getElementById('btnDetener').style.display = "block";
+            document.getElementById('txtLineaDepurar').style.display = "block";  
+          //  document.getElementById('lblReporte').innerHTML="";          
+        });
+
+        $("#aVistaEditor").click(function (e) {
+            document.getElementById('tabs').style.display = "block";
+            document.getElementById('tabs2').style.display = "block";
+            document.getElementById('editor3D').style.display = "none";
+            document.getElementById('consola3D').style.display = "none";
+            document.getElementById('btnIniciar').style.display = "none";
+            document.getElementById('btnPausar').style.display = "none";
+            document.getElementById('btnDetener').style.display = "none";
+            document.getElementById('txtLineaDepurar').style.display = "none";
+            //document.getElementById('divReportErrores').style.display = "none";
+            //document.getElementById('divReportTablaSimbolos').style.display = "none";
+            //document.getElementById('divReportAST').style.display = "none";            
+           // document.getElementById('lblReporte').innerHTML="";
+        });
+
+        $("#aReportError").click(function (e) {
+            document.getElementById('tabs').style.display = "none";
+            document.getElementById('tabs2').style.display = "none";
+            document.getElementById('editor3D').style.display = "none";
+            document.getElementById('consola3D').style.display = "none";
+            document.getElementById('btnIniciar').style.display = "none";
+            document.getElementById('btnPausar').style.display = "none";
+            document.getElementById('btnDetener').style.display = "none";
+            document.getElementById('txtLineaDepurar').style.display = "none";
+            //document.getElementById('divReportErrores').style.display = "block";
+            //document.getElementById('divReportTablaSimbolos').style.display = "none";
+            //document.getElementById('divReportAST').style.display = "none";
+          //  document.getElementById('lblReporte').innerHTML="Reporte de Errores<br/><br/>";
+          //  document.getElementById('imgAST').innerHTML="Reporte de Errores<br/><br/>";
+        });
+
+        $("#aReportTS").click(function (e) {
+            document.getElementById('tabs').style.display = "none";
+            document.getElementById('tabs2').style.display = "none";
+            document.getElementById('editor3D').style.display = "none";
+            document.getElementById('consola3D').style.display = "none";
+            document.getElementById('btnIniciar').style.display = "none";
+            document.getElementById('btnPausar').style.display = "none";
+            document.getElementById('btnDetener').style.display = "none";
+            document.getElementById('txtLineaDepurar').style.display = "none";
+            //document.getElementById('divReportErrores').style.display = "none";
+            //document.getElementById('divReportTablaSimbolos').style.display = "block";
+            //document.getElementById('divReportAST').style.display = "none";
+         //   document.getElementById('lblReporte').innerHTML="Reporte de Tabla de Símbolos<br/><br/>";
+        });
+
+        $("#aReportAST").click(function (e) {
+            document.getElementById('tabs').style.display = "none";
+            document.getElementById('tabs2').style.display = "none";
+            document.getElementById('editor3D').style.display = "none";
+            document.getElementById('consola3D').style.display = "none";
+            document.getElementById('btnIniciar').style.display = "none";
+            document.getElementById('btnPausar').style.display = "none";
+            document.getElementById('btnDetener').style.display = "none";
+            document.getElementById('txtLineaDepurar').style.display = "none";
+            //document.getElementById('divReportErrores').style.display = "none";
+            //document.getElementById('divReportTablaSimbolos').style.display = "none";
+            //document.getElementById('divReportAST').style.display = "block";
+			//getAST(); //mostrar la imagen de esta compilada
+        });
+
+
+        $("#btnIniciar").click(function (e) {
+            iniciarDebug();
+        });
+
+        $("#btnPausar").click(function (e) {
+            clearInterval(myTimer);
+        });
+
+        $("#btnDetener").click(function (e) {
+            cleantextArea(lineaActual);
+            lineaActual = undefined;
+            clearInterval(myTimer);
+        });
+
+        //Método para guardar el archivo en el editor seleccionado
+        $("#aSave").click(function (e) {
+            var fileName = prompt("Nombre a dar al archivo", "");
+            if (fileName == undefined) {
+                return;
+            }
+
+            var selectedTab = $("#tabs").tabs('option', 'active');
+
+            var tabUniqueId = $(this).parent().attr('data-tab-id');
+            var resultArray = $.grep(editors, function (n, i) {
+                return n.id === tabUniqueId;
+            }, true);
+
+            var editor = resultArray[selectedTab].instance;
+            var text = editor.getValue();
+            var blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+            saveAs(blob, fileName);
+        });
+
+        $("#aCompile").click(function (e) {
+            compilar();
+            getTS(); //muestra la tabla de símbolos
+            getTablaErrores(); //muestra la tabla de errores
+            getConsola(); //muestra la cadena en la consola
+            getCodigo3D(); //se muestra el codigo generado en la vista3D
+          //  getAST(); //mostrar la imagen de esta compilada
+
+        });
+
+        //cuando se haga clic en ejecutar c3d
+        $("#aExecute3d").click(function(e){
+            ejecutarC3D(); //obtiene el texto y lo envia a ejecutar.
+            getStack(); //obtiene la cadena y la setea en el textStack
+            getHeap(); //obtiene la cadena y la setea en el textHeap
+            getTemporales(); //obtiene la cadena de los temporales y sus valores.
+            getConsola3D(); //obtiene la cadena de imprimir en la consola 3D
+        });
+
+
+        $("#importFile").css('opacity', '0');
+
+        var editors = [];   //Arreglo que contiene las pestañas (editores)
+        var contTabs = 0;   //Lleva el conteo de las pestañas abiertas
+        var editor3d;
+        var Range = ace.require('ace/range').Range;
+        var debugS = undefined;
+        var debugH = undefined;
+        var debugT = undefined;
+        var init = false;
+
+        $(document).ready(function () {
+
+            // Inicializando pestañas
+            $('#tabs').tabs();
+            $('#tabs2').tabs();
+            $('#consola3D').tabs();
+
+            // Lógica del botón de creación de pestañas
+            $('#aCreate').on('click', function () {
+                contTabs++;
+                addEditor("", "Tab " + contTabs);
+            });
+
+            // Logica del botón de cerrar pestañas
+            $('#tabs').on('click', '.close', function () {
+                var tabUniqueId = $(this).parent().attr('data-tab-id');
+
+                var resultArray = $.grep(editors, function (n, i) {
+                    return n.id === tabUniqueId;
+                }, true);
+
+                var editor = resultArray[0].instance;
+                editor.destroy();
+
+                $('#tabs').find('#panel_nav_' + tabUniqueId).remove();
+                $('#tabs').find('#panel_' + tabUniqueId).remove();
+
+            });
+
+            debugS = undefined;
+            debugH = undefined;
+            debugT = undefined;
+            contTabs = contTabs + 1;
+            addEditor("", "Tab " + contTabs);
+            crearMenu("<textarea id=\"txtConsola\" style=\"width:100%; height:95%;\"></textarea>", "Consola","#tabs2");
+            crearMenu("<div id=\"divErrores\" style=\"width:100%; height:95%; overflow-y:scroll;\"></div>", "Errores","#tabs2");
+            crearMenu("<div id=\"divTablaSimbolos\" style=\"width:100%; height:95%; overflow-y:scroll;\"></div>", "Tabla de Simbolos","#tabs2");
+            crearMenu("<textarea id=\"txtConsolaDebug\" style=\"width:100%; height:95%;\"></textarea>", "Consola","#consola3D");
+            crearMenu("<textarea id=\"txtStack\" readonly style=\"width:100%; height:95%;\"></textarea>", "Stack","#consola3D");
+            crearMenu("<textarea id=\"txtHeap\" readonly style=\"width:100%; height:95%;\"></textarea>", "Heap","#consola3D");
+            crearMenu("<textarea id=\"txtTemporales\" readonly style=\"width:100%; height:95%;\"></textarea>", "Temporales","#consola3D");
+
+            var te = $('#tabs2');
+            te.tabs('option', 'active', 0);
+
+            var te2 = $('#consola3D');
+            te2.tabs('option', 'active', 0);
+            
+            $("#aVistaEditor").trigger('click');
+            crearEditorCodigo3D();
+            //  $(editor).resize();
+        });
+
+        //Lógica al abrir archivo y mostrar su contenido en un nuevo editor.
+        function showFile() {
+            var preview = document.getElementById('show-text');
+            var file = document.querySelector('input[type=file]').files[0];
+            var reader = new FileReader()
+
+            reader.onload = function (event) {
+                contTabs++;
+                addEditor(event.target.result, file.name);
+            }
+            reader.readAsText(file, "new file");
+        }
+
+        //Método para creación de nuevo editor en la página
+        function addEditor(text, tabName) {
+            var tabsElement = $('#tabs');
+            var tabsUlElement = tabsElement.find('ul');
+            var tabUniqueId = new Date().getTime() + Math.floor(Math.random() * 10000);
+            var newTabNavElement = $('<li id="panel_nav_' + tabUniqueId + '"><a href="#panel_' + tabUniqueId + '">' + tabName + '</a></li>');
+            tabsUlElement.append(newTabNavElement);
+
+            // Creación de panel que contendrá el editor
+            var newTabPanelElement = $('<div id="panel_' + tabUniqueId + '" data-tab-id="' + tabUniqueId + '"></div>');
+            tabsElement.append(newTabPanelElement);
+            tabsElement.tabs('refresh');
+
+            //Se da 'focus' a la nueva pestaña creada
+            var tabIndex = $('#tabs ul li').index($('#panel_nav_' + tabUniqueId));
+            tabsElement.tabs('option', 'active', tabIndex);
+
+            //Creación de nuevo editor
+            var newEditorElement = $('<div id="editor_' + tabUniqueId + '">// some code here</div>');
+            newTabPanelElement.append(newEditorElement);
+
+            //Inicialización del nuevo editor en la pestaña
+            var editor = ace.edit('editor_' + tabUniqueId);
+            editor.setTheme("ace/theme/eclipse");
+            editor.getSession().setMode("ace/mode/java");
+
+            //setea el breakpoint en la línea seleccionada.
+            editor.on("guttermousedown", function (e) {
+                var target = e.domEvent.target;
+                if (target.className.indexOf("ace_gutter-cell") == -1)
+                    return;
+                if (!editor.isFocused())
+                    return;
+                if (e.clientX > 25 + target.getBoundingClientRect().left)
+                    return;
+
+                var breakpoints = e.editor.session.getBreakpoints(row, 0);  //se obtiene en que posiciones hay breakpoints.
+
+                var row = e.getDocumentPosition().row;
+                if (typeof breakpoints[row] == typeof undefined) {
+                    e.editor.session.setBreakpoint(row);                    //setea el breakpoint de la línea seleccionada        
+                }
+                else {
+                    e.editor.session.clearBreakpoint(row);                  //remueve el breakpoint de la línea seleccionada
+                }
+
+                e.stop();
+            });
+
+            //Se establece el tamaño del panel
+            newTabPanelElement.width('1330');
+            newTabPanelElement.height('300');
+
+            //Se establece el tamaño del editor
+            newEditorElement.width('1230');
+            newEditorElement.height('300');
+
+            //Se agrega el texto al editor (si fue enviado como parámetro)
+            editor.setValue(text);
+
+            editor.resize();
+            editors.push({ id: tabUniqueId, instance: editor });
+
+            //Se agrega el botón de cerrado de pestaña/editor
+            var closeButton = $('<button class="close">x</button>');
+            newTabPanelElement.prepend(closeButton);
+        }
+
+        function crearEditorCodigo3D() {
+            editor3d = ace.edit("editor3D");
+            editor3d.setTheme("ace/theme/monokai");
+            editor3d.getSession().setMode("ace/mode/java");
+            //editor3d.setValue("");
+            editor3d.on("guttermousedown", function (e) {
+            var target = e.domEvent.target;
+            if (target.className.indexOf("ace_gutter-cell") == -1)
+                return;
+            if (!editor3d.isFocused())
+                return;
+            if (e.clientX > 25 + target.getBoundingClientRect().left)
+                return;
+
+            var breakpoints = e.editor3d.session.getBreakpoints(row, 0);  //se obtiene en que posiciones hay breakpoints.
+
+            var row = e.getDocumentPosition().row;
+            if (typeof breakpoints[row] == typeof undefined) {
+                e.editor3d.session.setBreakpoint(row);                    //setea el breakpoint de la línea seleccionada        
+            }
+            else {
+                e.editor3d.session.clearBreakpoint(row);                  //remueve el breakpoint de la línea seleccionada
+            }
+            e.stop();
+        });
+
+        }
+
+        //Método para la creación de las pestañas de Consola y Errores
+        function crearMenu(text, tabName,tabContainer) {
+            var tabsElement = $(tabContainer);
+            var tabsUlElement = tabsElement.find('ul');
+
+            var tabUniqueId = new Date().getTime() + Math.floor(Math.random() * 10000);
+            var newTabNavElement = $('<li id="panel_nav_' + tabUniqueId + '"><a href="#panel_' + tabUniqueId + '">' + tabName + '</a></li>');
+
+            tabsUlElement.append(newTabNavElement);
+            var newTabPanelElement = $('<div id="panel_' + tabUniqueId + '" data-tab-id2="' + tabUniqueId + '"></div>');
+            tabsElement.append(newTabPanelElement);
+
+            tabsElement.tabs('refresh');
+            var tabIndex = $('#tabs2 ul li').index($('#panel_nav_' + tabUniqueId));
+
+            tabsElement.tabs('option', 'active', tabIndex);
+
+            var newEditorElement = $('<div id="editor_' + tabUniqueId + '">' + text + '</div>');
+
+            newTabPanelElement.append(newEditorElement);
+
+            newTabPanelElement.width('1330');
+            newTabPanelElement.height('150');
+
+            newEditorElement.width('1230');
+            newEditorElement.height('150');
+        }
+
+        //compila el código en el editor de texto.
+        function compilar() {
+
+            var selectedTab = $("#tabs").tabs('option', 'active');
+
+            var tabUniqueId = $(this).parent().attr('data-tab-id');
+            var resultArray = $.grep(editors, function (n, i) {
+                return n.id === tabUniqueId;
+            }, true);
+
+            var editor = resultArray[selectedTab].instance;
+            var formData = editor.getValue();
+            var xhr = new XMLHttpRequest();
+            xhr.open('PUT', 'http://localhost:3000/parse', true);
+            xhr.onload = function (e) { console.log('Parseo realizado...') };
+            xhr.send(formData);
+        }
+
+        //ejecutar el código en el editor de texto3D.
+        function ejecutarC3D() {
+
+            var formData = editor3d.getValue();
+            var xhr = new XMLHttpRequest();
+            xhr.open('PUT', 'http://localhost:3000/ejecutar', true);
+            xhr.onload = function (e) { console.log('Ejecución realizada...') };
+            xhr.send(formData);
+        }
+
+        //obtiene la tabla de errores y la inserta en el div de Errores.
+        function getTablaErrores() {
+            var tabla;
+
+            var getTerrores = $.ajax({
+                url: 'http://127.0.0.1:3000/getTablaErrores',
+                type: 'GET',
+                contentType: "application/json;charset=utf-8",
+                success: function (data, textStatus, xhr) {
+                    tabla = data;
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert('Error al obtener errores... ');
+                }
+            });
+
+            getTerrores.done(function () {
+                document.getElementById("divErrores").innerHTML = tabla;
+            });
+        }
+        //obtiene la tabla de simbolos y la inserta en el div de Tabla simbolos
+        function getTS(){
+            var tabla;
+
+            var getTS = $.ajax({
+                url: 'http://127.0.0.1:3000/getTS',
+                type: 'GET',
+                contentType: "application/json;charset=utf-8",
+                success: function (data, textStatus, xhr) {
+                    tabla = data;
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert('Error al obtener la tabla de símbolos... ');
+                }
+            });
+
+            getTS.done(function () {
+                document.getElementById("divTablaSimbolos").innerHTML = tabla;
+            });
+        }
+        
+
+        //obtiene la cadena a imprimir en consola
+        function getConsola() {
+            var tabla;
+
+            var getCconsola = $.ajax({
+                url: 'http://127.0.0.1:3000/getConsola',
+                type: 'GET',
+                contentType: "application/json;charset=utf-8",
+                success: function (data, textStatus, xhr) {
+                    tabla = data;
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert('Error al obtener datos en consola... ');
+                }
+            });
+
+            getCconsola.done(function () {
+                document.getElementById("txtConsola").value = tabla;
+            });
+        }
+
+        //obtiene la cadena a imprimir en consola 3D
+        function getConsola3D() {
+            var tabla;
+
+            var getCconsola = $.ajax({
+                url: 'http://127.0.0.1:3000/getConsola3D',
+                type: 'GET',
+                contentType: "application/json;charset=utf-8",
+                success: function (data, textStatus, xhr) {
+                    tabla = data;
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert('Error al obtener datos en consola 3D... ');
+                }
+            });
+
+            getCconsola.done(function () {
+                document.getElementById("txtConsolaDebug").value = tabla;
+            });
+        }
+
+        //obtiene la cadena 3D en el editor
+        function getCodigo3D() {
+            var tabla;
+            var getC3D= $.ajax({
+                url: 'http://127.0.0.1:3000/getCodigo3D',
+                type: 'GET',
+                contentType: "application/json;charset=utf-8",
+                success: function (data, textStatus, xhr) {
+                    tabla = data;
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert('Error al obtener datos en codigo 3D... ');
+                }
+            });
+
+            getC3D.done(function () {
+                console.log(tabla);
+                lineaActual = undefined;
+                editor3d.setValue(tabla);
+            });
+        }
+
+        //obtiene el stack en su pestaña
+        function getStack() {
+            var tabla;
+
+            var getSstack = $.ajax({
+                url: 'http://127.0.0.1:3000/getStack',
+                type: 'GET',
+                contentType: "application/json;charset=utf-8",
+                success: function (data, textStatus, xhr) {
+                    tabla = data;
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert('Error al obtener datos de stack... ');
+                }
+            });
+
+            getSstack.done(function () {
+                document.getElementById("txtStack").value = tabla;
+            });
+        }
+        //obtiene el heap en su pestaña
+        function getHeap() {
+            var tabla;
+            var getHheap = $.ajax({
+                url: 'http://127.0.0.1:3000/getHeap',
+                type: 'GET',
+                contentType: "application/json;charset=utf-8",
+                success: function (data, textStatus, xhr) {
+                    tabla = data;
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert('Error al obtener datos de heap... ');
+                }
+            });
+
+            getHheap.done(function () {
+                document.getElementById("txtHeap").value = tabla;
+            });
+        }
+        //obtiene los temporales en su pestaña
+        function getTemporales() {
+            var tabla;
+            var getTtemp = $.ajax({
+                url: 'http://127.0.0.1:3000/getTemporales',
+                type: 'GET',
+                contentType: "application/json;charset=utf-8",
+                success: function (data, textStatus, xhr) {
+                    tabla = data;
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert('Error al obtener datos de los temporales... ');
+                }
+            });
+
+            getTtemp.done(function () {
+                document.getElementById("txtTemporales").value = tabla;
+            });
+        }
+
+
+       /* function getAST() {
+            //obtener los paths en aws
+            var tabla;
+            var getTtemp = $.ajax({
+                url: 'http://127.0.0.1:3000/getAST',
+                type: 'GET',
+                contentType: "application/json;charset=utf-8",
+                success: function (data, textStatus, xhr) {
+                    tabla = data;
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert('Error al obtener las imagenes... ');
+                }
+            });
+            getTtemp.done(function () {
+                //document.getElementById("divReportAST").innerHTML = tabla;
+            });
+        }
+		*/
+
+        var myTimer = undefined;        //variable que llevará el timer del debug
+        var lineaActual = undefined;    //variable que llevará el control de la posición que recorre el debug
+
+        //método que inicia el debug, verifica si se empieza por alguna línea en especifico o desde el inicio del código.
+        function iniciarDebug() {
+            var l = undefined;
+            //se valida que no se haya pausado y reanudado el debug.
+            if (lineaActual == undefined) {
+                l = document.getElementById("txtLineaDepurar").value;       //si se ingresó alguna linea en especifico por la cual iniciar el debug se asigna a la variable que lleva el control de la posición
+                if (!isNaN(l)) {            //se valida que la línea especificada sea un número.
+                    lineaActual = l.trim();
+                } else {
+                    lineaActual = -1;
+                }
+            }
+
+            //console.log("inicia debug!!!");
+            ejecutarC3D();                      //se ejecuta el código 3D, creandose las listas de stack, heap y temporales.
+            var debugSS, debugHH, debugTT;
+
+            getDebugStack(function (debugSS) {  //se obtiene la lista de stack      
+                debugS = debugSS;
+                //console.log("STACKK " + debugS);
+            });
+            //console.log("STACKK222 "+debugS);
+
+            getDebugHeap(function (debugHH) {   //se obtiene la lista de heap
+                debugH = debugHH;
+                //console.log("HEAPPP " + debugH);
+            });
+
+            getDebugTemp(function (debugTT) {   //se obtiene la lista de temporales
+
+                debugT = debugTT;
+                //console.log("TEMPORALESSSS " + debugT);
+                if (!init) {
+                    if (lineaActual != -1) {
+                        predebug();
+                    }
+                    init = true;
+                }
+            });
+
+            myTimer = setInterval(debug, (2 * 1000));   //se indica el timer a 2 segundos entre cada línea de debug.
+        }
+
+        //método que muestra los pasos del debug hasta la línea especificada.
+        function predebug() {
+            //console.log("entro a predebug");
+            var line;
+
+            for (line = 0; line < lineaActual; line++) {
+                getTemporalxLinea(line);
+                getHeapxLinea(line);
+                getStackxLinea(line);
+            }
+        }
+
+        //método que marca el debug en cada línea y actualiza las pestañas de stack, heap y temporales según la línea que se esté recorriendo.
+        function debug() {
+            lineaActual++;
+            cleantextArea(lineaActual);
+            if (editor3d.session.getLength() < lineaActual) {
+                clearInterval(myTimer);
+                return;
+            }
+            //console.log(editor3d.session.getLength() + " linea actual " + lineaActual);
+
+            /*var breakpoints = [];
+
+            for (var i = 0; i < editor3d.session.getLength(); i++) {
+                breakpoints.push(i);
+            }*/
+            var contador = lineaActual;
+            ///for (contador; contador < (editor3d.session.getLength() - 1); contador++) {
+            editor3d.session.addMarker(new Range(contador, 0, contador, 1), "myMarker", "fullLine");
+            //}
+
+            getTemporalxLinea(lineaActual);
+            getHeapxLinea(lineaActual);
+            getStackxLinea(lineaActual);
+
+        }
+
+
+        //Obtiene el temporal del arreglo de temporales para una línea requerida.
+        function getTemporalxLinea(line) {
+            var arrayT = debugT.split("$");
+            for (var i = 0; i < arrayT.length; i++) {
+                var auxT = arrayT[i];
+                if (auxT != undefined) {
+                    var temps = auxT.split("|");
+                    var linea = temps[0];
+                    var valor = temps[1];
+                    var temporal = temps[2];
+                    if (linea == line) {
+                        //console.log("LINEA " + linea + " VALOR " + valor + " TEMPORAL" + temporal);
+                        if (temporal != undefined) {
+                            //si hay temporal para la línea buscada este se imprime en la pestaña de temporales.
+                            document.getElementById("txtTemporales").value += temporal + " = " + valor + "\n";
+                            document.getElementById("txtTemporales").scrollTop = document.getElementById("txtTemporales").scrollHeight;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        function getHeapxLinea(line) {
+            var arrayH = debugH.split("$");
+            for (var i = 0; i < arrayH.length; i++) {
+                var auxH = arrayH[i];
+                if (auxH != undefined) {
+                    var temps = auxH.split("|");
+                    var linea = temps[0];
+                    var valor = temps[1];
+                    var posicion = temps[2];
+                    if (linea == line) {
+                        //console.log("LINEA " + linea + " VALOR " + valor + " TEMPORAL" + temporal);
+                        if (valor != undefined) {
+                            document.getElementById("txtHeap").value += valor + "\n";
+                            document.getElementById("txtHeap").scrollTop = document.getElementById("txtHeap").scrollHeight;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        function getStackxLinea(line) {
+            var arrayS = debugS.split("$");
+            for (var i = 0; i < arrayS.length; i++) {
+                var auxS = arrayS[i];
+                if (auxS != undefined) {
+                    var temps = auxS.split("|");
+                    var linea = temps[0];
+                    var valor = temps[1];
+                    var posicion = temps[2];
+                    if (linea == line) {
+                        //console.log("LINEA " + linea + " VALOR " + valor + " TEMPORAL" + temporal);
+                        if (valor != undefined) {
+                            document.getElementById("txtStack").value += valor + "\n";
+                            document.getElementById("txtStack").scrollTop = document.getElementById("txtStack").scrollHeight;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        function cleantextArea(lineas) {
+            var contador = 0;
+
+            for (contador; contador < (lineas); contador++) {
+                //alert("limpiando "+contador+" lineas "+lineas);
+                //console.log("limpiando " + contador + " lineas " + lineas);
+                editor3d.session.addMarker(new Range(contador, 0, contador + 1, 1), "myNotMarker", "fullLine");
+            }
+            return true;
+        }
+
+        function getDebugStack(handleData) {
+            var tabla;
+            var gDebug = $.ajax({
+                url: 'http://127.0.0.1:3000/getDebugStack',
+                type: 'GET',
+                contentType: "application/json;charset=utf-8",
+                success: function (data, textStatus, xhr) {
+                    tabla = data;
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert('Error al obtener las debug stack... ');
+                }
+            });
+            gDebug.done(function () {
+                //document.getElementById("divReportAST").innerHTML = tabla;
+                //console.log("-------------------\n" + tabla + "\n------------------------");
+                handleData(tabla);
+            });
+        }
+
+        function getDebugHeap(handleData) {
+            var tabla;
+            var gDebug = $.ajax({
+                url: 'http://127.0.0.1:3000/getDebugHeap',
+                type: 'GET',
+                contentType: "application/json;charset=utf-8",
+                success: function (data, textStatus, xhr) {
+                    tabla = data;
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert('Error al obtener las debug heap... ');
+                }
+            });
+            gDebug.done(function () {
+                //document.getElementById("divReportAST").innerHTML = tabla;
+                //console.log("-------------------\n" + tabla + "\n------------------------");
+                handleData(tabla);
+            });
+        }
+
+        function getDebugTemp(handleData) {
+            var tabla;
+            var gDebug = $.ajax({
+                url: 'http://127.0.0.1:3000/getDebugTemp',
+                type: 'GET',
+                contentType: "application/json;charset=utf-8",
+                success: function (data, textStatus, xhr) {
+                    tabla = data;
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert('Error al obtener las debug Temp... ');
+                }
+            });
+            gDebug.done(function () {
+                //document.getElementById("divReportAST").innerHTML = tabla;
+                //console.log("-------------------\n" + tabla + "\n------------------------");
+                handleData(tabla);
+            });
+        }
+
+    </script>
+</body>
+
+</html>
