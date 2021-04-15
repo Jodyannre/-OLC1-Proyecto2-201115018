@@ -5,14 +5,17 @@ export default class tablaSimbolos
 {
     public tabla: Map<String, Simbolo>;
     private anterior: tablaSimbolos | any;
+    private siguientes: Array<tablaSimbolos> | any;
     private tipo: Tipo;
+    private ambito:number;
     //private funciones: Array<Func>;
 
-    constructor(anterior?:tablaSimbolos)
+    constructor(ambito:number,anterior?:tablaSimbolos)
     {
         this.anterior = anterior;
         this.tabla = new Map<String, Simbolo>();
         this.tipo = new Tipo(tipos.ENTERO);
+        this.ambito = ambito;
     }
 
     public setVariable(simbolo:Simbolo)
@@ -22,13 +25,19 @@ export default class tablaSimbolos
             var encontro:Simbolo = <Simbolo> (e.getTable().get(simbolo.getIdentificador()));
             if(encontro != null)
             {
-                return `La variable con el identificador ${simbolo.getIdentificador()} ya existe.`;
+                //return `La variable con el identificador ${simbolo.getIdentificador()} ya existe.`;
+                return false;
             }
             break;
         }
         this.tabla.set(simbolo.getIdentificador(), simbolo);// SE AGREGA LA VARIABLE
 
-        return `LA VARIABLE ${simbolo.getIdentificador()} SE CREO EXITOSAMENTE.`;
+        //return `LA VARIABLE ${simbolo.getIdentificador()} SE CREO EXITOSAMENTE.`;
+        return true;
+    }
+
+    public setVariableNueva(simbolo:Simbolo){
+        this.tabla.set(simbolo.getIdentificador(), simbolo)
     }
 
     public getVariable(indentificador: String)
@@ -48,6 +57,20 @@ export default class tablaSimbolos
         return this.tabla;
     }
 
+    public existe(id:string){
+        for(var e: tablaSimbolos = this; e != null; e = e.getAnterior())
+        {
+            let encontro:Simbolo = <Simbolo> (e.getTable().get(id));
+            if(encontro != null)
+            {
+                //return `La variable con el identificador ${simbolo.getIdentificador()} ya existe.`;
+                return encontro;
+            }
+            
+        }  
+        return null;      
+    }
+
     public setTable(Table: Map<String, Simbolo>) {
         this.tabla = Table;
     }
@@ -58,6 +81,18 @@ export default class tablaSimbolos
 
     public setAnterior(Anterior: tablaSimbolos) {
         this.anterior = Anterior;
+    }
+
+    public setAmbito(ambito:number){
+        this.ambito = ambito;
+    }
+
+    public getAmbito():number{
+        return this.ambito;
+    }
+
+    public addSiguiente(siguiente: tablaSimbolos){
+        this.siguientes.push(siguiente);
     }
 
 }

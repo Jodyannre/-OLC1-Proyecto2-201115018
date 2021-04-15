@@ -1,6 +1,8 @@
 import express from 'express';
 import routeTypesty from './routes/typesty.route';
 import cors from 'cors';
+import {controller} from './controllers/typesty.controller';
+const tipo = require('./controllers/analizador/tablaSimbolos/Tipo');
 
 /*
 const Excepcion = require('./controllers/analizador/Excepciones/Excepcion');
@@ -23,15 +25,15 @@ const path = require('path');
 //const middleware = require('./src/controllers/middleware');
 
 app.set('port', process.env.PORT || 3000);
-
 app.use(cors());
 app.use(express.json({limit:'50mb'}));
 app.use(express.urlencoded({limit:'50mb', extended: false}));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-
-
+//controller.exec("dot -Tsvg archivo.dot -o ./dist/public/images/arbol.svg"); //Código para crear el svg
+//console.log(tipo.tipos[1]);
+//console.log("hola");
 /*
 no = express.static(__dirname + '/public/images');
 app.use("/images",no);

@@ -10,7 +10,7 @@ export default class Simbolo
     {
         this.tipo = tipo;
         this.identificador = identificador;
-        if(valor)
+        if(valor!=null)
         {
             this.valor = valor;
         }
@@ -39,7 +39,7 @@ export default class Simbolo
     public getValor(){
         return this.valor;
     }
-    public setValor(valor: String)
+    public setValor(valor: any)
     {
         this.valor = valor;
     }

@@ -1,6 +1,9 @@
+import { nodoInstruccion } from "../Abstract/nodoInstruccion";
+const tipo = require('../tablaSimbolos/Tipo');
 export default class Tipo
 {
     private tipos: tipos;
+    
     
     constructor(tipos: tipos){
         this.tipos = tipos;
@@ -18,6 +21,12 @@ export default class Tipo
     public setTipo(tipo:tipos)
     {
         this.tipos = tipo;
+    }
+
+    public getNodoInstruccion(){
+        let nodo:nodoInstruccion = new nodoInstruccion("TIPO");
+        nodo.agregarHijoCadena(tipo.tipos[this.getTipos()]+"");
+        return nodo;
     }
 }
 
@@ -39,5 +48,18 @@ export enum tipos
     POTENCIA = 14,
     NEGACION = 15,
     INCREMENTO = 16,
-    DECREMENTO = 17
+    DECREMENTO = 17,
+    MAYOR = 18,
+    MENOR = 19,
+    IGUAL = 20,
+    MAYOR_I = 21,
+    MENOR_I = 22,
+    DIFERENTE = 23,
+    AND = 24,
+    OR = 25,
+    NOT = 26,
+    FUNCION = 27,
+    METODO = 28,
+    IDENTIFICADOR = 29,
+    DECLARACION = 30
 }

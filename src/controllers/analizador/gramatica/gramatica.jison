@@ -137,6 +137,22 @@
     const Primitivo = require('../Expresiones/Primitivo');
     const Imprimir = require('../Instrucciones/Imprimir');
 	const Aritmetica = require('../Expresiones/Aritmetica');
+	const Relacional = require('../Expresiones/Relacional');
+	const Logica = require('../Expresiones/Logica');
+	const Identificador = require('../Expresiones/Identificador');
+	const Declaracion = require('../Expresiones/Declaracion');
+	const Vector = require('../Expresiones/Vector');
+	const Lista = require('../Expresiones/Lista');
+	var pilaAuxiliar = [];
+
+
+	function crearVector(tipo,linea,columna,id,size,tipo_creacion,valor){
+		var nuevoVector = new Vector.default(tipo,linea,columna,id,parseInt(size),tipo_creacion,valor)
+		pilaAuxiliar = [];
+		return nuevoVector;
+	}
+
+
 %}
 
 /* Asociación de operadores y precedencia */
@@ -166,24 +182,24 @@ ini
 
 /*GRAMATICA OPERACIONES LÓGICAS Y ARITMÉTICAS-------------------------------*/
 condicion_logica
-	: condicion_logica AND condicion_logica {$$ = $1+' '+$2+' '+$3}
-	| condicion_logica OR condicion_logica {$$ = $1+' '+$2+' '+$3}
-	| NOT condicion_logica {$$ = $1+' '+$2}
-	| relacional {$$ = $1+' '}
+	: condicion_logica AND condicion_logica {$$ = new Logica.default($1,new Tipo.default(Tipo.tipos.AND),@1.first_line, @1.first_column,$3); }
+	| condicion_logica OR condicion_logica {$$ = new Logica.default($1,new Tipo.default(Tipo.tipos.OR),@1.first_line, @1.first_column,$3); }
+	| NOT condicion_logica {$$ = new Logica.default($2,new Tipo.default(Tipo.tipos.NOT),@1.first_line, @1.first_column); }
+	| relacional {$$ = $1}
 ;
 
 relacional
-	: relacional MAYOR_I relacional {$$ = $1+' '+$2+' '+$3}
-	| relacional MENOR_I relacional {$$ = $1+' '+$2+' '+$3}
-	| relacional IGUAL relacional {$$ = $1+' '+$2+' '+$3}
-	| relacional MENOR relacional {$$ = $1+' '+$2+' '+$3}
-	| relacional MAYOR relacional {$$ = $1+' '+$2+' '+$3}
-	| relacional DIFERENTE relacional {$$ = $1+' '+$2+' '+$3}
-	| expresion {$$ = $1+' '}
+	: relacional MAYOR_I relacional {$$ = new Relacional.default($1,$3,new Tipo.default(Tipo.tipos.MAYOR_I),@1.first_line, @1.first_column,$1); }
+	| relacional MENOR_I relacional {$$ = new Relacional.default($1,$3,new Tipo.default(Tipo.tipos.MENOR_I),@1.first_line, @1.first_column,$1); }
+	| relacional IGUAL relacional {$$ = new Relacional.default($1,$3,new Tipo.default(Tipo.tipos.IGUAL),@1.first_line, @1.first_column,$1); }
+	| relacional MENOR relacional {$$ = new Relacional.default($1,$3,new Tipo.default(Tipo.tipos.MENOR),@1.first_line, @1.first_column,$1); }
+	| relacional MAYOR relacional {$$ = new Relacional.default($1,$3,new Tipo.default(Tipo.tipos.MAYOR),@1.first_line, @1.first_column,$1); }
+	| relacional DIFERENTE relacional {$$ = new Relacional.default($1,$3,new Tipo.default(Tipo.tipos.DIFERENTE),@1.first_line, @1.first_column,$1); }
+	| expresion {$$ = $1}
 ;
 
 instruccionTemp
-	: expresion 				{$$ = [$1]}
+	: instrucciones_globales 			{$$ = $1}
 ;
 
 expresion
@@ -197,10 +213,10 @@ expresion
 	| expresion INCREMENTO  {$$ = new Aritmetica.default($1,new Tipo.default(Tipo.tipos.INCREMENTO),@1.first_line, @1.first_column); }
 	| expresion DECREMENTO  {$$ = new Aritmetica.default($1,new Tipo.default(Tipo.tipos.DECREMENTO),@1.first_line, @1.first_column); }
 	| PARENTESIS_A condicion_logica PARENTESIS_C {$$ = $1+' '+$2+' '+$3}
-	| ENTERO {$$ = new Primitivo.default( new Tipo.default(Tipo.tipos.ENTERO),$1, @1.first_line, @1.first_column); }
+	| ENTERO {$$ = new Primitivo.default( new Tipo.default(Tipo.tipos.ENTERO),parseInt($1,10), @1.first_line, @1.first_column); }
 	| DECIMAL { $$ = new Primitivo.default( new Tipo.default(Tipo.tipos.DECIMAL),$1, @1.first_line, @1.first_column); }
-	| TRUE { $$ = new Primitivo.default( new Tipo.default(Tipo.tipos.BOOLEANO),$1, @1.first_line, @1.first_column); }
-	| FALSE { $$ = new Primitivo.default( new Tipo.default(Tipo.tipos.BOOLEANO),$1, @1.first_line, @1.first_column); }
+	| TRUE { $$ = new Primitivo.default( new Tipo.default(Tipo.tipos.BOOLEANO),true, @1.first_line, @1.first_column); }
+	| FALSE { $$ = new Primitivo.default( new Tipo.default(Tipo.tipos.BOOLEANO),false, @1.first_line, @1.first_column); }
 	| CADENA { $$ = new Primitivo.default( new Tipo.default(Tipo.tipos.CADENA),$1, @1.first_line, @1.first_column); }
 	| CARACTER { $$ = new Primitivo.default( new Tipo.default(Tipo.tipos.CARACTER),$1, @1.first_line, @1.first_column); }
 	| ID //{ $$ = new Variable.default( new Tipo.default(Tipo.tipos.VARIABLE),$1, @1.first_line, @1.first_column); }
@@ -250,14 +266,19 @@ instruccion_local
 ;
 
 instrucciones_locales_metodo
-	: instruccion_local_metodo instrucciones_locales_metodo {$$ = $1+' '+$2}
-	| instruccion_local_metodo 								{$$ = $1+''}
+	: instruccion_local_metodo instrucciones_locales_metodo {
+																$1 = [$1];
+																$1.push($2);
+																$$ = $1;
+
+															}
+	| instruccion_local_metodo 								{$$ = [$1]}
 ;
 
 instruccion_local_metodo
 	: creacion_variable 			{$$ = $1+''}
-	| asignacion_variable 			{$$ = $1+''}
-	| manejo_vector_lista			{$$ = $1+''}
+	| asignacion_variable 			{$$ = $1}
+	| manejo_vector_lista			{$$ = $1}
 	| ciclo_for						{$$ = $1+''}
 	| ciclo_do_while				{$$ = $1+''}
 	| ciclo_while					{$$ = $1+''}
@@ -269,9 +290,9 @@ instruccion_local_metodo
 ;
 
 instruccion_global 
-	: creacion_variable 			{$$ = $1+''}
-	| asignacion_variable 			{$$ = $1+''}
-	| manejo_vector_lista			{$$ = $1+''}
+	: creacion_variable 			{$$ = $1}
+	| asignacion_variable 			{$$ = $1}
+	| manejo_vector_lista			{$$ = $1}
 	| ciclo_for						{$$ = $1+''}
 	| ciclo_do_while				{$$ = $1+''}
 	| ciclo_while					{$$ = $1+''}
@@ -282,18 +303,27 @@ instruccion_global
 ;
 
 creacion_variable
-	: asignacion_tipo asignacion_variable {$$ = $1+' '+$2}
+	: asignacion_tipo asignacion_variable 	{
+											/*$1*/ var id = $2.pop();
+											/*$2*/ var valor = $2.pop();
+											//var idNodo = new Identificador.default(new Tipo.default(Tipo.tipos.IDENTIFICADOR),id,@1.first_line, @1.first_column);
+											$$ = new Declaracion.default(id,$1,@1.first_line, @1.first_column,valor);
+											}
 ;
 
 asignacion_variable
-	: ID asignacion_valor_variable 				{$$ = $1+' '+$2}
+	: ID asignacion_valor_variable 				{ 
+												/*$1*/  $1 = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$1, @1.first_line, @1.first_column); 
+												/*$2*/  $2 = [$2]; $2.push($1);
+												$$ = $2;
+												}
 	| acceso_lista asignacion_valor_variable 	{$$ = $1+' '+$2}
 	| acceso_vector asignacion_valor_variable 	{$$ = $1+' '+$2}
 ;
 
 asignacion_valor_variable
-	: PUNTOCOMA 														{$$ = $1+''}	
-	| ASIGNACION condicion_logica PUNTOCOMA 							{$$ = $1+' '+$2+' '+$3}
+	: PUNTOCOMA 														{$$ = null}	
+	| ASIGNACION condicion_logica PUNTOCOMA 							{$$ = $2}
 	| ASIGNACION TO_UPPER PARENTESIS_A CADENA PARENTESIS_C PUNTOCOMA 	{$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
 	| ASIGNACION TO_UPPER PARENTESIS_A ID PARENTESIS_C PUNTOCOMA 		{$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
 	| ASIGNACION TO_LOWER PARENTESIS_A CADENA PARENTESIS_C PUNTOCOMA 	{$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
@@ -312,11 +342,11 @@ asignacion_valor_vector
 
 
 asignacion_tipo
-	: INT 		{$$ = $1+''}	
-	| BOOLEAN 	{$$ = $1+''}	
-	| STRING 	{$$ = $1+''}	
-	| DOUBLE 	{$$ = $1+''}	
-	| CHAR 		{$$ = $1+''}	
+	: INT 		{$$ = new Tipo.default(Tipo.tipos.ENTERO); }	
+	| BOOLEAN 	{$$ = new Tipo.default(Tipo.tipos.BOOLEANO); }	
+	| STRING 	{$$ = new Tipo.default(Tipo.tipos.CADENA); }	
+	| DOUBLE 	{$$ = new Tipo.default(Tipo.tipos.DECIMAL); }	
+	| CHAR 		{$$ = new Tipo.default(Tipo.tipos.CARACTER); }	
 ;
 /*GRAMATICA ASIGNACION VARIABLE---------------------------------------------*/
 
@@ -405,17 +435,29 @@ condicion_case
 
 /*MANEJO DE LISTAS Y VECTORES-----------------------------------------------*/
 manejo_vector_lista
-	: asignacion_tipo CORCHETE_A CORCHETE_C ID ASIGNACION NEW asignacion_tipo CORCHETE_A ENTERO CORCHETE_C PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7+' '+$8+' '+$9+' '+$10+' '+$11}
-	| asignacion_tipo CORCHETE_A CORCHETE_C ID ASIGNACION LLAVE_A elementos_coma LLAVE_C PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7+' '+$8+' '+$9}
+	: asignacion_tipo CORCHETE_A CORCHETE_C ID ASIGNACION NEW asignacion_tipo CORCHETE_A ENTERO CORCHETE_C PUNTOCOMA {
+		var id = new Identificador.default(new Tipo.default(Tipo.tipos.IDENTIFICADOR),$4,@1.first_line, @1.first_column);
+		var v = crearVector($1,@1.first_line, @1.first_column,id,$9,$7,null);
+		$$ = new Declaracion.default(v.getId(),new Tipo.default(Tipo.tipos.VECTOR),@1.first_line, @1.first_column,v);	
+		}
+	| asignacion_tipo CORCHETE_A CORCHETE_C ID ASIGNACION LLAVE_A elementos_coma LLAVE_C PUNTOCOMA {
+		var id = new Identificador.default(new Tipo.default(Tipo.tipos.IDENTIFICADOR),$4,@1.first_line, @1.first_column);
+		var v = crearVector($1,@1.first_line, @1.first_column,id,0,$1,$7);
+		$$ = new Declaracion.default(v.getId(),new Tipo.default(Tipo.tipos.VECTOR),@1.first_line, @1.first_column,v);
+		}
 	//| acceso_vector ASIGNACION operacion_aritmetica PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4}
-	| LISTA MENOR asignacion_tipo MAYOR ID ASIGNACION NEW LISTA MENOR asignacion_tipo MAYOR PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7+' '+$8+' '+$9+' '+$10+' '+$11+' '+$12}
+	| LISTA MENOR asignacion_tipo MAYOR ID ASIGNACION NEW LISTA MENOR asignacion_tipo MAYOR PUNTOCOMA {
+		var id = new Identificador.default(new Tipo.default(Tipo.tipos.IDENTIFICADOR),$5,@1.first_line, @1.first_column);
+		var l =  new Lista.default($3,@1.first_line, @1.first_column,id,$10);
+		$$ = new Declaracion.default(id,new Tipo.default(Tipo.tipos.LISTA),@1.first_line, @1.first_column,l);
+		}
 	| ID PUNTO ADD PARENTESIS_A expresion PARENTESIS_C PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7}
 	//| acceso_lista ASIGNACION operacion_aritmetica PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4}
 ;
 
 elementos_coma
-	: expresion COMA elementos_coma {$$ = $1+' '+$2+' '+$3}
-	| expresion 					{$$ = $1+' '}
+	: expresion COMA elementos_coma {pilaAuxiliar.push($1); $$ = pilaAuxiliar}
+	| expresion 					{pilaAuxiliar.push($1); }
 ;
 
 acceso_vector

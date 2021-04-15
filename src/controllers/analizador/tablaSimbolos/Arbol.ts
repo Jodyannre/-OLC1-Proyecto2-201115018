@@ -8,12 +8,23 @@ export default class Arbol {
     private errores: Array<Excepcion>;
     private consola: String;
     private global: tablaSimbolos;
+    private siguientes: Array<Arbol>|any;
 
     constructor(instrucciones: Array<Instruccion>){
         this.instrucciones = instrucciones;
         this.consola = "";
-        this.global = new tablaSimbolos();
+        this.global = new tablaSimbolos(0);
         this.errores = new Array<Excepcion>();
+        this.siguientes = new Array<Arbol>();
+    }
+
+
+    public addSiguiente(siguiente:Arbol){
+        this.siguientes.push(siguiente);
+    }
+
+    public addError(err:Excepcion){
+        this.errores.push(err);
     }
 
     public getInstrucciones():Array<Instruccion>{
@@ -50,5 +61,9 @@ export default class Arbol {
 
     public setGlobal(tabla:tablaSimbolos){
         this.global = tabla;
+    }
+
+    public setAmbito(ambito:number){
+        this.global.setAmbito(ambito);
     }
 }

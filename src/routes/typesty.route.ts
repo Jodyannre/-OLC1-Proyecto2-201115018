@@ -20,4 +20,9 @@ router.get('/',(req,res)=>{
 //Instrucción put para el botón parse
 router.put('/parse',controller.interpretar);
 
+//Intrucción para traer el resultado hacia la consola de la página
+router.get('/getConsola', (req,res)=>{
+    res.send("hola");
+});
+
 export default router;

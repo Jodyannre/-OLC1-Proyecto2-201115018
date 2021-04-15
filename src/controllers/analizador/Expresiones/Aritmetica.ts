@@ -3,6 +3,7 @@ import Arbol from "../tablaSimbolos/Arbol";
 import tablaSimbolos from "../tablaSimbolos/tablaSimbolos";
 import Tipo from "../tablaSimbolos/Tipo";
 import Excepcion from "../Excepciones/Excepcion";
+import { nodoInstruccion } from "../Abstract/nodoInstruccion";
 
 
 const tipo = require('../tablaSimbolos/Tipo');
@@ -16,9 +17,19 @@ export default class Aritmetica extends Instruccion{
     private operandoAritmetico:Tipo;
     private preAscii:any;
 
-    //private operandoIzq:Instruccion;
-    //private operandoU:Instruccion;
-    //private final operador:Tipo;
+
+    public getNodoInstruccion():nodoInstruccion{
+        let nodo:nodoInstruccion = new nodoInstruccion('ARITMÉTICA');
+        if (this.operandoUnario){
+            nodo.agregarHijoCadena(tipo.tipos[this.operandoUnario.getTipos()]+"");
+            nodo.agregarHijoNodo(this.operandoDer.getNodoInstruccion());
+        }else{
+            nodo.agregarHijoNodo(this.operandoIzq.getNodoInstruccion());
+            nodo.agregarHijoCadena(tipo.tipos[this.operandoAritmetico.getTipos()]+"");
+            nodo.agregarHijoNodo(this.operandoDer.getNodoInstruccion());
+        }
+        return nodo;
+    }
 
     public getOperando(){
         return this.operandoDer;
@@ -62,7 +73,6 @@ export default class Aritmetica extends Instruccion{
             switch(this.operandoAritmetico.getTipos()){
                 case 9: // 9 == suma
                 ////////////////////////////////////////////////////////////////////////////////////////////////
-
                     if (this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO) {
                         this.tipo = new Tipo(tipo.tipos.ENTERO);
@@ -620,6 +630,6 @@ export default class Aritmetica extends Instruccion{
                     break;
             }
         }
-        return this.valor;
+        return null;
     }
 }

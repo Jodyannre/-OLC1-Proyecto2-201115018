@@ -5,7 +5,7 @@ import Tipo from "../tablaSimbolos/Tipo";
 import { nodoInstruccion } from "../Abstract/nodoInstruccion";
 
 
-export default class Primitivo extends Instruccion{
+export default class Identificador extends Instruccion{
     private valor: any;
 
     constructor(tipo:Tipo, valor:any, linea:Number, columna:Number){
@@ -18,9 +18,13 @@ export default class Primitivo extends Instruccion{
     }
 
     public getNodoInstruccion():nodoInstruccion{
-        let nodo:nodoInstruccion = new nodoInstruccion("PRIMITIVO");
+        let nodo:nodoInstruccion = new nodoInstruccion("IDENTIFICADOR");
         nodo.agregarHijoCadena(this.valor+"");
         return nodo;
+    }
+
+    public getValor():string{
+        return this.valor;
     }
 
 }
