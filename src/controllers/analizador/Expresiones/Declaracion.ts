@@ -12,18 +12,32 @@ import Vector from "./Vector";
 import Lista from "./Lista";
 import Simbolo from "../tablaSimbolos/Simbolo";
 import Identificador from "./Identificador";
+import Asignacion from "./Asignacion";
+import ToCharArray from "../Instrucciones/toCharArray";
 const tipo = require('../tablaSimbolos/Tipo');
 const vector = require('../Expresiones/Vector');
+const lista = require('../Expresiones/Lista');
 export default class Declaracion extends Instruccion{
 
     private id:Identificador;
     private valor:any;
+    private asignacion:any;
+    private asignacionTipo:any;
 
     constructor(id:Identificador,tipo:Tipo, linea : Number, columna:Number, valor?:any){
         super(tipo,linea,columna);
         this.id = id;
         if(valor){
-            this.valor = valor;
+            if (valor instanceof Asignacion){
+                this.asignacion = valor;
+                this.valor = valor.getInstruccion();
+            }else if(valor instanceof ToCharArray){
+                this.asignacion = valor;
+                this.valor = new lista.default();
+            }else{
+                this.valor = valor;
+            }
+            
         }else{
             this.valor = null;
         }
@@ -52,8 +66,11 @@ export default class Declaracion extends Instruccion{
         }else{
 
             if (this.valor instanceof Vector){
-                    nodo.agregarHijoNodo(this.valor.getNodoInstruccion());
-            }else
+                nodo.agregarHijoNodo(this.valor.getNodoInstruccion());
+            }else if (this.valor instanceof Lista){
+                nodo.agregarHijoNodo(this.valor.getNodoInstruccion());
+            }  
+            else
             {
             let nodo2:nodoInstruccion = new nodoInstruccion('VARIABLE');
             nodo2.agregarHijoNodo(this.tipo.getNodoInstruccion());
@@ -82,37 +99,54 @@ export default class Declaracion extends Instruccion{
             }else if (this.tipo.getTipos()===tipo.tipos.CADENA){
                 nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.CADENA),this.id.getValor(),"");
             }else if (this.tipo.getTipos()===tipo.tipos.DECIMAL){
-                nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.CADENA),this.id.getValor(),parseFloat("0.0"));
+                nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.DECIMAL),this.id.getValor(),parseFloat("0.0"));
             }else if (this.tipo.getTipos()===tipo.tipos.BOOLEANO){
-                nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.CADENA),this.id.getValor(),true);
+                nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.BOOLEANO),this.id.getValor(),true);
             }else if (this.tipo.getTipos()===tipo.tipos.CARACTER){
-                nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.CADENA),this.id.getValor(),'\u0000');
+                nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.CARACTER),this.id.getValor(),'\u0000');
             }else if (this.tipo.getTipos()===tipo.tipos.VECTOR){
                 nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.VECTOR),this.id.getValor(),null);
             }else if (this.tipo.getTipos()===tipo.tipos.LISTA){
-                nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.VECTOR),this.id.getValor(),null);
+
+                nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.LISTA),this.id.getValor(),null);
             }
             table.setVariableNueva(nuevoSimbolo);
             return true;
 
         }else if (this.pasada ===1){ //Asignar valores
             if (this.valor){
-                valorFinal = this.valor.interpretar(tree,table);                         
-                var verificarTipo = this.verificacionTipos(valorFinal,tree, table);
-                if (verificarTipo instanceof Excepcion){
-                    table.tabla.delete(this.id.getValor()); //La elimino de la tabla de símbolos
-                    return verificarTipo; //Retorno el error
-                }else{
-                    //Si la verificación de tipos esta bien entonces asigna el valor
-                    let simbolo:any = table.tabla.get(this.id.getValor()); //Get el símbolo de la tabla
-                    simbolo.setValor(valorFinal); //Actualizar valor del símbolo en la tabla
-                    return true;
-                }          
+                if (this.valor.getTipo().getTipos()    != tipo.tipos.LENGTH
+                    && this.valor.getTipo().getTipos() != tipo.tipos.TRUNCATE
+                    && this.valor.getTipo().getTipos() != tipo.tipos.ROUND
+                    &&this.valor.getTipo().getTipos()  != tipo.tipos.TO_STRING
+                    &&this.valor.getTipo().getTipos()  != tipo.tipos.TO_CHAR_ARRAY
+                    &&this.valor.getTipo().getTipos()  != tipo.tipos.TYPEOF){
+                    valorFinal = this.valor.interpretar(tree,table);                         
+                    var verificarTipo = this.verificacionTipos(valorFinal,tree, table);
+                    if (verificarTipo instanceof Excepcion){
+                        table.tabla.delete(this.id.getValor()); //La elimino de la tabla de símbolos
+                        return verificarTipo; //Retorno el error
+                    }else{
+                        //Si la verificación de tipos esta bien entonces asigna el valor
+                        let simbolo:any = table.tabla.get(this.id.getValor()); //Get el símbolo de la tabla
+                        simbolo.setValor(valorFinal); //Actualizar valor del símbolo en la tabla
+                        return true;
+                    }   
+                }else if (this.valor.getTipo().getTipos() === tipo.tipos.LENGTH
+                        ||this.valor.getTipo().getTipos() === tipo.tipos.TRUNCATE 
+                        ||this.valor.getTipo().getTipos() === tipo.tipos.ROUND
+                        ||this.valor.getTipo().getTipos() === tipo.tipos.TO_STRING
+                        ||this.valor.getTipo().getTipos() === tipo.tipos.TO_CHAR_ARRAY
+                        ||this.valor.getTipo().getTipos() === tipo.tipos.TYPEOF){
+                    this.asignacion.setPasada(1);
+                    return this.asignacion.interpretar(tree,table);
+                }
+       
             }else{
                 //Se queda igual sin cambios en la tabla
                 return true;
             }
-        }else{ //Ámbitos locales
+        }else{ //Ámbitos locales todavía no esta bien construida
             if (this.valor){
                 let nuevoSimbolo:any;
                 valorFinal = this.valor.interpretar(tree,table); //Get valor
@@ -126,11 +160,15 @@ export default class Declaracion extends Instruccion{
                 }else if (this.tipo.getTipos()===tipo.tipos.CADENA){
                     nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.CADENA),this.id.getValor(),"");
                 }else if (this.tipo.getTipos()===tipo.tipos.DECIMAL){
-                    nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.CADENA),this.id.getValor(),parseFloat("0.0"));
+                    nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.DECIMAL),this.id.getValor(),parseFloat("0.0"));
                 }else if (this.tipo.getTipos()===tipo.tipos.BOOLEANO){
-                    nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.CADENA),this.id.getValor(),true);
-                }else /*(this.tipo.getTipos()===tipo.tipos.CARACTER)*/{
-                    nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.CADENA),this.id.getValor(),'\u0000');
+                    nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.BOOLEANO),this.id.getValor(),true);
+                }else if (this.tipo.getTipos()===tipo.tipos.CARACTER){
+                    nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.CARACTER),this.id.getValor(),'\u0000');
+                }else if (this.tipo.getTipos()===tipo.tipos.VECTOR){
+                    nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.VECTOR),this.id.getValor(),null);
+                }else if (this.tipo.getTipos()===tipo.tipos.LISTA){
+                    nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.LISTA),this.id.getValor(),null);
                 }
                 table.setVariableNueva(nuevoSimbolo);  
                 return true;              

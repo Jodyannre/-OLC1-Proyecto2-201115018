@@ -143,14 +143,78 @@
 	const Declaracion = require('../Expresiones/Declaracion');
 	const Vector = require('../Expresiones/Vector');
 	const Lista = require('../Expresiones/Lista');
+	const toUpper = require('../Instrucciones/toUpper');
+	const toLower = require('../Instrucciones/toLower');
+	const Length = require('../Instrucciones/Length');
+	const Truncate = require('../Instrucciones/Truncate');
+	const Round = require('../Instrucciones/Round');
+	const Typeof = require('../Instrucciones/Typeof');
+	const ToString = require('../Instrucciones/toString');
+	const ToCharArray = require('../Instrucciones/toCharArray');
+	const Asignacion = require('../Expresiones/Asignacion');
 	var pilaAuxiliar = [];
 
 
 	function crearVector(tipo,linea,columna,id,size,tipo_creacion,valor){
-		var nuevoVector = new Vector.default(tipo,linea,columna,id,parseInt(size),tipo_creacion,valor)
+		var nuevoVector = new Vector.default(tipo,linea,columna,id,parseInt(size),tipo_creacion,valor);
 		pilaAuxiliar = [];
 		return nuevoVector;
 	}
+
+	function crearToUpper(expresion, linea, columna, retorno){
+		var nuevoNodo = new toUpper.default(expresion, linea, columna, retorno);
+		pilaAuxiliar = [];
+		return nuevoNodo;
+	}
+
+	function crearToLower(expresion, linea, columna, retorno){
+		var nuevoNodo = new toLower.default(expresion, linea, columna, retorno);
+		pilaAuxiliar = [];
+		return nuevoNodo;
+	}
+
+	function crearLength(expresion, linea, columna, retorno){
+		var nuevoNodo = new Length.default(expresion, linea, columna, retorno);
+		pilaAuxiliar = [];
+		return nuevoNodo;
+	}
+
+	function crearTruncate(expresion, linea, columna, retorno){
+		var nuevoNodo = new Truncate.default(expresion, linea, columna, retorno);
+		pilaAuxiliar = [];
+		return nuevoNodo;
+	}
+
+	function crearRound(expresion, linea, columna, retorno){
+		var nuevoNodo = new Round.default(expresion, linea, columna, retorno);
+		pilaAuxiliar = [];
+		return nuevoNodo;
+	}
+
+	function crearTypeof(expresion, linea, columna, retorno){
+		var nuevoNodo = new Typeof.default(expresion, linea, columna, retorno);
+		pilaAuxiliar = [];
+		return nuevoNodo;
+	}
+
+	function crearToString(expresion, linea, columna, retorno){
+		var nuevoNodo = new ToString.default(expresion, linea, columna, retorno);
+		pilaAuxiliar = [];
+		return nuevoNodo;
+	}
+
+	function crearToCharArray(expresion, linea, columna, retorno){
+		var nuevoNodo = new ToCharArray.default(expresion, linea, columna, retorno);
+		pilaAuxiliar = [];
+		return nuevoNodo;
+	}
+
+	function crearAsignacion(id,linea,columna,instruccion){
+		var tipo = new Tipo.default(Tipo.tipos.ASIGNACION);
+		var nuevaAsignacion = new Asignacion.default(id,tipo,linea,columna,instruccion);
+		pilaAuxiliar = [];
+		return nuevaAsignacion;
+	}	
 
 
 %}
@@ -214,12 +278,12 @@ expresion
 	| expresion DECREMENTO  {$$ = new Aritmetica.default($1,new Tipo.default(Tipo.tipos.DECREMENTO),@1.first_line, @1.first_column); }
 	| PARENTESIS_A condicion_logica PARENTESIS_C {$$ = $1+' '+$2+' '+$3}
 	| ENTERO {$$ = new Primitivo.default( new Tipo.default(Tipo.tipos.ENTERO),parseInt($1,10), @1.first_line, @1.first_column); }
-	| DECIMAL { $$ = new Primitivo.default( new Tipo.default(Tipo.tipos.DECIMAL),$1, @1.first_line, @1.first_column); }
+	| DECIMAL { $$ = new Primitivo.default( new Tipo.default(Tipo.tipos.DECIMAL),parseFloat($1), @1.first_line, @1.first_column); }
 	| TRUE { $$ = new Primitivo.default( new Tipo.default(Tipo.tipos.BOOLEANO),true, @1.first_line, @1.first_column); }
 	| FALSE { $$ = new Primitivo.default( new Tipo.default(Tipo.tipos.BOOLEANO),false, @1.first_line, @1.first_column); }
 	| CADENA { $$ = new Primitivo.default( new Tipo.default(Tipo.tipos.CADENA),$1, @1.first_line, @1.first_column); }
 	| CARACTER { $$ = new Primitivo.default( new Tipo.default(Tipo.tipos.CARACTER),$1, @1.first_line, @1.first_column); }
-	| ID //{ $$ = new Variable.default( new Tipo.default(Tipo.tipos.VARIABLE),$1, @1.first_line, @1.first_column); }
+	| ID {$$ = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$1, @1.first_line, @1.first_column); }
 	| acceso_vector {$$ = $1+' '}
 	| acceso_lista {$$ = $1+' '}
 ; 
@@ -229,21 +293,42 @@ expresion
 
 /*METODOS NATIVOS-----------------------------------------------------------*/
 metodos_nativos
-	: LENGTH PARENTESIS_A CADENA PARENTESIS_C 			{$$ = $1+' '+$2+' '+$3+' '+$4}
-	| LENGTH PARENTESIS_A acceso_lista PARENTESIS_C 	{$$ = $1+' '+$2+' '+$3+' '+$4}
-	| LENGTH PARENTESIS_A acceso_vector PARENTESIS_C	{$$ = $1+' '+$2+' '+$3+' '+$4}
-	| LENGTH PARENTESIS_A ID PARENTESIS_C				{$$ = $1+' '+$2+' '+$3+' '+$4}
-	| TRUNCATE PARENTESIS_A numero PARENTESIS_C			{$$ = $1+' '+$2+' '+$3+' '+$4}
-	| TRUNCATE PARENTESIS_A ID PARENTESIS_C				{$$ = $1+' '+$2+' '+$3+' '+$4}
-	| TYPEOF PARENTESIS_A expresion PARENTESIS_C		{$$ = $1+' '+$2+' '+$3+' '+$4}
-	| TO_STRING PARENTESIS_A ID PARENTESIS_C			{$$ = $1+' '+$2+' '+$3+' '+$4}
-	| TO_STRING PARENTESIS_A numero PARENTESIS_C		{$$ = $1+' '+$2+' '+$3+' '+$4}
-	| TO_STRING PARENTESIS_A TRUE PARENTESIS_C			{$$ = $1+' '+$2+' '+$3+' '+$4}
-	| TO_STRING PARENTESIS_A FALSE PARENTESIS_C			{$$ = $1+' '+$2+' '+$3+' '+$4}
-	| TO_CHAR_ARRAY PARENTESIS_A CADENA PARENTESIS_C	{$$ = $1+' '+$2+' '+$3+' '+$4}
-	| TO_CHAR_ARRAY PARENTESIS_A ID PARENTESIS_C		{$$ = $1+' '+$2+' '+$3+' '+$4}
-	| ROUND PARENTESIS_A DECIMAL PARENTESIS_C			{$$ = $1+' '+$2+' '+$3+' '+$4}
-	| ROUND PARENTESIS_A ID PARENTESIS_C				{$$ = $1+' '+$2+' '+$3+' '+$4}
+	: LENGTH PARENTESIS_A expresion PARENTESIS_C 		
+	{
+		var tipo = new Tipo.default(Tipo.tipos.ENTERO); 
+		var nodo = crearLength($3, @1.first_line, @1.first_column, tipo);
+		$$ = nodo;
+	}
+	| TRUNCATE PARENTESIS_A expresion PARENTESIS_C		
+	{
+		var tipo = new Tipo.default(Tipo.tipos.ENTERO); 
+		var nodo = crearTruncate($3, @1.first_line, @1.first_column, tipo);
+		$$ = nodo;		
+	}
+	| TYPEOF PARENTESIS_A expresion PARENTESIS_C		
+	{
+		var tipo = new Tipo.default(Tipo.tipos.CADENA); 
+		var nodo = crearTypeof($3, @1.first_line, @1.first_column, tipo);
+		$$ = nodo;			
+	}
+	| TO_STRING PARENTESIS_A expresion PARENTESIS_C			
+	{
+		var tipo = new Tipo.default(Tipo.tipos.CADENA); 
+		var nodo = crearToString($3, @1.first_line, @1.first_column, tipo);
+		$$ = nodo;			
+	}
+	| TO_CHAR_ARRAY PARENTESIS_A expresion PARENTESIS_C	
+	{
+		var tipo = new Tipo.default(Tipo.tipos.LISTA); 
+		var nodo = crearToCharArray($3, @1.first_line, @1.first_column, tipo);
+		$$ = nodo;		
+	}
+	| ROUND PARENTESIS_A expresion PARENTESIS_C			
+	{
+		var tipo = new Tipo.default(Tipo.tipos.ENTERO); 
+		var nodo = crearRound($3, @1.first_line, @1.first_column, tipo);
+		$$ = nodo;		
+	}
 ;
 /*METODOS NATIVOS-----------------------------------------------------------*/
 
@@ -304,34 +389,42 @@ instruccion_global
 
 creacion_variable
 	: asignacion_tipo asignacion_variable 	{
-											/*$1*/ var id = $2.pop();
-											/*$2*/ var valor = $2.pop();
+											var id = $2.getId();
 											//var idNodo = new Identificador.default(new Tipo.default(Tipo.tipos.IDENTIFICADOR),id,@1.first_line, @1.first_column);
-											$$ = new Declaracion.default(id,$1,@1.first_line, @1.first_column,valor);
+											$$ = new Declaracion.default(id,$1,@1.first_line, @1.first_column,$2);
 											}
 ;
 
 asignacion_variable
-	: ID asignacion_valor_variable 				{ 
-												/*$1*/  $1 = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$1, @1.first_line, @1.first_column); 
-												/*$2*/  $2 = [$2]; $2.push($1);
-												$$ = $2;
-												}
+	: ID asignacion_valor_variable 				
+	{ 
+		var id = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$1, @1.first_line, @1.first_column); 
+		var asignacion = crearAsignacion(id,@1.first_line, @1.first_column,$2);
+		$$ = asignacion;
+	}
 	| acceso_lista asignacion_valor_variable 	{$$ = $1+' '+$2}
 	| acceso_vector asignacion_valor_variable 	{$$ = $1+' '+$2}
 ;
 
 asignacion_valor_variable
-	: PUNTOCOMA 														{$$ = null}	
-	| ASIGNACION condicion_logica PUNTOCOMA 							{$$ = $2}
-	| ASIGNACION TO_UPPER PARENTESIS_A CADENA PARENTESIS_C PUNTOCOMA 	{$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
-	| ASIGNACION TO_UPPER PARENTESIS_A ID PARENTESIS_C PUNTOCOMA 		{$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
-	| ASIGNACION TO_LOWER PARENTESIS_A CADENA PARENTESIS_C PUNTOCOMA 	{$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
-	| ASIGNACION TO_LOWER PARENTESIS_A ID PARENTESIS_C PUNTOCOMA 		{$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
+	: PUNTOCOMA 																{$$ = null}	
+	| ASIGNACION condicion_logica PUNTOCOMA 									{$$ = $2}
+	| ASIGNACION TO_UPPER PARENTESIS_A condicion_logica PARENTESIS_C PUNTOCOMA 	
+	{
+		var tipo = new Tipo.default(Tipo.tipos.CADENA); 
+		var nodo = crearToUpper($4, @1.first_line, @1.first_column, tipo);
+		$$ = nodo;
+	}
+	| ASIGNACION TO_LOWER PARENTESIS_A condicion_logica PARENTESIS_C PUNTOCOMA 	
+	{
+		var tipo = new Tipo.default(Tipo.tipos.CADENA); 
+		var nodo = crearToLower($4, @1.first_line, @1.first_column, tipo);
+		$$ = nodo;
+	}
 	| ASIGNACION PARENTESIS_A INT PARENTESIS_C expresion PUNTOCOMA 		{$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
 	| ASIGNACION PARENTESIS_A CHAR PARENTESIS_C expresion PUNTOCOMA 	{$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
 	| ASIGNACION PARENTESIS_A DOUBLE PARENTESIS_C expresion PUNTOCOMA 	{$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
-	| ASIGNACION metodos_nativos PUNTOCOMA 								{$$ = $1+' '+$2+' '+$3}
+	| ASIGNACION metodos_nativos PUNTOCOMA 								{$$ = $2}
 	| ASIGNACION condicion_logica TERNARIO expresion DOSPUNTOS expresion PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7}
 ;
 
@@ -451,6 +544,13 @@ manejo_vector_lista
 		var l =  new Lista.default($3,@1.first_line, @1.first_column,id,$10);
 		$$ = new Declaracion.default(id,new Tipo.default(Tipo.tipos.LISTA),@1.first_line, @1.first_column,l);
 		}
+	| LISTA MENOR asignacion_tipo MAYOR ID ASIGNACION metodos_nativos PUNTOCOMA
+	{	
+		var id = new Identificador.default(new Tipo.default(Tipo.tipos.IDENTIFICADOR),$5,@1.first_line, @1.first_column);
+		//var l =  new Lista.default($3,@1.first_line, @1.first_column,id,new Tipo.default(Tipo.tipos.CARACTER),$7);
+		var asignacion = crearAsignacion(id,@1.first_line, @1.first_column,$7);
+		$$ = new Declaracion.default(id,new Tipo.default(Tipo.tipos.CARACTER),@1.first_line, @1.first_column,$7);
+	}
 	| ID PUNTO ADD PARENTESIS_A expresion PARENTESIS_C PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7}
 	//| acceso_lista ASIGNACION operacion_aritmetica PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4}
 ;

@@ -13,6 +13,7 @@ export default class Lista extends Instruccion{
     private id:Identificador;
     private size:number;
     private tipoCreacion:Tipo;
+    private asignacion:any;
 
 
     constructor(tipo:Tipo, linea:Number, columna:Number,id:Identificador,tipoCreacion:Tipo){
@@ -33,10 +34,15 @@ export default class Lista extends Instruccion{
 
     public add(valor:any){
         this.valor.push(valor);
+        this.count();
     }
 
     public getSize():number{
         return this.size;
+    }
+
+    public count(){
+        this.size++;
     }
 
     public getTipo():Tipo{

@@ -102,7 +102,6 @@ export default class IF extends Instruccion{
                             var eliminar = m;
                             while(true){
                                 eliminar = this.sino.pop();
-                                voyr por el minuto 1:05 del vídeo
                             }
                             return r;
                         }

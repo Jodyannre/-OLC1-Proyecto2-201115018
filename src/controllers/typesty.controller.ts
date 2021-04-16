@@ -4,6 +4,7 @@ import Arbol from './analizador/tablaSimbolos/Arbol';
 import tablaSimbolos from './analizador/tablaSimbolos/tablaSimbolos';
 import {Instruccion} from './analizador/Abstract/Instruccion';
 import { nodoInstruccion } from "./analizador/Abstract/nodoInstruccion";
+import Asignacion from "./analizador/Expresiones/Asignacion";
 const { exec } = require("child_process");
 var Errors:Array<Excepcion> = new Array<Excepcion>();
 
@@ -27,6 +28,9 @@ class typestyController{
             ast.setGlobal(tabla);
 
             for(let m of ast.getInstrucciones()){
+                if (m instanceof Asignacion){
+                    continue;
+                }
                 m.setPasada(0);
                 if(m instanceof Excepcion){ // ERRORES SINTACTICOS
                     Errors.push(m);
@@ -76,7 +80,36 @@ class typestyController{
                 index -= corrimiento;
                 ast.getInstrucciones().splice(index, 1); //Eliminar instrucciones con errores
                 corrimiento++;
-            }            
+            }  
+            
+            
+            //Ultima pasada
+            /*
+            instruccionesEliminar = [];
+            for(let m of ast.getInstrucciones()){
+                if (m instanceof Asignacion){
+                    continue;
+                }
+                m.setPasada(2);
+                var result = m.interpretar(ast, tabla);
+                if(result instanceof Excepcion){ // ERRORES SEMÁNTICOS
+                    Errors.push(result);
+                    ast.updateConsola((<Excepcion>result).toString());
+                    let lista:Array<Instruccion>= ast.getInstrucciones(); //Buscar index de instrucciones con errores
+                    let index: number = lista.findIndex(lista => lista === m);
+                    if (index != -1) {
+                        instruccionesEliminar.push(index);
+                        //ast.getInstrucciones().splice(index, 1);
+                    }
+                }
+            }
+            corrimiento = 0;
+            for (let index of instruccionesEliminar){
+                index -= corrimiento;
+                ast.getInstrucciones().splice(index, 1); //Eliminar instrucciones con errores
+                corrimiento++;
+            } 
+            */
             res.json({consola:ast.getConsola(), Errores: Errors});
             console.log(ast.getConsola());
 

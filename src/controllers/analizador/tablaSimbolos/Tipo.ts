@@ -61,5 +61,15 @@ export enum tipos
     FUNCION = 27,
     METODO = 28,
     IDENTIFICADOR = 29,
-    DECLARACION = 30
+    DECLARACION = 30,
+    TO_UPPER = 31,
+    TO_LOWER = 32,
+    LENGTH = 33,
+    TRUNCATE = 34,
+    TYPEOF = 35,
+    TO_CHAR_ARRAY = 36,
+    ROUND = 37,
+    TO_STRING = 38,
+    ACCESO_VECTOR = 50,
+    ACCESO_LISTA = 51
 }
