@@ -92,6 +92,11 @@ export default class Asignacion extends Instruccion{
         if (esTipo3){
             var simbolo = this.id.interpretar(tree,table);
             if (simbolo!=null){
+                if (simbolo.getValor()===null){
+                    var ex:Excepcion = new Excepcion("Semántico", "Variable no existe.", this.linea, this.columna);
+                    tree.getExcepciones().push(ex);
+                    return ex;                
+                }
                 var resultTipo = this.instruccion.getTipoRetorno().getTipos() === simbolo.getTipo().getTipos();
                 if (resultTipo){
                     //Si el tipo es correcto

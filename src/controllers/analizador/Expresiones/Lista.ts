@@ -13,7 +13,6 @@ export default class Lista extends Instruccion{
     private id:Identificador;
     private size:number;
     private tipoCreacion:Tipo;
-    private asignacion:any;
 
 
     constructor(tipo:Tipo, linea:Number, columna:Number,id:Identificador,tipoCreacion:Tipo){

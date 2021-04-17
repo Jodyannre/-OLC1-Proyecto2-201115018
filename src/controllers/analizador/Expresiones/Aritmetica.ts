@@ -4,8 +4,10 @@ import tablaSimbolos from "../tablaSimbolos/tablaSimbolos";
 import Tipo from "../tablaSimbolos/Tipo";
 import Excepcion from "../Excepciones/Excepcion";
 import { nodoInstruccion } from "../Abstract/nodoInstruccion";
+import Simbolo from "../tablaSimbolos/Simbolo";
+import Primitivo from "./Primitivo";
 
-
+const primitivo = require('../Expresiones/Primitivo');
 const tipo = require('../tablaSimbolos/Tipo');
 
 export default class Aritmetica extends Instruccion{
@@ -51,7 +53,7 @@ export default class Aritmetica extends Instruccion{
     }
 
 
-    public interpretar(tree:Arbol, table:tablaSimbolos){
+    public interpretar(tree:Arbol, table:tablaSimbolos):any{
         let izquierdo:any = null, derecho:any = null, unario:any = null;
         if (!this.operandoUnario) {
             izquierdo = this.operandoIzq.interpretar(tree,table);
@@ -99,6 +101,11 @@ export default class Aritmetica extends Instruccion{
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
                         return parseInt(derecho, 10) + ASCII;
                     }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoAritmetico);            
+                    }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO)
                     {
@@ -126,6 +133,11 @@ export default class Aritmetica extends Instruccion{
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
                         return parseFloat(derecho) + ASCII;
                     }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoAritmetico);
+                    }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.BOOLEANO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO)
                     {
@@ -139,6 +151,11 @@ export default class Aritmetica extends Instruccion{
                         let numBooleano = derecho.toLowerCase()==='true'? 1+parseFloat(izquierdo):parseFloat(izquierdo); //Get el número del booleano
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
                         return numBooleano;
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.BOOLEANO
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoAritmetico);
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO)
@@ -161,6 +178,46 @@ export default class Aritmetica extends Instruccion{
                     {
                         this.tipo = new Tipo(tipo.tipos.CADENA);
                         return "" + izquierdo + derecho;
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoAritmetico);
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoAritmetico);
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoAritmetico);
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoAritmetico);
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.BOOLEANO)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoAritmetico);
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.CADENA)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoAritmetico);
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.CADENA
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoAritmetico);
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarAmbosId(derecho,izquierdo,tree,table,this.operandoAritmetico);
                     }
                     else if (this.operandoDer.tipo.getTipos() == tipo.tipos.CADENA
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
@@ -229,6 +286,11 @@ export default class Aritmetica extends Instruccion{
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
                         return ASCII - parseInt(derecho, 10);
                     }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoAritmetico);            
+                    }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO)
                     {
@@ -256,6 +318,11 @@ export default class Aritmetica extends Instruccion{
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
                         return ASCII - parseFloat(derecho);
                     }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoAritmetico);            
+                    }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.BOOLEANO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO)
                     {
@@ -269,6 +336,11 @@ export default class Aritmetica extends Instruccion{
                         let numBooleano = derecho.toLowerCase()==='true'? parseFloat(izquierdo)-1:parseFloat(izquierdo); //Get el número del booleano
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
                         return numBooleano;
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.BOOLEANO
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoAritmetico);            
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO)
@@ -285,6 +357,37 @@ export default class Aritmetica extends Instruccion{
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
                         return parseFloat(izquierdo) - ASCII;
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoAritmetico);            
+                    }
+
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoAritmetico);            
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoAritmetico);            
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.BOOLEANO)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoAritmetico);            
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoAritmetico);            
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarAmbosId(derecho,izquierdo,tree,table,this.operandoAritmetico);
                     }
                     else {
                         var ex:Excepcion = new Excepcion("Semantico", "Error de Tipo con el operador -", this.linea, this.columna);
@@ -314,6 +417,11 @@ export default class Aritmetica extends Instruccion{
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
                         return parseInt(derecho, 10) * ASCII;
                     }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoAritmetico);            
+                    }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO)
                     {
@@ -334,6 +442,11 @@ export default class Aritmetica extends Instruccion{
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
                         return parseFloat(derecho) * ASCII;
                     }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoAritmetico);            
+                    }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO)
                     {
@@ -349,6 +462,31 @@ export default class Aritmetica extends Instruccion{
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
                         return parseFloat(izquierdo) * ASCII;
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoAritmetico);            
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoAritmetico);            
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoAritmetico);            
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoAritmetico);            
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarAmbosId(derecho,izquierdo,tree,table,this.operandoAritmetico);
                     }
                     else {
                         var ex:Excepcion = new Excepcion("Semantico", "Error de Tipo con el operador *", this.linea, this.columna);
@@ -396,6 +534,11 @@ export default class Aritmetica extends Instruccion{
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
                         return ASCII/parseInt(derecho, 10);
                     }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoAritmetico);            
+                    }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO)
                     {
@@ -437,6 +580,11 @@ export default class Aritmetica extends Instruccion{
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
                         return ASCII / parseFloat(derecho);
                     }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoAritmetico);            
+                    }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO)
                     {
@@ -464,6 +612,31 @@ export default class Aritmetica extends Instruccion{
                         }
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
                         return parseFloat(izquierdo) / ASCII;
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoAritmetico);            
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                    && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoAritmetico);            
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoAritmetico);            
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoAritmetico);            
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarAmbosId(derecho,izquierdo,tree,table,this.operandoAritmetico);
                     }
                     else {
                         var ex:Excepcion = new Excepcion("Semantico", "Error de Tipo con el operador /", this.linea, this.columna);
@@ -497,6 +670,11 @@ export default class Aritmetica extends Instruccion{
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
                         return parseFloat(izquierdo) % parseInt(derecho, 10);
                     }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoAritmetico);            
+                    }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO)
                     {
@@ -521,6 +699,26 @@ export default class Aritmetica extends Instruccion{
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
                         return parseFloat(izquierdo) % parseFloat(derecho);
                     }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoAritmetico);            
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                    && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoAritmetico);            
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoAritmetico);            
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarAmbosId(derecho,izquierdo,tree,table,this.operandoAritmetico);
+                    }
                     else {
                         var ex:Excepcion = new Excepcion("Semantico", "Error de Tipo con el operador %", this.linea, this.columna);
                         tree.getExcepciones().push(ex);
@@ -530,7 +728,7 @@ export default class Aritmetica extends Instruccion{
                     break;
                     ////////////////////////////////////////////////////////////////////////////////////////////////////
                 case 14: //Potencia
-                 
+                 dfgdf
                     if (this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO) {
                         this.tipo = new Tipo(tipo.tipos.ENTERO);                   
@@ -631,5 +829,73 @@ export default class Aritmetica extends Instruccion{
             }
         }
         return null;
+    }
+
+    public operarIzqId(izquierdo:any,tree:Arbol,table:tablaSimbolos,operador:any){
+        let variable:Simbolo|any = izquierdo;
+        let op:Aritmetica;
+        let resultado;
+        if(variable!=null){ //Si existe
+            if (variable.getTipo().getTipos()<6){ //Si es del tipo correcto
+                let izq = new primitivo.default(variable.getTipo(),variable.getValor(),0,0);
+                op = new Aritmetica(this.operandoDer,operador,0,0,izq);
+                resultado = op.interpretar(tree,table);
+                return resultado;
+            }else{
+                var ex:Excepcion = new Excepcion("Semantico", "Tipo inválido", this.linea, this.columna);
+                tree.getExcepciones().push(ex);
+                return ex;                                  
+            }
+        }else{
+            var ex:Excepcion = new Excepcion("Semantico", "La variable no existe", this.linea, this.columna);
+            tree.getExcepciones().push(ex);
+            return ex;                            
+        }  
+    }
+
+    public operarDerId(derecha:any,tree:Arbol,table:tablaSimbolos,operador:any){
+        let variable:Simbolo|any = derecha;
+        let op:Aritmetica;
+        let resultado;
+        if(variable!=null){ //Si existe
+            if (variable.getTipo().getTipos()<6){ //Si es del tipo correcto
+                let der = new primitivo.default(variable.getTipo(),variable.getValor(),0,0);
+                op = new Aritmetica(der,operador,0,0,this.operandoIzq);
+                resultado = op.interpretar(tree,table);
+                return resultado;
+            }else{
+                var ex:Excepcion = new Excepcion("Semantico", "Tipo inválido", this.linea, this.columna);
+                tree.getExcepciones().push(ex);
+                return ex;                                  
+            }
+        }else{
+            var ex:Excepcion = new Excepcion("Semantico", "La variable no existe", this.linea, this.columna);
+            tree.getExcepciones().push(ex);
+            return ex;                            
+        }  
+    }
+
+    public operarAmbosId(derecha:any,izquierda:any,tree:Arbol,table:tablaSimbolos,operador:any){
+        let variableDer:Simbolo|any = derecha;
+        let variableIzq:Simbolo|any = izquierda;
+        let op:Aritmetica;
+        let resultado;
+        if(variableDer!=null && variableIzq!=null){ //Si existen
+            if (variableIzq.getTipo().getTipos()<6 && variableDer.getTipo().getTipos()<6){ //Si es del tipo correcto
+                let der = new primitivo.default(variableDer.getTipo(),variableDer.getValor(),0,0);
+                let izq = new primitivo.default(variableIzq.getTipo(),variableIzq.getValor(),0,0);
+                op = new Aritmetica(der,operador,0,0,izq);
+                resultado = op.interpretar(tree,table);
+                return resultado;
+            }else{
+                var ex:Excepcion = new Excepcion("Semantico", "Tipo inválido", this.linea, this.columna);
+                tree.getExcepciones().push(ex);
+                return ex;                                  
+            }
+        }else{
+            var ex:Excepcion = new Excepcion("Semantico", "La variable no existe", this.linea, this.columna);
+            tree.getExcepciones().push(ex);
+            return ex;                            
+        }  
     }
 }

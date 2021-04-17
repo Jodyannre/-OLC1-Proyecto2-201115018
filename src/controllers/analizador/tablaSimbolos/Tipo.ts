@@ -71,5 +71,8 @@ export enum tipos
     ROUND = 37,
     TO_STRING = 38,
     ACCESO_VECTOR = 50,
-    ACCESO_LISTA = 51
+    ACCESO_LISTA = 51,
+    IF = 52,
+    ELSE = 53,
+    ELSE_IF = 54
 }

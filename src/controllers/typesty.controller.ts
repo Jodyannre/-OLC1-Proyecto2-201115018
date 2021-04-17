@@ -23,6 +23,7 @@ class typestyController{
 
         try{
             let ast = new Arbol( parser.parse(texto) );
+            let astGrafica = new Arbol( parser.parse(texto) );
 
             var tabla = new tablaSimbolos(0);
             ast.setGlobal(tabla);
@@ -84,12 +85,9 @@ class typestyController{
             
             
             //Ultima pasada
-            /*
+            
             instruccionesEliminar = [];
             for(let m of ast.getInstrucciones()){
-                if (m instanceof Asignacion){
-                    continue;
-                }
                 m.setPasada(2);
                 var result = m.interpretar(ast, tabla);
                 if(result instanceof Excepcion){ // ERRORES SEMÁNTICOS
@@ -109,17 +107,16 @@ class typestyController{
                 ast.getInstrucciones().splice(index, 1); //Eliminar instrucciones con errores
                 corrimiento++;
             } 
-            */
+            
             res.json({consola:ast.getConsola(), Errores: Errors});
             console.log(ast.getConsola());
 
             //Creando gráfica del ast despues lo trabajo
-
             
             let nodoInicial:nodoInstruccion = new nodoInstruccion("Raiz");
-            let nodoIns:nodoInstruccion = new nodoInstruccion("INSTRUCCIÓN");
+            let nodoIns:nodoInstruccion = new nodoInstruccion("INSTRUCCION");
             let temp:any;
-            for (let instruccion of ast.getInstrucciones()){
+            for (let instruccion of astGrafica.getInstrucciones()){
                 temp = instruccion;
                 nodoIns.agregarHijoNodo(temp.getNodoInstruccion());
             }

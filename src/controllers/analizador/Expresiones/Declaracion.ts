@@ -22,19 +22,21 @@ export default class Declaracion extends Instruccion{
     private id:Identificador;
     private valor:any;
     private asignacion:any;
-    private asignacionTipo:any;
+    private valor2:any;
 
-    constructor(id:Identificador,tipo:Tipo, linea : Number, columna:Number, valor?:any){
+    constructor(id:Identificador,tipo:Tipo, linea : Number, columna:Number, valor?:any,valor2?:any){
+        //Para el tochararray valor2 trae la lista
         super(tipo,linea,columna);
         this.id = id;
         if(valor){
             if (valor instanceof Asignacion){
                 this.asignacion = valor;
                 this.valor = valor.getInstruccion();
-            }else if(valor instanceof ToCharArray){
-                this.asignacion = valor;
-                this.valor = new lista.default();
-            }else{
+                if (this.valor instanceof ToCharArray){
+                    this.valor2 = valor2;
+                }
+            }
+            else{
                 this.valor = valor;
             }
             
@@ -52,9 +54,20 @@ export default class Declaracion extends Instruccion{
                 nodo.agregarHijoNodo(this.valor.getNodoInstruccion());
             }else if (this.valor instanceof Lista){
                 nodo.agregarHijoNodo(this.valor.getNodoInstruccion());
+            }else if (this.valor instanceof ToCharArray){
+                let nodo2:nodoInstruccion = new nodoInstruccion('VARIABLE');
+                let lista = <Lista>this.valor2;
+                nodo2.agregarHijoCadena("list");
+                nodo2.agregarHijoCadena("<");
+                nodo2.agregarHijoNodo(lista.getTipo().getNodoInstruccion());
+                nodo2.agregarHijoCadena(">");                
+                nodo2.agregarHijoNodo(this.id.getNodoInstruccion());   
+                nodo2.agregarHijoCadena("=");
+                nodo2.agregarHijoNodo(this.valor.getNodoInstruccion());
+                nodo2.agregarHijoCadena(";");
+                nodo.agregarHijoNodo(nodo2);                       
             }       
             else{
-
                 let nodo2:nodoInstruccion = new nodoInstruccion('VARIABLE');
                 nodo2.agregarHijoNodo(this.tipo.getNodoInstruccion());
                 nodo2.agregarHijoNodo(this.id.getNodoInstruccion());
@@ -95,20 +108,54 @@ export default class Declaracion extends Instruccion{
         if (this.pasada ===0){ //Solo crear el símbolo en la tabla
             let nuevoSimbolo:any;
             if (this.tipo.getTipos()===tipo.tipos.ENTERO){
-                nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.ENTERO),this.id.getValor(),0);
+                nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.ENTERO),this.id.getValor(),null);
             }else if (this.tipo.getTipos()===tipo.tipos.CADENA){
-                nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.CADENA),this.id.getValor(),"");
+                nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.CADENA),this.id.getValor(),null);
             }else if (this.tipo.getTipos()===tipo.tipos.DECIMAL){
-                nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.DECIMAL),this.id.getValor(),parseFloat("0.0"));
+                nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.DECIMAL),this.id.getValor(),null);
             }else if (this.tipo.getTipos()===tipo.tipos.BOOLEANO){
-                nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.BOOLEANO),this.id.getValor(),true);
+                nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.BOOLEANO),this.id.getValor(),null);
             }else if (this.tipo.getTipos()===tipo.tipos.CARACTER){
-                nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.CARACTER),this.id.getValor(),'\u0000');
+                nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.CARACTER),this.id.getValor(),null);
             }else if (this.tipo.getTipos()===tipo.tipos.VECTOR){
+                let v:Vector = this.valor;
+                let tipoA = v.getTipo();
+                let tipoCreacion = v.getTipoCreacion();
+                if (tipoA.getTipos()!= tipoCreacion.getTipos()){
+                    var ex:Excepcion = new Excepcion("Semántico", "Los tipos no coinciden.", this.linea, this.columna);
+                    tree.getExcepciones().push(ex);
+                    return ex;                        
+                }            
                 nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.VECTOR),this.id.getValor(),null);
             }else if (this.tipo.getTipos()===tipo.tipos.LISTA){
+                if (this.valor2 != null){ //Si viene tocharArray
+                    let list:Lista = this.valor2; 
+                    let id = list.getId();
+                    let tipoA = list.getTipo();
+                    let tipoCreacion = list.getTipoCreacion();
+                    if (tipoA.getTipos()!= tipoCreacion.getTipos()){
+                        var ex:Excepcion = new Excepcion("Semántico", "Los tipos no coinciden.", this.linea, this.columna);
+                        tree.getExcepciones().push(ex);
+                        return ex;                        
+                    }
+                    //let listaNull:Lista = new lista.default(tipoA,0,0,id,tipoCreacion);
+                    //listaNull.setValor(null);            
+                    nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.LISTA),id.getValor(),null);
+                }else{ //Solo viene asignación normal de lista
+                    let list:Lista = this.valor; 
+                    let id = list.getId();
+                    let tipoA = list.getTipo();
+                    let tipoCreacion = list.getTipoCreacion();
+                    if (tipoA.getTipos()!= tipoCreacion.getTipos()){
+                        var ex:Excepcion = new Excepcion("Semántico", "Los tipos no coinciden.", this.linea, this.columna);
+                        tree.getExcepciones().push(ex);
+                        return ex;                        
+                    }
+                    //let listaNull:Lista = new lista.default(tipoA,0,0,id,tipoCreacion);
+                    //listaNull.setValor(null);            
+                    nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.LISTA),id.getValor(),null);                    
+                }
 
-                nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.LISTA),this.id.getValor(),null);
             }
             table.setVariableNueva(nuevoSimbolo);
             return true;
@@ -121,15 +168,15 @@ export default class Declaracion extends Instruccion{
                     &&this.valor.getTipo().getTipos()  != tipo.tipos.TO_STRING
                     &&this.valor.getTipo().getTipos()  != tipo.tipos.TO_CHAR_ARRAY
                     &&this.valor.getTipo().getTipos()  != tipo.tipos.TYPEOF){
-                    valorFinal = this.valor.interpretar(tree,table);                         
-                    var verificarTipo = this.verificacionTipos(valorFinal,tree, table);
+                    //valorFinal = this.valor.interpretar(tree,table);                         
+                    var verificarTipo = this.verificacionTipos(this.valor,tree, table);
                     if (verificarTipo instanceof Excepcion){
                         table.tabla.delete(this.id.getValor()); //La elimino de la tabla de símbolos
                         return verificarTipo; //Retorno el error
                     }else{
                         //Si la verificación de tipos esta bien entonces asigna el valor
                         let simbolo:any = table.tabla.get(this.id.getValor()); //Get el símbolo de la tabla
-                        simbolo.setValor(valorFinal); //Actualizar valor del símbolo en la tabla
+                        simbolo.setValor(verificarTipo); //Actualizar valor del símbolo en la tabla
                         return true;
                     }   
                 }else if (this.valor.getTipo().getTipos() === tipo.tipos.LENGTH
@@ -143,35 +190,129 @@ export default class Declaracion extends Instruccion{
                 }
        
             }else{
-                //Se queda igual sin cambios en la tabla
+                //Valores por defecto
+                let simbolo:any = <Simbolo>table.tabla.get(this.id.getValor());
+                if (this.tipo.getTipos()===tipo.tipos.ENTERO){
+                    simbolo.setValor(0);
+                }else if (this.tipo.getTipos()===tipo.tipos.CADENA){
+                    simbolo.setValor("");
+                }else if (this.tipo.getTipos()===tipo.tipos.DECIMAL){
+                    simbolo.setValor(parseFloat("0.0"));
+                }else if (this.tipo.getTipos()===tipo.tipos.BOOLEANO){
+                    simbolo.setValor(true);
+                }else if (this.tipo.getTipos()===tipo.tipos.CARACTER){
+                    simbolo.setValor('\u0000');
+                }               
                 return true;
             }
+
+            /////////////////////////////////////////////////////////////////////////////////////////////
         }else{ //Ámbitos locales todavía no esta bien construida
             if (this.valor){
-                let nuevoSimbolo:any;
-                valorFinal = this.valor.interpretar(tree,table); //Get valor
-                nuevoSimbolo = new Simbolo(new tipo.default(this.tipo.getTipos()),this.id.getValor(),valorFinal);
-                table.setVariableNueva(nuevoSimbolo); 
-                return true;
-            }else{
-                let nuevoSimbolo:any;
-                if (this.tipo.getTipos()===tipo.tipos.ENTERO){
-                    nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.ENTERO),this.id.getValor(),0);
-                }else if (this.tipo.getTipos()===tipo.tipos.CADENA){
-                    nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.CADENA),this.id.getValor(),"");
-                }else if (this.tipo.getTipos()===tipo.tipos.DECIMAL){
-                    nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.DECIMAL),this.id.getValor(),parseFloat("0.0"));
-                }else if (this.tipo.getTipos()===tipo.tipos.BOOLEANO){
-                    nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.BOOLEANO),this.id.getValor(),true);
-                }else if (this.tipo.getTipos()===tipo.tipos.CARACTER){
-                    nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.CARACTER),this.id.getValor(),'\u0000');
-                }else if (this.tipo.getTipos()===tipo.tipos.VECTOR){
-                    nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.VECTOR),this.id.getValor(),null);
-                }else if (this.tipo.getTipos()===tipo.tipos.LISTA){
-                    nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.LISTA),this.id.getValor(),null);
+                if (this.valor.getTipo().getTipos()    != tipo.tipos.LENGTH
+                    && this.valor.getTipo().getTipos() != tipo.tipos.TRUNCATE
+                    && this.valor.getTipo().getTipos() != tipo.tipos.ROUND
+                    &&this.valor.getTipo().getTipos()  != tipo.tipos.TO_STRING
+                    &&this.valor.getTipo().getTipos()  != tipo.tipos.TO_CHAR_ARRAY
+                    &&this.valor.getTipo().getTipos()  != tipo.tipos.TYPEOF){
+                    //valorFinal = this.valor.interpretar(tree,table);                         
+                    var verificarTipo = this.verificacionTipos(this.valor,tree, table);
+                    if (verificarTipo instanceof Excepcion){
+                        table.tabla.delete(this.id.getValor()); //La elimino de la tabla de símbolos
+                        return verificarTipo; //Retorno el error
+                    }else{
+                        let nTipo = this.getNuevoTipo(verificarTipo);
+                        let nuevoSimbolo = new Simbolo(new tipo.default(nTipo),this.id.getValor(),verificarTipo);
+                        table.setVariableNueva(nuevoSimbolo);
+                        //Si la verificación de tipos esta bien entonces asigna el valor
+                        //let simbolo:any = table.tabla.get(this.id.getValor()); //Get el símbolo de la tabla
+                        //simbolo.setValor(verificarTipo); //Actualizar valor del símbolo en la tabla
+                        return true;
+                    }   
+                }else if (this.valor.getTipo().getTipos() === tipo.tipos.LENGTH
+                        ||this.valor.getTipo().getTipos() === tipo.tipos.TRUNCATE 
+                        ||this.valor.getTipo().getTipos() === tipo.tipos.ROUND
+                        ||this.valor.getTipo().getTipos() === tipo.tipos.TO_STRING
+                        ||this.valor.getTipo().getTipos() === tipo.tipos.TO_CHAR_ARRAY
+                        ||this.valor.getTipo().getTipos() === tipo.tipos.TYPEOF){
+                    //Crear símbolo
+                 
+                    let nuevoSimbolo:any;
+                    if (this.tipo.getTipos()===tipo.tipos.ENTERO){
+                        nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.ENTERO),this.id.getValor(),0);
+                    }else if (this.tipo.getTipos()===tipo.tipos.CADENA){
+                        nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.CADENA),this.id.getValor(),"");
+                    }else if (this.tipo.getTipos()===tipo.tipos.DECIMAL){
+                        nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.DECIMAL),this.id.getValor(),parseFloat("0.0"));
+                    }else if (this.tipo.getTipos()===tipo.tipos.BOOLEANO){
+                        nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.BOOLEANO),this.id.getValor(),true);
+                    }else if (this.tipo.getTipos()===tipo.tipos.CARACTER){
+                        nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.CARACTER),this.id.getValor(),'\u0000');
+                    }else if (this.tipo.getTipos()===tipo.tipos.VECTOR){
+                        let v:Vector = this.valor;
+                        let tipoA = v.getTipo();
+                        let tipoCreacion = v.getTipoCreacion();
+                        if (tipoA.getTipos()!= tipoCreacion.getTipos()){
+                            var ex:Excepcion = new Excepcion("Semántico", "Los tipos no coinciden.", this.linea, this.columna);
+                            tree.getExcepciones().push(ex);
+                            return ex;                        
+                        }            
+                        nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.VECTOR),this.id.getValor(),v);
+                    }else if (this.tipo.getTipos()===tipo.tipos.LISTA){
+                        if (this.valor2 != null){ //Si viene tocharArray
+                            let list:Lista = this.valor2; 
+                            let id = list.getId();
+                            let tipoA = list.getTipo();
+                            let tipoCreacion = list.getTipoCreacion();
+                            if (tipoA.getTipos()!= tipoCreacion.getTipos()){
+                                var ex:Excepcion = new Excepcion("Semántico", "Los tipos no coinciden.", this.linea, this.columna);
+                                tree.getExcepciones().push(ex);
+                                return ex;                        
+                            }
+                            //let listaNull:Lista = new lista.default(tipoA,0,0,id,tipoCreacion);
+                            //listaNull.setValor(null);            
+                            nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.LISTA),id.getValor(),list);
+                        }else{ //Solo viene asignación normal de lista
+                            let list:Lista = this.valor; 
+                            let id = list.getId();
+                            let tipoA = list.getTipo();
+                            let tipoCreacion = list.getTipoCreacion();
+                            if (tipoA.getTipos()!= tipoCreacion.getTipos()){
+                                var ex:Excepcion = new Excepcion("Semántico", "Los tipos no coinciden.", this.linea, this.columna);
+                                tree.getExcepciones().push(ex);
+                                return ex;                        
+                            }
+                            //let listaNull:Lista = new lista.default(tipoA,0,0,id,tipoCreacion);
+                            //listaNull.setValor(null);            
+                            nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.LISTA),id.getValor(),list);                    
+                        }
+        
+                    }
+                    table.setVariableNueva(nuevoSimbolo);
+
+                    //Traer contenido
+                    //this.asignacion.setPasada(1);
+                    //return this.asignacion.interpretar(tree,table);
+                    return true;
                 }
-                table.setVariableNueva(nuevoSimbolo);  
-                return true;              
+       
+            }else{
+                //Valores por defecto
+                let nTipo = this.tipo.getTipos();
+                let nuevoSimbolo = new Simbolo(new tipo.default(nTipo),this.id.getValor(),"");
+                table.setVariableNueva(nuevoSimbolo);
+                if (this.tipo.getTipos()===tipo.tipos.ENTERO){
+                    nuevoSimbolo.setValor(0);
+                }else if (this.tipo.getTipos()===tipo.tipos.CADENA){
+                    nuevoSimbolo.setValor("");
+                }else if (this.tipo.getTipos()===tipo.tipos.DECIMAL){
+                    nuevoSimbolo.setValor(parseFloat("0.0"));
+                }else if (this.tipo.getTipos()===tipo.tipos.BOOLEANO){
+                    nuevoSimbolo.setValor(true);
+                }else if (this.tipo.getTipos()===tipo.tipos.CARACTER){
+                    nuevoSimbolo.setValor('\u0000');
+                }               
+                return true;
             }
 
         }
@@ -179,7 +320,7 @@ export default class Declaracion extends Instruccion{
 
 
     public verificacionTipos(valorFinal:any,tree:Arbol, table:tablaSimbolos){
-
+        //Valor tipo puede ser primitivo, excepcion, vector, lista o id
         if (valorFinal instanceof Excepcion){
             var ex:Excepcion = new Excepcion("Semántico", "Error en la creación de la variable", this.linea, this.columna);
             tree.getExcepciones().push(ex);
@@ -193,7 +334,7 @@ export default class Declaracion extends Instruccion{
                     return ex;                            
                 }else{
                     //this.valor = valorFinal;
-                    return valorFinal;
+                    return valorFinal.interpretar(tree,table);
                 }
             }
         else if (this.valor instanceof Vector){
@@ -231,7 +372,82 @@ export default class Declaracion extends Instruccion{
             }else{
                 return this.valor;
             }             
+        }else if (this.valor instanceof Identificador){
+            let simbolo = table.tabla.get(this.valor.getValor());
+            if (simbolo){
+                if (this.tipo.getTipos()!= simbolo.getTipo().getTipos()){
+                    var ex:Excepcion = new Excepcion("Semantico", "Error en la asignación del tipo.", this.linea, this.columna);
+                    tree.getExcepciones().push(ex);
+                    return ex;                 
+                }
+                if (simbolo.getValor()===null){
+                    var ex:Excepcion = new Excepcion("Semantico", "Variable no declarada.", this.linea, this.columna);
+                    tree.getExcepciones().push(ex);
+                    return ex;                      
+                }              
+                return simbolo.getValor();
+            }
+        }else{
+            var result = valorFinal.interpretar(tree,table);
+            if (typeof result === 'string'){
+                if (result.length>1){
+                    if (this.tipo.getTipos()===tipo.tipos.CARACTER){
+                        return result;
+                    }
+                }
+                if (this.tipo.getTipos()===tipo.tipos.CADENA){
+                    return result;
+                }
+            }else
+            if (typeof result === 'number'){
+                if (result%1 === 0){
+                    if (this.tipo.getTipos()===tipo.tipos.ENTERO){
+                        return result;
+                    }
+                }else{
+                    if (this.tipo.getTipos()===tipo.tipos.DECIMAL){
+                        return result;
+                    }
+
+                }
+            }else if (typeof result ==='boolean'){
+                if (this.tipo.getTipos()===tipo.tipos.BOOLEANO){
+                    return result;
+                }
+            }
+
         }
-        return false;
+        var ex:Excepcion = new Excepcion("Semántico", "Tipo incorrecto.", this.linea, this.columna);
+        tree.getExcepciones().push(ex);
+        return ex;
+    }
+
+    public getNuevoTipo(result:any){
+        if (typeof result === 'string'){
+            if (result.length>1){
+                if (this.tipo.getTipos()===tipo.tipos.CARACTER){
+                    return tipo.tipos.CARACTER;
+                }
+            }
+            if (this.tipo.getTipos()===tipo.tipos.CADENA){
+                return tipo.tipos.CADENA;
+            }
+        }else
+        if (typeof result === 'number'){
+            if (result%1 === 0){
+                if (this.tipo.getTipos()===tipo.tipos.ENTERO){
+                    return tipo.tipos.ENTERO;
+                }
+            }else{
+                if (this.tipo.getTipos()===tipo.tipos.DECIMAL){
+                    return tipo.tipos.DECIMAL;
+                }
+
+            }
+        }else if (typeof result ==='boolean'){
+            if (this.tipo.getTipos()===tipo.tipos.BOOLEANO){
+                return tipo.tipos.BOOLEANO;
+            }
+        }        
     }
 }

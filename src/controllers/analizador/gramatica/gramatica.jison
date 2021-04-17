@@ -152,67 +152,69 @@
 	const ToString = require('../Instrucciones/toString');
 	const ToCharArray = require('../Instrucciones/toCharArray');
 	const Asignacion = require('../Expresiones/Asignacion');
+	const IF = require('../Sentencias/IF');
+	const ELSE = require('../Sentencias/ELSE');
 	var pilaAuxiliar = [];
 
 
 	function crearVector(tipo,linea,columna,id,size,tipo_creacion,valor){
 		var nuevoVector = new Vector.default(tipo,linea,columna,id,parseInt(size),tipo_creacion,valor);
-		pilaAuxiliar = [];
+		//pilaAuxiliar = [];
 		return nuevoVector;
 	}
 
 	function crearToUpper(expresion, linea, columna, retorno){
 		var nuevoNodo = new toUpper.default(expresion, linea, columna, retorno);
-		pilaAuxiliar = [];
+		//pilaAuxiliar = [];
 		return nuevoNodo;
 	}
 
 	function crearToLower(expresion, linea, columna, retorno){
 		var nuevoNodo = new toLower.default(expresion, linea, columna, retorno);
-		pilaAuxiliar = [];
+		//pilaAuxiliar = [];
 		return nuevoNodo;
 	}
 
 	function crearLength(expresion, linea, columna, retorno){
 		var nuevoNodo = new Length.default(expresion, linea, columna, retorno);
-		pilaAuxiliar = [];
+		//pilaAuxiliar = [];
 		return nuevoNodo;
 	}
 
 	function crearTruncate(expresion, linea, columna, retorno){
 		var nuevoNodo = new Truncate.default(expresion, linea, columna, retorno);
-		pilaAuxiliar = [];
+		//pilaAuxiliar = [];
 		return nuevoNodo;
 	}
 
 	function crearRound(expresion, linea, columna, retorno){
 		var nuevoNodo = new Round.default(expresion, linea, columna, retorno);
-		pilaAuxiliar = [];
+		//pilaAuxiliar = [];
 		return nuevoNodo;
 	}
 
 	function crearTypeof(expresion, linea, columna, retorno){
 		var nuevoNodo = new Typeof.default(expresion, linea, columna, retorno);
-		pilaAuxiliar = [];
+		//pilaAuxiliar = [];
 		return nuevoNodo;
 	}
 
 	function crearToString(expresion, linea, columna, retorno){
 		var nuevoNodo = new ToString.default(expresion, linea, columna, retorno);
-		pilaAuxiliar = [];
+		//pilaAuxiliar = [];
 		return nuevoNodo;
 	}
 
 	function crearToCharArray(expresion, linea, columna, retorno){
 		var nuevoNodo = new ToCharArray.default(expresion, linea, columna, retorno);
-		pilaAuxiliar = [];
+		//pilaAuxiliar = [];
 		return nuevoNodo;
 	}
 
 	function crearAsignacion(id,linea,columna,instruccion){
 		var tipo = new Tipo.default(Tipo.tipos.ASIGNACION);
 		var nuevaAsignacion = new Asignacion.default(id,tipo,linea,columna,instruccion);
-		pilaAuxiliar = [];
+		//pilaAuxiliar = [];
 		return nuevaAsignacion;
 	}	
 
@@ -263,7 +265,8 @@ relacional
 ;
 
 instruccionTemp
-	: instrucciones_globales 			{$$ = $1}
+	//: instrucciones_globales 			{$$ = $1}
+	: instrucciones_locales				{$$ = $1}
 ;
 
 expresion
@@ -335,39 +338,48 @@ metodos_nativos
 
 /*GRAMATICA ASIGNACION VARIABLE---------------------------------------------*/
 instrucciones_globales
-	: instrucciones_globales instruccion_global {$1.push($2); $$ = $1}
-	| instruccion_global 						{$$ = [$1]}
+	: instrucciones_globales instruccion_global 
+	{
+		$1.push($2); 
+		$$ = $1
+	}
+	| instruccion_global {$$ = [$1]}
 ;
 
 instrucciones_locales
-	: instrucciones_locales instruccion_local  	{$$ = $1+' '+$2}
-	| instruccion_local							{$$ = $1+''}
+	: instrucciones_locales instruccion_local
+	{
+		//$1 = [$1];
+		$1.push($2);
+		$$ = $1;
+	}  	
+	| instruccion_local	{$$ = [$1]}
 ;
 
 instruccion_local
-	: instruccion_local_metodo		{$$ = $1+''}				
+	: instruccion_local_metodo		{$$ = $1}				
 	| CONTINUE PUNTOCOMA			{$$ = $1+' '+$2}
 	| BREAK PUNTOCOMA				{$$ = $1+' '+$2}
 ;
 
 instrucciones_locales_metodo
-	: instruccion_local_metodo instrucciones_locales_metodo {
-																$1 = [$1];
-																$1.push($2);
-																$$ = $1;
-
-															}
-	| instruccion_local_metodo 								{$$ = [$1]}
+	: instrucciones_locales_metodo  instruccion_local_metodo 
+	{
+		//$1 = [$1];
+		$1.push($2);
+		$$ = $1;
+	}
+	| instruccion_local_metodo 	{$$ = [$1]}
 ;
 
 instruccion_local_metodo
-	: creacion_variable 			{$$ = $1+''}
+	: creacion_variable 			{$$ = $1}
 	| asignacion_variable 			{$$ = $1}
 	| manejo_vector_lista			{$$ = $1}
 	| ciclo_for						{$$ = $1+''}
 	| ciclo_do_while				{$$ = $1+''}
 	| ciclo_while					{$$ = $1+''}
-	| condicion_if					{$$ = $1+''}
+	| condicion_if					{$$ = $1}
 	| condicion_switch				{$$ = $1+''}
 	| llamada_metodo_funcion 		{$$ = $1+''}
 	| RETURN condicion_logica PUNTOCOMA {$$ = $1+' '+$2+' '+$3}
@@ -381,7 +393,7 @@ instruccion_global
 	| ciclo_for						{$$ = $1+''}
 	| ciclo_do_while				{$$ = $1+''}
 	| ciclo_while					{$$ = $1+''}
-	| condicion_if					{$$ = $1+''}
+	| condicion_if					{$$ = $1}
 	| condicion_switch				{$$ = $1+''}
 	| declaracion_funcion_metodo 	{$$ = $1+''}
 	| llamada_metodo_funcion 		{$$ = $1}
@@ -391,7 +403,7 @@ creacion_variable
 	: asignacion_tipo asignacion_variable 	{
 											var id = $2.getId();
 											//var idNodo = new Identificador.default(new Tipo.default(Tipo.tipos.IDENTIFICADOR),id,@1.first_line, @1.first_column);
-											$$ = new Declaracion.default(id,$1,@1.first_line, @1.first_column,$2);
+											$$ = new Declaracion.default(id,$1,@1.first_line, @1.first_column,$2,null);
 											}
 ;
 
@@ -489,16 +501,91 @@ ciclo_while
 
 /*GRAMATICA IF ELSE---------------------------------------------------------*/
 condicion_if
-	: IF PARENTESIS_A condicion_logica  LLAVE_A instrucciones_locales LLAVE_C {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
-	| IF PARENTESIS_A condicion_logica  LLAVE_A  LLAVE_C {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5}
-	| IF PARENTESIS_A condicion_logica  LLAVE_A instrucciones_locales LLAVE_C condicion_if_else {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7}
-	| IF PARENTESIS_A condicion_logica  LLAVE_A LLAVE_C condicion_if_else {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
+	: IF PARENTESIS_A condicion_logica PARENTESIS_C LLAVE_A instrucciones_locales LLAVE_C 
+	{
+		$$ = new IF.default(new Tipo.default(Tipo.tipos.IF),@1.first_line, @1.first_column,$3,$6,null);
+		//pilaAuxiliar = [];
+	}
+	| IF PARENTESIS_A condicion_logica PARENTESIS_C LLAVE_A  LLAVE_C 
+	{
+		$$ = new IF.default(new Tipo.default(Tipo.tipos.IF),@1.first_line, @1.first_column,$3,null,null);
+		//pilaAuxiliar = [];
+	}
+	| IF PARENTESIS_A condicion_logica PARENTESIS_C LLAVE_A instrucciones_locales LLAVE_C condicion_else
+	{
+		//pilaAuxiliar.push($8);
+		$$ = new IF.default(new Tipo.default(Tipo.tipos.IF),@1.first_line, @1.first_column,$3,$6,pilaAuxiliar);
+		//pilaAuxiliar = [];
+	}
+	| IF PARENTESIS_A condicion_logica PARENTESIS_C LLAVE_A  LLAVE_C condicion_else
+	{
+		//pilaAuxiliar.push($7);
+		$$ = new IF.default(new Tipo.default(Tipo.tipos.IF),@1.first_line, @1.first_column,$3,null,pilaAuxiliar);
+		//pilaAuxiliar = [];
+	}
+	| IF PARENTESIS_A condicion_logica PARENTESIS_C LLAVE_A instrucciones_locales LLAVE_C condiciones_if_else condicion_else
+	{
+		//pilaAuxiliar.push($9)
+		$$ = new IF.default(new Tipo.default(Tipo.tipos.IF),@1.first_line, @1.first_column,$3,$6,pilaAuxiliar);
+		//pilaAuxiliar = [];
+	}
+	| IF PARENTESIS_A condicion_logica PARENTESIS_C LLAVE_A LLAVE_C condiciones_if_else condicion_else
+	{
+		//pilaAuxiliar.push($8)
+		$$ = new IF.default(new Tipo.default(Tipo.tipos.IF),@1.first_line, @1.first_column,$3,null,pilaAuxiliar); //duda
+		//pilaAuxiliar = [];
+	}
+	| IF PARENTESIS_A condicion_logica PARENTESIS_C LLAVE_A instrucciones_locales LLAVE_C condiciones_if_else 
+	{
+		$$ = new IF.default(new Tipo.default(Tipo.tipos.IF),@1.first_line, @1.first_column,$3,$6,pilaAuxiliar);
+		//pilaAuxiliar = [];
+	}
+	| IF PARENTESIS_A condicion_logica PARENTESIS_C LLAVE_A LLAVE_C condiciones_if_else 
+	{
+		$$ = new IF.default(new Tipo.default(Tipo.tipos.IF),@1.first_line, @1.first_column,$3,null,pilaAuxiliar); //duda
+		//pilaAuxiliar = [];
+	}
+;
+
+condiciones_if_else
+	: condiciones_if_else condicion_if_else
+	{
+		$$ = pilaAuxiliar;
+	}
+	| condicion_if_else
+	{
+		$$ = pilaAuxiliar;
+	}
+;
+
+condicion_else
+	: ELSE LLAVE_A instrucciones_locales LLAVE_C 	
+	{
+		var nuevo = new ELSE.default(new Tipo.default(Tipo.tipos.ELSE),@1.first_line, @1.first_column,$3);
+		pilaAuxiliar.push(nuevo);
+		$$ = pilaAuxiliar;
+	}
+	| ELSE LLAVE_A LLAVE_C 							
+	{
+		var nuevo = new ELSE.default(new Tipo.default(Tipo.tipos.ELSE),@1.first_line, @1.first_column,null);
+		pilaAuxiliar.push(nuevo);
+		$$ = pilaAuxiliar;
+	}
 ;
 
 condicion_if_else
-	: ELSE LLAVE_A instrucciones_locales LLAVE_C 	{$$ = $1+' '+$2+' '+$3+' '+$4}
-	| ELSE LLAVE_A LLAVE_C 							{$$ = $1+' '+$2+' '+$3}
-	| ELSE condicion_if 							{$$ = $1+' '+$2}
+	: ELSE IF PARENTESIS_A condicion_logica PARENTESIS_C LLAVE_A instrucciones_locales LLAVE_C 
+	{
+		var nuevo = new IF.default(new Tipo.default(Tipo.tipos.ELSE_IF),@1.first_line, @1.first_column,$4,$7,null);
+		pilaAuxiliar.push(nuevo);
+		$$ = pilaAuxiliar;
+	}
+	| ELSE IF PARENTESIS_A condicion_logica PARENTESIS_C LLAVE_A  LLAVE_C 
+	{
+		var nuevo = new IF.default(new Tipo.default(Tipo.tipos.ELSE_IF),@1.first_line, @1.first_column,$4,null,null);
+		pilaAuxiliar.push(nuevo);
+		$$ = pilaAuxiliar;
+	}
 ;
 /*GRAMATICA IF ELSE---------------------------------------------------------*/
 
@@ -531,25 +618,25 @@ manejo_vector_lista
 	: asignacion_tipo CORCHETE_A CORCHETE_C ID ASIGNACION NEW asignacion_tipo CORCHETE_A ENTERO CORCHETE_C PUNTOCOMA {
 		var id = new Identificador.default(new Tipo.default(Tipo.tipos.IDENTIFICADOR),$4,@1.first_line, @1.first_column);
 		var v = crearVector($1,@1.first_line, @1.first_column,id,$9,$7,null);
-		$$ = new Declaracion.default(v.getId(),new Tipo.default(Tipo.tipos.VECTOR),@1.first_line, @1.first_column,v);	
+		$$ = new Declaracion.default(v.getId(),new Tipo.default(Tipo.tipos.VECTOR),@1.first_line, @1.first_column,v,null);	
 		}
 	| asignacion_tipo CORCHETE_A CORCHETE_C ID ASIGNACION LLAVE_A elementos_coma LLAVE_C PUNTOCOMA {
 		var id = new Identificador.default(new Tipo.default(Tipo.tipos.IDENTIFICADOR),$4,@1.first_line, @1.first_column);
 		var v = crearVector($1,@1.first_line, @1.first_column,id,0,$1,$7);
-		$$ = new Declaracion.default(v.getId(),new Tipo.default(Tipo.tipos.VECTOR),@1.first_line, @1.first_column,v);
+		$$ = new Declaracion.default(v.getId(),new Tipo.default(Tipo.tipos.VECTOR),@1.first_line, @1.first_column,v,null);
 		}
 	//| acceso_vector ASIGNACION operacion_aritmetica PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4}
 	| LISTA MENOR asignacion_tipo MAYOR ID ASIGNACION NEW LISTA MENOR asignacion_tipo MAYOR PUNTOCOMA {
 		var id = new Identificador.default(new Tipo.default(Tipo.tipos.IDENTIFICADOR),$5,@1.first_line, @1.first_column);
 		var l =  new Lista.default($3,@1.first_line, @1.first_column,id,$10);
-		$$ = new Declaracion.default(id,new Tipo.default(Tipo.tipos.LISTA),@1.first_line, @1.first_column,l);
+		$$ = new Declaracion.default(id,new Tipo.default(Tipo.tipos.LISTA),@1.first_line, @1.first_column,l,null);
 		}
 	| LISTA MENOR asignacion_tipo MAYOR ID ASIGNACION metodos_nativos PUNTOCOMA
 	{	
 		var id = new Identificador.default(new Tipo.default(Tipo.tipos.IDENTIFICADOR),$5,@1.first_line, @1.first_column);
-		//var l =  new Lista.default($3,@1.first_line, @1.first_column,id,new Tipo.default(Tipo.tipos.CARACTER),$7);
+		var l =  new Lista.default($3,@1.first_line, @1.first_column,id,new Tipo.default(Tipo.tipos.CARACTER));
 		var asignacion = crearAsignacion(id,@1.first_line, @1.first_column,$7);
-		$$ = new Declaracion.default(id,new Tipo.default(Tipo.tipos.CARACTER),@1.first_line, @1.first_column,$7);
+		$$ = new Declaracion.default(id,new Tipo.default(Tipo.tipos.LISTA),@1.first_line, @1.first_column,asignacion,l);
 	}
 	| ID PUNTO ADD PARENTESIS_A expresion PARENTESIS_C PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7}
 	//| acceso_lista ASIGNACION operacion_aritmetica PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4}

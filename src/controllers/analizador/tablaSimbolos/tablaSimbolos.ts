@@ -16,6 +16,7 @@ export default class tablaSimbolos
         this.tabla = new Map<String, Simbolo>();
         this.tipo = new Tipo(tipos.ENTERO);
         this.ambito = ambito;
+        this.siguientes = new Array();
     }
 
     public setVariable(simbolo:Simbolo)
