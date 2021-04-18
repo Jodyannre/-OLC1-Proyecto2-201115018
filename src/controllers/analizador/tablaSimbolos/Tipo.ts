@@ -74,5 +74,9 @@ export enum tipos
     ACCESO_LISTA = 51,
     IF = 52,
     ELSE = 53,
-    ELSE_IF = 54
+    ELSE_IF = 54,
+    WHILE = 55,
+    DO_WHILE = 56,
+    CASE = 57,
+    DEFAULT = 58
 }

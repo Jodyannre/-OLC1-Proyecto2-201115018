@@ -288,7 +288,21 @@ export default class Declaracion extends Instruccion{
                         }
         
                     }
-                    table.setVariableNueva(nuevoSimbolo);
+
+                    var verificarTipo = this.verificacionTipos(this.valor,tree, table);
+                    if (verificarTipo instanceof Excepcion){
+                        table.tabla.delete(this.id.getValor()); //La elimino de la tabla de símbolos
+                        return verificarTipo; //Retorno el error
+                    }else{
+                        let nTipo = this.getNuevoTipo(verificarTipo);
+                        let nuevoSimbolo = new Simbolo(new tipo.default(nTipo),this.id.getValor(),verificarTipo);
+                        table.setVariableNueva(nuevoSimbolo);
+                        //Si la verificación de tipos esta bien entonces asigna el valor
+                        //let simbolo:any = table.tabla.get(this.id.getValor()); //Get el símbolo de la tabla
+                        //simbolo.setValor(verificarTipo); //Actualizar valor del símbolo en la tabla
+                        return true;
+                    }   
+
 
                     //Traer contenido
                     //this.asignacion.setPasada(1);
@@ -327,7 +341,11 @@ export default class Declaracion extends Instruccion{
             return ex;
         }
         else if(this.valor instanceof Primitivo){
+                let especial:any = this.verificarEspeciales(valorFinal,tree,table);
 
+                if (typeof especial != 'boolean'){
+                    return especial;
+                }else
                 if (this.tipo.getTipos()!= this.valor.getTipo().getTipos()){
                     var ex:Excepcion = new Excepcion("Semantico", "Error en la asignación del tipo.", this.linea, this.columna);
                     tree.getExcepciones().push(ex);
@@ -373,8 +391,12 @@ export default class Declaracion extends Instruccion{
                 return this.valor;
             }             
         }else if (this.valor instanceof Identificador){
-            let simbolo = table.tabla.get(this.valor.getValor());
+            let simbolo = table.tabla.get(this.valor.getValor()); //Símbolo que trae el valor a asignar
             if (simbolo){
+                let especial:any = this.verificarEspeciales(valorFinal,tree,table);
+                if (especial != false){
+                    return especial;
+                }else               
                 if (this.tipo.getTipos()!= simbolo.getTipo().getTipos()){
                     var ex:Excepcion = new Excepcion("Semantico", "Error en la asignación del tipo.", this.linea, this.columna);
                     tree.getExcepciones().push(ex);
@@ -401,7 +423,14 @@ export default class Declaracion extends Instruccion{
             }else
             if (typeof result === 'number'){
                 if (result%1 === 0){
-                    if (this.tipo.getTipos()===tipo.tipos.ENTERO){
+                    if (this.tipo.getTipos()===tipo.tipos.ENTERO
+                    || this.tipo.getTipos()=== tipo.tipos.DECIMAL){
+
+                    if (result < -2147483647 || result > 2147483647){
+                        var ex:Excepcion = new Excepcion("Semantico", "Número fuera de rango.", this.linea, this.columna);
+                        tree.getExcepciones().push(ex);
+                        return ex;                          
+                    }
                         return result;
                     }
                 }else{
@@ -411,8 +440,14 @@ export default class Declaracion extends Instruccion{
 
                 }
             }else if (typeof result ==='boolean'){
-                if (this.tipo.getTipos()===tipo.tipos.BOOLEANO){
-                    return result;
+                if (this.tipo.getTipos()===tipo.tipos.BOOLEANO
+                || this.tipo.getTipos()===tipo.tipos.ENTERO){
+                    if (result ===true && this.tipo.getTipos()===tipo.tipos.ENTERO){
+                        return 1;
+                    }else if (result ===false && this.tipo.getTipos()===tipo.tipos.ENTERO) {
+                        return 0;
+                    }
+                    return result; //Booleano
                 }
             }
 
@@ -421,6 +456,43 @@ export default class Declaracion extends Instruccion{
         tree.getExcepciones().push(ex);
         return ex;
     }
+
+
+    public verificarEspeciales(valorFinal:any,tree:Arbol, table:tablaSimbolos){
+
+        if (this.tipo.getTipos()=== tipo.tipos.DECIMAL && this.valor.getTipo().getTipos()===tipo.tipos.ENTERO){
+            let numero:number = valorFinal.interpretar(tree,table);
+            if (numero > 2147483647 || numero < -2147483647){
+                var ex:Excepcion = new Excepcion("Semántico", "Número fuera de límite", this.linea, this.columna);
+                tree.getExcepciones().push(ex);
+                return ex;                        
+            }
+            return parseFloat(numero+".0");
+        }
+        else
+        if (this.tipo.getTipos()=== tipo.tipos.ENTERO && this.valor.getTipo().getTipos()===tipo.tipos.BOOLEANO){
+            let booleano:any = this.valor.interpretar(tree,table);
+            if (booleano ===true){
+                return 1;
+            }else{
+                return 0;
+            }
+        }
+        else
+        if (this.tipo.getTipos()=== tipo.tipos.ENTERO && this.valor.getTipo().getTipos()===tipo.tipos.ENTERO){
+            let numero:number = valorFinal.interpretar(tree,table);
+            if (numero > 2147483647 || numero < -2147483647){
+                var ex:Excepcion = new Excepcion("Semántico", "Número fuera de límite", this.linea, this.columna);
+                tree.getExcepciones().push(ex);
+                return ex;                        
+            }else{
+                return numero;
+            }
+        }else{
+            return true;
+        }
+    }
+
 
     public getNuevoTipo(result:any){
         if (typeof result === 'string'){
@@ -435,8 +507,10 @@ export default class Declaracion extends Instruccion{
         }else
         if (typeof result === 'number'){
             if (result%1 === 0){
-                if (this.tipo.getTipos()===tipo.tipos.ENTERO){
+                if (this.tipo.getTipos()===tipo.tipos.ENTERO ){
                     return tipo.tipos.ENTERO;
+                }else if (this.tipo.getTipos()===tipo.tipos.DECIMAL){
+                    return tipo.tipos.DECIMAL;
                 }
             }else{
                 if (this.tipo.getTipos()===tipo.tipos.DECIMAL){
@@ -445,8 +519,10 @@ export default class Declaracion extends Instruccion{
 
             }
         }else if (typeof result ==='boolean'){
-            if (this.tipo.getTipos()===tipo.tipos.BOOLEANO){
+            if (this.tipo.getTipos()===tipo.tipos.BOOLEANO ){
                 return tipo.tipos.BOOLEANO;
+            }else if (this.tipo.getTipos()===tipo.tipos.ENTERO){
+                return tipo.tipos.ENTERO;
             }
         }        
     }

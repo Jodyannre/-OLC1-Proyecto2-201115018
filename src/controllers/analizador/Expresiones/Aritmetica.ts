@@ -728,7 +728,6 @@ export default class Aritmetica extends Instruccion{
                     break;
                     ////////////////////////////////////////////////////////////////////////////////////////////////////
                 case 14: //Potencia
-                 dfgdf
                     if (this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO) {
                         this.tipo = new Tipo(tipo.tipos.ENTERO);                   
@@ -739,6 +738,11 @@ export default class Aritmetica extends Instruccion{
                     {
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
                         return Math.pow(parseFloat(izquierdo),parseInt(derecho, 10));
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoAritmetico);            
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO)
@@ -751,6 +755,26 @@ export default class Aritmetica extends Instruccion{
                     {
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
                         return Math.pow(parseFloat(izquierdo),parseFloat(derecho));
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoAritmetico);            
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                    && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoAritmetico);            
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoAritmetico);            
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarAmbosId(derecho,izquierdo,tree,table,this.operandoAritmetico);
                     }
                     else {
                         var ex:Excepcion = new Excepcion("Semantico", "Error de Tipo con el operador ^", this.linea, this.columna);
@@ -766,6 +790,10 @@ export default class Aritmetica extends Instruccion{
                     {
                         this.tipo = new Tipo(tipo.tipos.ENTERO);                   
                         return  parseInt(unario, 10) * -1;
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoAritmetico);            
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL)
                     {
@@ -795,6 +823,10 @@ export default class Aritmetica extends Instruccion{
                         let result:number = parseFloat(unario);
                         result++;
                         return result;
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoAritmetico);            
                     }
                     else {
                         var ex:Excepcion = new Excepcion("Semantico", "Error de Tipo con el operador ++", this.linea, this.columna);
@@ -860,7 +892,12 @@ export default class Aritmetica extends Instruccion{
         if(variable!=null){ //Si existe
             if (variable.getTipo().getTipos()<6){ //Si es del tipo correcto
                 let der = new primitivo.default(variable.getTipo(),variable.getValor(),0,0);
-                op = new Aritmetica(der,operador,0,0,this.operandoIzq);
+                if (this.operandoIzq){
+                    op = new Aritmetica(der,operador,0,0,this.operandoIzq);
+                }else{
+                    op = new Aritmetica(der,operador,0,0);
+                }
+                
                 resultado = op.interpretar(tree,table);
                 return resultado;
             }else{
@@ -897,5 +934,31 @@ export default class Aritmetica extends Instruccion{
             tree.getExcepciones().push(ex);
             return ex;                            
         }  
+    }
+
+
+    public getTipoResultado(tree:Arbol, table:tablaSimbolos){
+        var resultado = this.interpretar(tree,table);
+        if (resultado instanceof Excepcion){
+            return Excepcion;
+        }else
+        if (typeof resultado === 'number'){
+            if (resultado % 1 === 0){
+                return tipo.tipos.ENTERO;
+            }else{
+                return tipo.tipos.DECIMAL;
+            }
+        }else
+        if (typeof resultado === 'string'){
+            if (resultado.length === 1){
+                return tipo.tipos.CARACTER;
+            }else{
+                return tipo.tipos.CADENA;
+            }
+        }
+        else
+        if (typeof resultado === 'boolean'){
+            return tipo.tipos.BOOLEANO;
+        }
     }
 }

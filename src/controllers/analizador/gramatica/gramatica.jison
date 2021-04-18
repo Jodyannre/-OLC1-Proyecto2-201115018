@@ -154,6 +154,7 @@
 	const Asignacion = require('../Expresiones/Asignacion');
 	const IF = require('../Sentencias/IF');
 	const ELSE = require('../Sentencias/ELSE');
+	const WHILE = require('../Sentencias/WHILE');
 	var pilaAuxiliar = [];
 
 
@@ -378,7 +379,7 @@ instruccion_local_metodo
 	| manejo_vector_lista			{$$ = $1}
 	| ciclo_for						{$$ = $1+''}
 	| ciclo_do_while				{$$ = $1+''}
-	| ciclo_while					{$$ = $1+''}
+	| ciclo_while					{$$ = $1}
 	| condicion_if					{$$ = $1}
 	| condicion_switch				{$$ = $1+''}
 	| llamada_metodo_funcion 		{$$ = $1+''}
@@ -392,7 +393,7 @@ instruccion_global
 	| manejo_vector_lista			{$$ = $1}
 	| ciclo_for						{$$ = $1+''}
 	| ciclo_do_while				{$$ = $1+''}
-	| ciclo_while					{$$ = $1+''}
+	| ciclo_while					{$$ = $1}
 	| condicion_if					{$$ = $1}
 	| condicion_switch				{$$ = $1+''}
 	| declaracion_funcion_metodo 	{$$ = $1+''}
@@ -480,7 +481,8 @@ ciclo_for_incremento
 /*GRAMATICA DO WHILE--------------------------------------------------------*/
 ciclo_do_while
 	: DO LLAVE_A /*instrucciones*/ LLAVE_C WHILE PARENTESIS_A condicion_logica PARENTESIS_C PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+''+$7}
-	| DO LLAVE_A instrucciones_locales LLAVE_C WHILE PARENTESIS_A condicion_logica PARENTESIS_C PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+''+$7+''+$8}
+	| DO LLAVE_A instrucciones_locales LLAVE_C WHILE PARENTESIS_A condicion_logica PARENTESIS_C PUNTOCOMA 
+	{}
 ;
 
 ciclo_while_condicion
@@ -493,8 +495,13 @@ ciclo_while_condicion
 
 /*GRAMATICA WHILE-----------------------------------------------------------*/
 ciclo_while
-	:	WHILE PARENTESIS_A condicion_logica LLAVE_A /*instrucciones*/ LLAVE_C {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5}
-	|	WHILE PARENTESIS_A condicion_logica LLAVE_A instrucciones_locales LLAVE_C {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
+	//:	WHILE PARENTESIS_A condicion_logica LLAVE_A /*instrucciones*/ LLAVE_C {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5}
+	:	WHILE PARENTESIS_A condicion_logica PARENTESIS_C LLAVE_A instrucciones_locales LLAVE_C 
+	{
+		var tipo = new Tipo.default(Tipo.tipos.WHILE);
+		var nuevoCiclo = new WHILE.default(tipo,@1.first_line, @1.first_column,$3,$6);
+		$$ = nuevoCiclo;
+	}
 ;
 /*GRAMATICA WHILE-----------------------------------------------------------*/
 
@@ -603,8 +610,8 @@ condiciones_case_switch
 
 condicion_case
 	//: CASE ENTERO DOSPUNTOS /*instrucciones*/ BREAK PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5}
-	: CASE ENTERO DOSPUNTOS /*instrucciones*/	{$$ = $1+' '+$2+' '+$3}
-	| CASE ENTERO DOSPUNTOS instrucciones_locales {$$ = $1+' '+$2+' '+$3+' '+$4}
+	: CASE condicion_logica DOSPUNTOS /*instrucciones*/	{$$ = $1+' '+$2+' '+$3}
+	| CASE condicion_logica DOSPUNTOS instrucciones_locales {$$ = $1+' '+$2+' '+$3+' '+$4}
 	//| DEFAULT DOSPUNTOS /*instrucciones*/ BREAK PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4}
 	| DEFAULT DOSPUNTOS /*instrucciones*/		{$$ = $1+' '+$2}
 	| DEFAULT DOSPUNTOS instrucciones_locales	{$$ = $1+' '+$2+' '+$3}

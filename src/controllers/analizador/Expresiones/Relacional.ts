@@ -4,9 +4,9 @@ import tablaSimbolos from "../tablaSimbolos/tablaSimbolos";
 import Tipo from "../tablaSimbolos/Tipo";
 import Excepcion from "../Excepciones/Excepcion";
 import { nodoInstruccion } from "../Abstract/nodoInstruccion";
-
+import Simbolo from "../tablaSimbolos/Simbolo";
 const tipo = require('../tablaSimbolos/Tipo');
-
+const primitivo = require('../Expresiones/Primitivo');
 export default class Relacional extends Instruccion{
 
     private operandoIzq:any;
@@ -61,6 +61,11 @@ export default class Relacional extends Instruccion{
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
                         return parseInt(izquierdo,10) > ASCII;
                     }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoRelacional);            
+                    }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO){
                         return parseFloat(izquierdo)> parseInt(derecho,10);
@@ -74,6 +79,11 @@ export default class Relacional extends Instruccion{
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
                         return parseFloat(izquierdo) > ASCII;
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoRelacional);            
                     }
                     else if (this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO) {
@@ -94,6 +104,31 @@ export default class Relacional extends Instruccion{
                         this.preAscii = <string>derecho+"";
                         let ASCII2:number = this.preAscii.charCodeAt(0); //Get ascii derecho
                         return ASCII > ASCII2;
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoRelacional);            
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoRelacional);            
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoRelacional);            
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoRelacional);            
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarAmbosId(izquierdo,derecho,this.operandoRelacional,tree,table,);            
                     }
                     else {
                         var ex:Excepcion = new Excepcion("Semantico", "Error de tipos con el operador >", this.linea, this.columna);
@@ -120,6 +155,11 @@ export default class Relacional extends Instruccion{
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
                         return parseInt(izquierdo,10) < ASCII;
                     }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoRelacional);            
+                    }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO){
                         return parseFloat(izquierdo) < parseInt(derecho,10);
@@ -133,6 +173,11 @@ export default class Relacional extends Instruccion{
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
                         return parseFloat(izquierdo) < ASCII;
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoRelacional);            
                     }
                     else if (this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO) {
@@ -154,6 +199,31 @@ export default class Relacional extends Instruccion{
                         let ASCII2:number = this.preAscii.charCodeAt(0); //Get ascii derecho
                         return ASCII < ASCII2;
                     }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoRelacional);            
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoRelacional);            
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoRelacional);            
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoRelacional);            
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarAmbosId(izquierdo,derecho,this.operandoRelacional,tree,table,);            
+                    }                
                     else {
                         var ex:Excepcion = new Excepcion("Semantico", "Error de tipos con el operador <", this.linea, this.columna);
                         tree.getExcepciones().push(ex);
@@ -179,6 +249,11 @@ export default class Relacional extends Instruccion{
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
                         return parseInt(izquierdo,10) == ASCII;
                     }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoRelacional);            
+                    }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO){
                         return parseFloat(izquierdo) == parseInt(derecho,10);
@@ -192,6 +267,11 @@ export default class Relacional extends Instruccion{
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
                         return parseFloat(izquierdo) == ASCII;
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoRelacional);            
                     }
                     else if (this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO) {
@@ -212,6 +292,31 @@ export default class Relacional extends Instruccion{
                         this.preAscii = <string>derecho+"";
                         let ASCII2:number = this.preAscii.charCodeAt(0); //Get ascii derecho
                         return ASCII == ASCII2;
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoRelacional);            
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoRelacional);            
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoRelacional);            
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoRelacional);            
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarAmbosId(izquierdo,derecho,this.operandoRelacional,tree,table,);            
                     }
                     else {
                         var ex:Excepcion = new Excepcion("Semantico", "Error de tipos con el operador ==", this.linea, this.columna);
@@ -239,6 +344,11 @@ export default class Relacional extends Instruccion{
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
                         return parseInt(izquierdo,10) >= ASCII;
                     }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoRelacional);            
+                    }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO){
                         return parseFloat(izquierdo) >= parseInt(derecho,10);
@@ -252,6 +362,11 @@ export default class Relacional extends Instruccion{
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
                         return parseFloat(izquierdo) >= ASCII;
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoRelacional);            
                     }
                     else if (this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO) {
@@ -272,6 +387,31 @@ export default class Relacional extends Instruccion{
                         this.preAscii = <string>derecho+"";
                         let ASCII2:number = this.preAscii.charCodeAt(0); //Get ascii derecho
                         return ASCII >= ASCII2;
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoRelacional);            
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoRelacional);            
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoRelacional);            
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoRelacional);            
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarAmbosId(izquierdo,derecho,this.operandoRelacional,tree,table,);            
                     }
                     else {
                         var ex:Excepcion = new Excepcion("Semantico", "Error de tipos con el operador >=", this.linea, this.columna);
@@ -298,6 +438,11 @@ export default class Relacional extends Instruccion{
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
                         return parseInt(izquierdo,10) <= ASCII;
                     }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoRelacional);            
+                    }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO){
                         return parseFloat(izquierdo) <= parseInt(derecho,10);
@@ -311,6 +456,11 @@ export default class Relacional extends Instruccion{
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
                         return parseFloat(izquierdo) <= ASCII;
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoRelacional);            
                     }
                     else if (this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO) {
@@ -331,6 +481,31 @@ export default class Relacional extends Instruccion{
                         this.preAscii = <string>derecho+"";
                         let ASCII2:number = this.preAscii.charCodeAt(0); //Get ascii derecho
                         return ASCII <= ASCII2;
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoRelacional);            
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoRelacional);            
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoRelacional);            
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoRelacional);            
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarAmbosId(izquierdo,derecho,this.operandoRelacional,tree,table,);            
                     }
                     else {
                         var ex:Excepcion = new Excepcion("Semantico", "Error de tipos con el operador <=", this.linea, this.columna);
@@ -357,6 +532,11 @@ export default class Relacional extends Instruccion{
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
                         return parseInt(izquierdo,10) != ASCII;
                     }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoRelacional);            
+                    }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO){
                         return parseFloat(izquierdo) != parseInt(derecho,10);
@@ -370,6 +550,11 @@ export default class Relacional extends Instruccion{
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
                         return parseFloat(izquierdo) != ASCII;
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoRelacional);            
                     }
                     else if (this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO) {
@@ -391,6 +576,31 @@ export default class Relacional extends Instruccion{
                         let ASCII2:number = this.preAscii.charCodeAt(0); //Get ascii derecho
                         return ASCII != ASCII2;
                     }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarDerId(derecho,tree,table,this.operandoRelacional);            
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoRelacional);            
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoRelacional);            
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER)
+                    {
+                        return this.operarIzqId(izquierdo,tree,table,this.operandoRelacional);            
+                    }
+                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        return this.operarAmbosId(izquierdo,derecho,this.operandoRelacional,tree,table,);            
+                    }
                     else {
                         var ex:Excepcion = new Excepcion("Semantico", "Error de tipos con el operador !=", this.linea, this.columna);
                         tree.getExcepciones().push(ex);
@@ -405,5 +615,74 @@ export default class Relacional extends Instruccion{
             }
         }
         return null;
+    }
+
+
+    public operarIzqId(izquierdo:any,tree:Arbol,table:tablaSimbolos,operador:any):any{
+        let variable:Simbolo|any = izquierdo;
+        let op:Relacional;
+        let resultado;
+        if(variable!=null){ //Si existe
+            if (variable.getTipo().getTipos()<6){ //Si es del tipo correcto
+                let izq = new primitivo.default(variable.getTipo(),variable.getValor(),0,0);
+                op = new Relacional(izq,this.operandoDer,operador,0,0);
+                resultado = op.interpretar(tree,table);
+                return resultado;
+            }else{
+                var ex:Excepcion = new Excepcion("Semantico", "Tipo inválido", this.linea, this.columna);
+                tree.getExcepciones().push(ex);
+                return ex;                                  
+            }
+        }else{
+            var ex:Excepcion = new Excepcion("Semantico", "La variable no existe", this.linea, this.columna);
+            tree.getExcepciones().push(ex);
+            return ex;                            
+        }  
+    }
+
+    public operarDerId(derecha:any,tree:Arbol,table:tablaSimbolos,operador:any):any{
+        let variable:Simbolo|any = derecha;
+        let op:Relacional;
+        let resultado;
+        if(variable!=null){ //Si existe
+            if (variable.getTipo().getTipos()<6){ //Si es del tipo correcto
+                let der = new primitivo.default(variable.getTipo(),variable.getValor(),0,0);
+                op = new Relacional(this.operandoIzq,der,operador,0,0);
+                resultado = op.interpretar(tree,table);
+                return resultado;
+            }else{
+                var ex:Excepcion = new Excepcion("Semantico", "Tipo inválido", this.linea, this.columna);
+                tree.getExcepciones().push(ex);
+                return ex;                                  
+            }
+        }else{
+            var ex:Excepcion = new Excepcion("Semantico", "La variable no existe", this.linea, this.columna);
+            tree.getExcepciones().push(ex);
+            return ex;                            
+        }  
+    }
+
+    public operarAmbosId(izquierda:any,derecha:any,operador:any,tree:Arbol,table:tablaSimbolos):any{
+        let variableDer:Simbolo|any = derecha;
+        let variableIzq:Simbolo|any = izquierda;
+        let op:Relacional;
+        let resultado;
+        if(variableDer!=null && variableIzq!=null){ //Si existen
+            if (variableIzq.getTipo().getTipos()<6 && variableDer.getTipo().getTipos()<6){ //Si es del tipo correcto
+                let der = new primitivo.default(variableDer.getTipo(),variableDer.getValor(),0,0);
+                let izq = new primitivo.default(variableIzq.getTipo(),variableIzq.getValor(),0,0);
+                op = new Relacional(izq,der,operador,0,0);
+                resultado = op.interpretar(tree,table);
+                return resultado;
+            }else{
+                var ex:Excepcion = new Excepcion("Semantico", "Tipo inválido", this.linea, this.columna);
+                tree.getExcepciones().push(ex);
+                return ex;                                  
+            }
+        }else{
+            var ex:Excepcion = new Excepcion("Semantico", "La variable no existe", this.linea, this.columna);
+            tree.getExcepciones().push(ex);
+            return ex;                            
+        }  
     }
 }
