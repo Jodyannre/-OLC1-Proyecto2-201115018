@@ -186,6 +186,7 @@ export default class Asignacion extends Instruccion{
                         nuevoValor = this.instruccion.interpretar(tree,table);
                     }
                     simbolo.setValor(nuevoValor);
+                    return nuevoValor;
                 }else{
                     //Tipos diferentes
                     var ex:Excepcion = new Excepcion("Semántico", "Los tipos no coinciden.", this.linea, this.columna);
@@ -203,9 +204,6 @@ export default class Asignacion extends Instruccion{
         }else if (esTipo4){
             //Pendiente hasta que tenga los métodos
         }
-
-        
-
 
     }
 

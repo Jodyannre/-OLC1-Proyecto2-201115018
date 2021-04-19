@@ -6,9 +6,9 @@ import Excepcion from "../Excepciones/Excepcion";
 import { nodoInstruccion } from "../Abstract/nodoInstruccion";
 import Relacional from "../Expresiones/Relacional";
 import Logica from "../Expresiones/Logica";
-import Identificador from "../Expresiones/Identificador";
 import Aritmetica from "../Expresiones/Aritmetica";
 import Primitivo from "../Expresiones/Primitivo";
+import BREAK from "./BREAK";
 
 var Errors:Array<Excepcion> = new Array<Excepcion>();
 
@@ -23,23 +23,23 @@ export default class CASE extends Instruccion{
     public getNodoInstruccion(){
         let nodo:nodoInstruccion = new nodoInstruccion("SENTENCIA_CASE");
         let nodo2:nodoInstruccion = new nodoInstruccion("INSTRUCCIONES");
-        if (this.tipo.getTipos()==57){
+        if (this.tipo.getTipos()===57){
             nodo.agregarHijoCadena("CASE");
-            nodo.agregarHijoNodo(this.valorEvaluado.interpretar());
+            nodo.agregarHijoNodo(this.valorEvaluado.getNodoInstruccion());
             nodo.agregarHijoCadena(":");
             if (this.instrucciones != null){
                 nodo.agregarHijoNodo(nodo2);
                 for (let instruccion of this.instrucciones){
-                    nodo2.agregarHijoNodo(instruccion.interpretar());
+                    nodo2.agregarHijoNodo(instruccion.getNodoInstruccion());
                 }
             }
-        }else if(this.tipo.getTipos()==58){
+        }else if(this.tipo.getTipos()===58){
             nodo.agregarHijoCadena("DEFAULT");
             nodo.agregarHijoCadena(":");
             if (this.instrucciones != null){
                 nodo.agregarHijoNodo(nodo2);
                 for (let instruccion of this.instrucciones){
-                    nodo2.agregarHijoNodo(instruccion.interpretar());
+                    nodo2.agregarHijoNodo(instruccion.getNodoInstruccion());
                 }
             }            
         }
@@ -90,16 +90,20 @@ export default class CASE extends Instruccion{
                         nArbol.addError(result);
                         nArbol.updateConsola((<Excepcion>result).toString());
                         return result;
-                    }                    
+                    }
+                    if (result instanceof BREAK){
+                        return true;
+                    }
+                                        
                 }                                      
             }catch(err){
                 console.log(err);
             }
-            return true; //Terminó de operar exitosamente
+            return false; //Terminó de operar exitosamente
 
         }else{
             //Si entro, pero no hay instrucciones
-            return true;
+            return false;
         }
     }
 
@@ -111,7 +115,7 @@ export default class CASE extends Instruccion{
         }
 
         let valor:any;
-        let simbolo:any; //Símbolo que contiene el valor a evaluar
+        let simbolo:any=null; //Símbolo que contiene el valor a evaluar
         let tipoValorAevaluar:any;
         let tipoValorEvaluar:any= this.getTipoValorEvaluado(tree,table); //Get el tipo de primitivo
 
@@ -120,20 +124,20 @@ export default class CASE extends Instruccion{
         }
 
         if (this.valorAevaluar instanceof Primitivo){
-            tipoValorAevaluar = this.valorAevaluar.getTipo().getTipos();
+            tipoValorAevaluar = this.valorAevaluar.interpretar(tree,table);
         }else
         if (this.valorAevaluar instanceof Relacional || this.valorAevaluar instanceof Logica){
-            tipoValorAevaluar = tipo.Tipos.BOOLEANO;
+            tipoValorAevaluar = this.valorAevaluar.interpretar(tree,table);
         }else 
         if(this.valorAevaluar instanceof Aritmetica){
-            tipoValorAevaluar =  this.valorAevaluar.getTipoResultado(tree,table);
+            tipoValorAevaluar =  this.valorAevaluar.interpretar(tree,table);
         }else
         if (this.valorAevaluar.getTipo().getTipos()===tipo.tipos.IDENTIFICADOR){
             simbolo = this.valorAevaluar.interpretar(tree,table);
             if (simbolo instanceof Excepcion){
                 return simbolo;
             }else{
-                tipoValorAevaluar = simbolo.getTipo().getTipos();
+                tipoValorAevaluar = simbolo.getValor();
             }
         }else{
             var ex:Excepcion = new Excepcion("Semantico", "Valor incorrecto en sentencia Switch.", this.linea, this.columna);
@@ -143,12 +147,20 @@ export default class CASE extends Instruccion{
 
         //Ya tengo el valor en símbolo, solo hay que calcular el valor local
         valor = this.valorEvaluado.interpretar(tree,table);
-
-        if (valor === simbolo.getValor()){
-            return true;
+        if (simbolo != null){
+            if (valor === simbolo.getValor()){
+                return true;
+            }else{
+                return false;
+            }
         }else{
-            return false;
+            if (valor === tipoValorAevaluar){
+                return true;
+            }else{
+                return false;
+            }
         }
+
     }
 
     public getTipoValorEvaluado(tree:Arbol,table:tablaSimbolos){

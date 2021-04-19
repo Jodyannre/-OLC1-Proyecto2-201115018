@@ -12,23 +12,33 @@ var Errors:Array<Excepcion> = new Array<Excepcion>();
 
 const tipo = require('../tablaSimbolos/Tipo');
 
-export default class WHILE extends Instruccion{
+export default class FOR extends Instruccion{
     private condicion:any;
     private instrucciones:any;
+    private inicio:any;
+    private incremento:any;
 
 
 
     public getNodoInstruccion(){
         let nodo:nodoInstruccion = new nodoInstruccion("INSTRUCCION");
-        let nodo2:nodoInstruccion = new nodoInstruccion("SENTENCIA_WHILE");
-        let nodo3:nodoInstruccion = new nodoInstruccion("CONDICION");
-        let nodo4:nodoInstruccion = new nodoInstruccion("INSTRUCCION");
+        let nodo2:nodoInstruccion = new nodoInstruccion("SENTENCIA_FOR");
+        let nodo3:nodoInstruccion = new nodoInstruccion("INSTRUCCION");
+        let nodo4:nodoInstruccion = new nodoInstruccion("INSTRUCCIONES");
+        let nodo5:nodoInstruccion = new nodoInstruccion("INSTRUCCION");
+        let nodo6:nodoInstruccion = new nodoInstruccion("CONDICION");
         let temp:any;
-        if (this.tipo.getTipos()==55){
-            nodo2.agregarHijoCadena("WHILE");
+        if (this.tipo.getTipos()==62){
+            nodo2.agregarHijoCadena("FOR");
             nodo2.agregarHijoCadena("(");
-            nodo3.agregarHijoNodo(this.condicion.getNodoInstruccion());
+            nodo3.agregarHijoNodo(this.inicio.getNodoInstruccion());
             nodo2.agregarHijoNodo(nodo3);
+            nodo2.agregarHijoCadena(";");
+            nodo6.agregarHijoNodo(this.condicion.getNodoInstruccion());
+            nodo2.agregarHijoNodo(nodo6);
+            nodo2.agregarHijoCadena(";");
+            nodo5.agregarHijoNodo(this.incremento.getNodoInstruccion());
+            nodo2.agregarHijoNodo(nodo5);
             nodo2.agregarHijoCadena(")");
             nodo2.agregarHijoCadena("{");
             if (this.instrucciones!=null){
@@ -45,9 +55,11 @@ export default class WHILE extends Instruccion{
     }
 
 
-    constructor(tipo:Tipo, linea:Number, columna:Number, condicion:any,instrucciones:any) {
+    constructor(tipo:Tipo, linea:Number, columna:Number, inicio:any,condicion:any,incremento:any,instrucciones:any) {
         super(tipo, linea, columna);
         this.condicion = condicion;
+        this.inicio = inicio;
+        this.incremento = incremento;
         if (instrucciones!=null){
             this.instrucciones = instrucciones;
         }else{
@@ -60,18 +72,46 @@ export default class WHILE extends Instruccion{
         if (this.pasada<2){
             return true;
         }
-        var estadoCondicion = this.verificarCondicion(tree,table);
+
+        //Verificar cualquier tipo de error en el for
+        if (this.inicio ===null 
+        ||  this.condicion === null
+        ||  this.incremento === null){
+            var ex:Excepcion = new Excepcion("Semantico", "Error en la creación del for.", this.linea, this.columna);
+            tree.getExcepciones().push(ex);
+            return ex;             
+        }
+        if (this.inicio instanceof Excepcion){
+            return this.inicio;
+        } 
+        if (this.condicion instanceof Excepcion){
+            return this.condicion;
+        } 
+        if (this.incremento instanceof Excepcion){
+            return this.incremento;
+        } 
+
+        //Crear nuevo enterno
+        let nArbol:Arbol = new Arbol(this.instrucciones);
+        let nTabla:tablaSimbolos = new tablaSimbolos(3,table);
+        table.addSiguiente(nTabla);
+        tree.addSiguiente(nArbol);
+
+        //Inicializar la variable del for
+        var inicializacion = this.inicio.interpretar(nArbol,nTabla);
+
+        if (inicializacion instanceof Excepcion){
+            return inicializacion;
+        }
+        //Inicializar condicion
+        var estadoCondicion = this.verificarCondicion(nArbol,nTabla);
+
         if (estadoCondicion instanceof Excepcion){
             return estadoCondicion;
         }
             if (estadoCondicion===true){
                 //Con instrucciones y condición true
-                //Crear nuevo enterno
-                let nArbol:Arbol = new Arbol(this.instrucciones);
-                let nTabla:tablaSimbolos = new tablaSimbolos(3,table);
-                table.addSiguiente(nTabla);
-                tree.addSiguiente(nArbol);
-                var instruccionesEliminar:number[] = [];
+
                 while (estadoCondicion ===true){
 
                     try{
@@ -82,6 +122,9 @@ export default class WHILE extends Instruccion{
                                 nArbol.updateConsola((<Excepcion>m).toString());
                                 continue;
                             }
+                            if (m===null){
+                                break;
+                            }
                             m.setPasada(2);
                             var result = m.interpretar(nArbol, nTabla);
                             if(result instanceof Excepcion){ // ERRORES SEMÁNTICOS
@@ -90,15 +133,20 @@ export default class WHILE extends Instruccion{
                                 nArbol.updateConsola((<Excepcion>result).toString());
                                 return result;
     
-                            }   
+                            }        
                             if (result instanceof BREAK){
                                 return true;
-                            }                 
+                            }            
                         }                                       
                     }catch(err){
                         console.log(err);
                         return false;
                     }                    
+                    //Actualizar condición del for
+                    var update = this.incremento.interpretar(nArbol,nTabla);
+                    if (update instanceof Excepcion){
+                        return update;
+                    }
                     //Revisar como sigue la condición
                     estadoCondicion = this.verificarCondicion(nArbol,nTabla);
                 }

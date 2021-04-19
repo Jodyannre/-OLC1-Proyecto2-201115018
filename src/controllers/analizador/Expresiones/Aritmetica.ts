@@ -826,7 +826,9 @@ export default class Aritmetica extends Instruccion{
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
                     {
-                        return this.operarDerId(derecho,tree,table,this.operandoAritmetico);            
+                        var resultado = this.operarDerId(unario,tree,table,this.operandoAritmetico); 
+                        (<Simbolo>unario).setValor(resultado);
+                        return resultado;           
                     }
                     else {
                         var ex:Excepcion = new Excepcion("Semantico", "Error de Tipo con el operador ++", this.linea, this.columna);
@@ -851,6 +853,12 @@ export default class Aritmetica extends Instruccion{
                         let result:number = parseFloat(unario);
                         result--;
                         return result;
+                    }
+                    else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    {
+                        var resultado = this.operarDerId(unario,tree,table,this.operandoAritmetico); 
+                        (<Simbolo>unario).setValor(resultado);
+                        return resultado;           
                     }
                     else {
                         var ex:Excepcion = new Excepcion("Semantico", "Error de Tipo con el operador --", this.linea, this.columna);

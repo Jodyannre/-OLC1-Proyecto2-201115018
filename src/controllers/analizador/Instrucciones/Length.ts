@@ -8,6 +8,8 @@ const tipo = require('../tablaSimbolos/Tipo');
 import { nodoInstruccion } from "../Abstract/nodoInstruccion";
 import Vector from "../Expresiones/Vector";
 import Lista from "../Expresiones/Lista";
+import Primitivo from "../Expresiones/Primitivo";
+const primitivo = require('../Expresiones/Primitivo');
 
 export default class Length extends Instruccion{
     private expresion: any;
@@ -38,6 +40,7 @@ export default class Length extends Instruccion{
         let size,simbolo;
         if(this.expresion.getTipo().getTipos()===tipo.tipos.CADENA){
             size = this.expresion.interpretar(tree,table);
+            //let nuevoSimbolo = new Primitivo.default( new Tipo.default(Tipo.tipos.ENTERO),parseInt($1,10), @1.first_line, @1.first_column); 
             return size.length;
         }else if(this.expresion.getTipo().getTipos()===tipo.tipos.IDENTIFICADOR){
             simbolo = this.expresion.interpretar(tree,table);

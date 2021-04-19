@@ -5,6 +5,7 @@ import tablaSimbolos from './analizador/tablaSimbolos/tablaSimbolos';
 import {Instruccion} from './analizador/Abstract/Instruccion';
 import { nodoInstruccion } from "./analizador/Abstract/nodoInstruccion";
 import Asignacion from "./analizador/Expresiones/Asignacion";
+import {Consola} from '../controllers/analizador/Abstract/Consola';
 const { exec } = require("child_process");
 var Errors:Array<Excepcion> = new Array<Excepcion>();
 
@@ -125,6 +126,7 @@ class typestyController{
 
             typestyController.graficarAST(nodoInicial);
             console.log(ast.getConsola());
+
             
         }
         catch(err){
@@ -133,10 +135,9 @@ class typestyController{
                 salida : err,
                 errores : err
             });
-        }
-
-
+        }   
         
+        Consola.updateConsola("este sería el texto");
     }
 
 

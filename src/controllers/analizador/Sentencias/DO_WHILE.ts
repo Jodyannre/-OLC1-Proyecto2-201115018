@@ -19,17 +19,14 @@ export default class WHILE extends Instruccion{
 
 
     public getNodoInstruccion(){
-        let nodo:nodoInstruccion = new nodoInstruccion("INSTRUCCION");
-        let nodo2:nodoInstruccion = new nodoInstruccion("SENTENCIA_WHILE");
+        let nodo:nodoInstruccion = new nodoInstruccion("INSTRUCCION_CICLO");
+        let nodo2:nodoInstruccion = new nodoInstruccion("SENTENCIA_DO_WHILE");
         let nodo3:nodoInstruccion = new nodoInstruccion("CONDICION");
         let nodo4:nodoInstruccion = new nodoInstruccion("INSTRUCCION");
+        let nodo5:nodoInstruccion = new nodoInstruccion("SENTENCIA_WHILE"); 
         let temp:any;
-        if (this.tipo.getTipos()==55){
-            nodo2.agregarHijoCadena("WHILE");
-            nodo2.agregarHijoCadena("(");
-            nodo3.agregarHijoNodo(this.condicion.getNodoInstruccion());
-            nodo2.agregarHijoNodo(nodo3);
-            nodo2.agregarHijoCadena(")");
+        if (this.tipo.getTipos()==56){
+            nodo2.agregarHijoCadena("DO");
             nodo2.agregarHijoCadena("{");
             if (this.instrucciones!=null){
                 for (let instruccion of this.instrucciones){
@@ -39,6 +36,13 @@ export default class WHILE extends Instruccion{
                 nodo2.agregarHijoNodo(nodo4);
             }
             nodo2.agregarHijoCadena("}");
+            nodo5.agregarHijoCadena("WHILE")
+            nodo5.agregarHijoCadena("(");
+            nodo3.agregarHijoNodo(this.condicion.getNodoInstruccion());
+            nodo5.agregarHijoNodo(nodo3);
+            nodo5.agregarHijoCadena(")");
+            nodo5.agregarHijoCadena(";");
+            nodo2.agregarHijoNodo(nodo5);
             nodo.agregarHijoNodo(nodo2);
         }         
         return nodo;
@@ -60,18 +64,48 @@ export default class WHILE extends Instruccion{
         if (this.pasada<2){
             return true;
         }
-        var estadoCondicion = this.verificarCondicion(tree,table);
+
+        //Realizar DO
+
+        //Crear ámbito
+        let nArbol:Arbol = new Arbol(this.instrucciones);
+        let nTabla:tablaSimbolos = new tablaSimbolos(3,table);
+        table.addSiguiente(nTabla);
+        tree.addSiguiente(nArbol);
+        try{
+            for (let m of nArbol.getInstrucciones()){
+                if(m instanceof Excepcion){ // ERRORES SINTACTICOS
+                    Errors.push(m);
+                    nArbol.addError(m);
+                    nArbol.updateConsola((<Excepcion>m).toString());
+                    continue;
+                }
+                m.setPasada(2);
+                var result = m.interpretar(nArbol, nTabla);
+                if(result instanceof Excepcion){ // ERRORES SEMÁNTICOS
+                    Errors.push(result);
+                    nArbol.addError(result);
+                    nArbol.updateConsola((<Excepcion>result).toString());
+                    return result;
+
+                }
+                if (result instanceof BREAK){
+                    return true;
+                }                    
+            }                                       
+        }catch(err){
+            console.log(err);
+            return false;
+        }     
+
+        var estadoCondicion = this.verificarCondicion(nArbol,nTabla);
         if (estadoCondicion instanceof Excepcion){
             return estadoCondicion;
         }
             if (estadoCondicion===true){
                 //Con instrucciones y condición true
                 //Crear nuevo enterno
-                let nArbol:Arbol = new Arbol(this.instrucciones);
-                let nTabla:tablaSimbolos = new tablaSimbolos(3,table);
-                table.addSiguiente(nTabla);
-                tree.addSiguiente(nArbol);
-                var instruccionesEliminar:number[] = [];
+
                 while (estadoCondicion ===true){
 
                     try{
@@ -90,10 +124,7 @@ export default class WHILE extends Instruccion{
                                 nArbol.updateConsola((<Excepcion>result).toString());
                                 return result;
     
-                            }   
-                            if (result instanceof BREAK){
-                                return true;
-                            }                 
+                            }                    
                         }                                       
                     }catch(err){
                         console.log(err);

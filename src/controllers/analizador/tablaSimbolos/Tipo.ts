@@ -78,5 +78,9 @@ export enum tipos
     WHILE = 55,
     DO_WHILE = 56,
     CASE = 57,
-    DEFAULT = 58
+    DEFAULT = 58,
+    SWITCH = 59,
+    BREAK = 60,
+    RETURN = 61,
+    FOR = 62
 }

@@ -7,6 +7,7 @@ import { nodoInstruccion } from "../Abstract/nodoInstruccion";
 import Relacional from "../Expresiones/Relacional";
 import Logica from "../Expresiones/Logica";
 import Identificador from "../Expresiones/Identificador";
+import BREAK from "./BREAK";
 var Errors:Array<Excepcion> = new Array<Excepcion>();
 
 const tipo = require('../tablaSimbolos/Tipo');
@@ -105,7 +106,9 @@ export default class IF extends Instruccion{
                 table.addSiguiente(nTabla);
                 tree.addSiguiente(nArbol);
                 var instruccionesEliminar:number[] = [];
-
+                if (this.instrucciones===null){
+                    return true;
+                }
                 try{
                     for (let m of nArbol.getInstrucciones()){
                         m.setPasada(2);
@@ -126,13 +129,10 @@ export default class IF extends Instruccion{
                             nArbol.addError(result);
                             nArbol.updateConsola((<Excepcion>result).toString());
                             return result;
-                            let lista:Array<Instruccion>= nArbol.getInstrucciones(); //Buscar index de instrucciones con errores
-                            let index: number = lista.findIndex(lista => lista === m);
-                            if (index != -1) {
-                                instruccionesEliminar.push(index);
-                                //ast.getInstrucciones().splice(index, 1);
-                            }
-                        }                    
+                        } 
+                        if (result instanceof BREAK){
+                            return result;
+                        }                   
                     }                         
                     let corrimiento:number = 0;
                     for (let index of instruccionesEliminar){

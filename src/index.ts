@@ -39,7 +39,6 @@ no = express.static(__dirname + '/public/images');
 app.use("/images",no);
 */
 
-
 var no = express.static(__dirname + '/public/css');
 app.use("/css",no);
 

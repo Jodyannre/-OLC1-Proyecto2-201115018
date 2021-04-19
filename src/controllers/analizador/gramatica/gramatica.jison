@@ -155,6 +155,11 @@
 	const IF = require('../Sentencias/IF');
 	const ELSE = require('../Sentencias/ELSE');
 	const WHILE = require('../Sentencias/WHILE');
+	const DO_WHILE = require('../Sentencias/DO_WHILE');
+	const SWITCH = require('../Sentencias/SWITCH');
+	const CASE = require('../Sentencias/CASE');
+	const BREAK = require('../Sentencias/BREAK');
+	const FOR = require('../Sentencias/FOR');
 	var pilaAuxiliar = [];
 
 
@@ -360,7 +365,12 @@ instrucciones_locales
 instruccion_local
 	: instruccion_local_metodo		{$$ = $1}				
 	| CONTINUE PUNTOCOMA			{$$ = $1+' '+$2}
-	| BREAK PUNTOCOMA				{$$ = $1+' '+$2}
+	| BREAK PUNTOCOMA				
+	{
+		var nTipo = new Tipo.default(Tipo.tipos.BREAK);
+		var nBreak = new BREAK.default(nTipo,@1.first_line, @1.first_column);
+		$$ = nBreak;
+	}
 ;
 
 instrucciones_locales_metodo
@@ -377,11 +387,12 @@ instruccion_local_metodo
 	: creacion_variable 			{$$ = $1}
 	| asignacion_variable 			{$$ = $1}
 	| manejo_vector_lista			{$$ = $1}
-	| ciclo_for						{$$ = $1+''}
-	| ciclo_do_while				{$$ = $1+''}
+	| ciclo_for						{$$ = $1}
+	| ciclo_do_while				{$$ = $1}
 	| ciclo_while					{$$ = $1}
 	| condicion_if					{$$ = $1}
-	| condicion_switch				{$$ = $1+''}
+	| condicion_switch				{$$ = $1}
+	| aritmetico_unario				{$$ = $1}
 	| llamada_metodo_funcion 		{$$ = $1+''}
 	| RETURN condicion_logica PUNTOCOMA {$$ = $1+' '+$2+' '+$3}
 	| RETURN PUNTOCOMA				{$$ = $1+' '+$2}
@@ -391,12 +402,13 @@ instruccion_global
 	: creacion_variable 			{$$ = $1}
 	| asignacion_variable 			{$$ = $1}
 	| manejo_vector_lista			{$$ = $1}
-	| ciclo_for						{$$ = $1+''}
-	| ciclo_do_while				{$$ = $1+''}
+	| ciclo_for						{$$ = $1}
+	| ciclo_do_while				{$$ = $1}
 	| ciclo_while					{$$ = $1}
 	| condicion_if					{$$ = $1}
-	| condicion_switch				{$$ = $1+''}
+	| condicion_switch				{$$ = $1}
 	| declaracion_funcion_metodo 	{$$ = $1+''}
+	| aritmetico_unario				{$$ = $1}
 	| llamada_metodo_funcion 		{$$ = $1}
 ;
 
@@ -439,6 +451,7 @@ asignacion_valor_variable
 	| ASIGNACION PARENTESIS_A DOUBLE PARENTESIS_C expresion PUNTOCOMA 	{$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
 	| ASIGNACION metodos_nativos PUNTOCOMA 								{$$ = $2}
 	| ASIGNACION condicion_logica TERNARIO expresion DOSPUNTOS expresion PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7}
+	| ASIGNACION llamada_metodo_funcion
 ;
 
 asignacion_valor_vector
@@ -459,30 +472,75 @@ asignacion_tipo
 
 /*GRAMATICA FOR-------------------------------------------------------------*/
 ciclo_for
-    : FOR PARENTESIS_A ciclo_for_variable condicion_logica PUNTOCOMA ciclo_for_incremento
-	PARENTESIS_C LLAVE_A /*instrucciones*/ LLAVE_C {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7+' '+$8+' '+$9}
-	| FOR PARENTESIS_A ciclo_for_variable condicion_logica PUNTOCOMA ciclo_for_incremento
-	PARENTESIS_C LLAVE_A instrucciones_locales LLAVE_C {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7+' '+$8+' '+$9+' '+$10}
+    : FOR PARENTESIS_A ciclo_for_variable  condicion_logica PUNTOCOMA ciclo_for_incremento
+	PARENTESIS_C LLAVE_A /*instrucciones*/ LLAVE_C 
+	{
+		var nTipo = new Tipo.default(Tipo.tipos.FOR);
+		var nFor = new FOR.default(nTipo,@1.first_line, @1.first_column,$3,$4,$6,null);
+		$$ = nFor;
+	}
+	| FOR PARENTESIS_A ciclo_for_variable  condicion_logica PUNTOCOMA ciclo_for_incremento
+	PARENTESIS_C LLAVE_A instrucciones_locales LLAVE_C 
+	{
+		var nTipo = new Tipo.default(Tipo.tipos.FOR);
+		var nFor = new FOR.default(nTipo,@1.first_line, @1.first_column,$3,$4,$6,$9);
+		$$ = nFor;
+	}
 ;
 
 ciclo_for_variable
-	: creacion_variable 	{$$ = $1+''}
-	| asignacion_variable 	{$$ = $1+''}
+	: creacion_variable 	{$$ = $1}
+	| asignacion_variable 	{$$ = $1}
 ;
 
 ciclo_for_incremento
-	: ID ASIGNACION expresion			{$$ = $1+' '+$2+' '+$3}
-	| ID DECREMENTO						{$$ = $1+' '+$2}
-	| ID INCREMENTO						{$$ = $1+' '+$2}	
+	: ID DECREMENTO			
+	{
+		var id = new Identificador.default(new Tipo.default(Tipo.tipos.IDENTIFICADOR),$1,@1.first_line, @1.first_column);
+		$$ = new Aritmetica.default(id,new Tipo.default(Tipo.tipos.DECREMENTO),@1.first_line, @1.first_column); 
+	}
+	| ID INCREMENTO			
+	{
+		var id = new Identificador.default(new Tipo.default(Tipo.tipos.IDENTIFICADOR),$1,@1.first_line, @1.first_column);
+		$$ = new Aritmetica.default(id,new Tipo.default(Tipo.tipos.INCREMENTO),@1.first_line, @1.first_column); 
+	}
+	| asignacion_variable {$$ = $1}	
+;
+
+
+
+
+aritmetico_unario
+	//: ID ASIGNACION expresion					{$$ = $1+' '+$2+' '+$3}
+	: ID DECREMENTO	PUNTOCOMA			
+	{
+		var id = new Identificador.default(new Tipo.default(Tipo.tipos.IDENTIFICADOR),$1,@1.first_line, @1.first_column);
+		$$ = new Aritmetica.default(id,new Tipo.default(Tipo.tipos.DECREMENTO),@1.first_line, @1.first_column); 
+	}
+	| ID INCREMENTO PUNTOCOMA			
+	{
+		var id = new Identificador.default(new Tipo.default(Tipo.tipos.IDENTIFICADOR),$1,@1.first_line, @1.first_column);
+		$$ = new Aritmetica.default(id,new Tipo.default(Tipo.tipos.INCREMENTO),@1.first_line, @1.first_column); 
+	}	
+
 ;
 /*GRAMATICA FOR-------------------------------------------------------------*/
 
 
 /*GRAMATICA DO WHILE--------------------------------------------------------*/
 ciclo_do_while
-	: DO LLAVE_A /*instrucciones*/ LLAVE_C WHILE PARENTESIS_A condicion_logica PARENTESIS_C PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+''+$7}
+	: DO LLAVE_A /*instrucciones*/ LLAVE_C WHILE PARENTESIS_A condicion_logica PARENTESIS_C PUNTOCOMA 
+	{
+		var tipo = new Tipo.default(Tipo.tipos.DO_WHILE);
+		var nuevoCiclo = new DO_WHILE.default(tipo,@1.first_line, @1.first_column,$6,null);
+		$$ = nuevoCiclo;
+	}
 	| DO LLAVE_A instrucciones_locales LLAVE_C WHILE PARENTESIS_A condicion_logica PARENTESIS_C PUNTOCOMA 
-	{}
+	{
+		var tipo = new Tipo.default(Tipo.tipos.DO_WHILE);
+		var nuevoCiclo = new DO_WHILE.default(tipo,@1.first_line, @1.first_column,$7,$3);
+		$$ = nuevoCiclo;
+	}
 ;
 
 ciclo_while_condicion
@@ -600,21 +658,50 @@ condicion_if_else
 
 /*GRAMATICA SWITCH----------------------------------------------------------*/
 condicion_switch
-	: SWITCH PARENTESIS_A ID PARENTESIS_C LLAVE_A condiciones_case_switch LLAVE_C {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7}
+	: SWITCH PARENTESIS_A expresion PARENTESIS_C LLAVE_A condiciones_case_switch LLAVE_C 
+	{
+		var nTipo = new Tipo.default(Tipo.tipos.SWITCH);
+		var nuevoSwitch = new SWITCH.default(nTipo,@1.first_line, @1.first_column,$3,$6);
+		$$ = nuevoSwitch;
+	}
 ;
 
 condiciones_case_switch
-	: condicion_case condiciones_case_switch 	{$$ = $1+' '+$2}
-	| condicion_case 							{$$ = $1+''}
+	: condiciones_case_switch condicion_case  	
+	{		
+		$1.push($2);
+		$$ = $1;
+	}
+	| condicion_case 							{$$ = [$1];}
 ;
 
 condicion_case
 	//: CASE ENTERO DOSPUNTOS /*instrucciones*/ BREAK PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5}
-	: CASE condicion_logica DOSPUNTOS /*instrucciones*/	{$$ = $1+' '+$2+' '+$3}
-	| CASE condicion_logica DOSPUNTOS instrucciones_locales {$$ = $1+' '+$2+' '+$3+' '+$4}
+	: CASE condicion_logica DOSPUNTOS /*instrucciones*/	
+	{
+		var nTipo = new Tipo.default(Tipo.tipos.CASE);
+		var nuevoCase = new CASE.default(nTipo,@1.first_line, @1.first_column,$2,null);
+		$$ = nuevoCase;
+	}
+	| CASE condicion_logica DOSPUNTOS instrucciones_locales 
+	{
+		var nTipo = new Tipo.default(Tipo.tipos.CASE);
+		var nuevoCase = new CASE.default(nTipo,@1.first_line, @1.first_column,$2,$4);
+		$$ = nuevoCase;		
+	}
 	//| DEFAULT DOSPUNTOS /*instrucciones*/ BREAK PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4}
-	| DEFAULT DOSPUNTOS /*instrucciones*/		{$$ = $1+' '+$2}
-	| DEFAULT DOSPUNTOS instrucciones_locales	{$$ = $1+' '+$2+' '+$3}
+	| DEFAULT DOSPUNTOS /*instrucciones*/		
+	{
+		var nTipo = new Tipo.default(Tipo.tipos.DEFAULT);
+		var nuevoCase = new CASE.default(nTipo,@1.first_line, @1.first_column,null,null);
+		$$ = nuevoCase;			
+	}
+	| DEFAULT DOSPUNTOS instrucciones_locales	
+	{
+		var nTipo = new Tipo.default(Tipo.tipos.DEFAULT);
+		var nuevoCase = new CASE.default(nTipo,@1.first_line, @1.first_column,null,$3);
+		$$ = nuevoCase;			
+	}
 ;
 /*GRAMATICA SWITCH----------------------------------------------------------*/
 
@@ -677,7 +764,7 @@ declaracion_funcion_metodo
 ;
 
 definicion_parametros
-	: asignacion_tipo ID COMA definicion_parametros {$$ = $1+' '+$2+' '+$3+' '+$4}
+	: definicion_parametros COMA asignacion_tipo ID {$$ = $1+' '+$2+' '+$3+' '+$4}
 	| asignacion_tipo ID 							{$$ = $1+' '+$2}
 ;
 /*GRAMATICA METODOS Y FUNCIONES---------------------------------------------*/
