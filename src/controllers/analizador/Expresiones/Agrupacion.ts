@@ -26,7 +26,7 @@ export default class Agrupacion extends Instruccion{
 
 
 
-    constructor(tipo:Tipo, linea:Number, columna:Number,operacion:any) {
+    constructor(tipo:Tipo, linea:number, columna:number,operacion:any) {
         super(tipo, linea, columna);
         if (operacion != null){
             this.operacion = operacion;

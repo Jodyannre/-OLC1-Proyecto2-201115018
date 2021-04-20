@@ -6,12 +6,13 @@ import Tipo, { tipos } from "../tablaSimbolos/Tipo";
 import Simbolo from "../tablaSimbolos/Simbolo";
 const tipo = require('../tablaSimbolos/Tipo');
 import { nodoInstruccion } from "../Abstract/nodoInstruccion";
+const primitivo = require('../Expresiones/Primitivo');
 
 export default class loLower extends Instruccion{
     private expresion: any;
     private retorno: any;
 
-    constructor(expresion:any, linea:Number, columna:Number, retorno:Tipo){
+    constructor(expresion:any, linea:number, columna:number, retorno:Tipo){
         super(new Tipo(tipos.TO_UPPER),linea, columna);
         this.expresion = expresion;
         this.retorno = retorno;
@@ -36,7 +37,10 @@ export default class loLower extends Instruccion{
         let cadena,simbolo;
         if(this.expresion.getTipo().getTipos()===tipo.tipos.CADENA){
             cadena = this.expresion.interpretar(tree,table);
-            return cadena.toUpperCase();
+            let nTipo = new tipo.default(tipo.tipos.CADENA);
+            let nValor = cadena.toLowerCase();
+            let nPrimitivo = new primitivo.default( nTipo,nValor,this.linea,this.columna); 
+            return nPrimitivo;
         }else if(this.expresion.getTipo().getTipos()===tipo.tipos.IDENTIFICADOR){
             simbolo = this.expresion.interpretar(tree,table);
             if (simbolo ==null){
@@ -45,7 +49,10 @@ export default class loLower extends Instruccion{
                 return ex;      
             }
             if (this.verificarTipo(simbolo)){ //Si tiene valor cadena la variable
-                return simbolo.getValor().toLowerCase();
+                let nTipo = new tipo.default(tipo.tipos.CADENA);
+                let nValor = simbolo.getValor().getValor().toLowerCase();
+                let nPrimitivo = new primitivo.default( nTipo,nValor,this.linea,this.columna); 
+                return nPrimitivo;
             }
 
         }else{

@@ -5,6 +5,7 @@ import Tipo from "../tablaSimbolos/Tipo";
 import Excepcion from "../Excepciones/Excepcion";
 import { nodoInstruccion } from "../Abstract/nodoInstruccion";
 import Simbolo from "../tablaSimbolos/Simbolo";
+import Primitivo from "./Primitivo";
 const tipo = require('../tablaSimbolos/Tipo');
 const primitivo = require('../Expresiones/Primitivo');
 export default class Relacional extends Instruccion{
@@ -15,7 +16,7 @@ export default class Relacional extends Instruccion{
     private preAscii:any;
 
 
-    constructor(operandoIzq:any, operandoDer:any, operandoRelacional:Tipo, linea:Number, columna:Number ) {
+    constructor(operandoIzq:any, operandoDer:any, operandoRelacional:Tipo, linea:number, columna:number ) {
         super(operandoRelacional, linea, columna);
         this.operandoIzq = operandoIzq;
         this.operandoDer = operandoDer;
@@ -47,55 +48,83 @@ export default class Relacional extends Instruccion{
                 case 18: //Mayor
                     if (this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO) {
-
-                        return parseInt(izquierdo,10)  > parseInt(derecho,10);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseInt(izquierdo,10)  > parseInt(derecho,10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL){
-                        
-                        return parseInt(izquierdo,10) > parseFloat(derecho);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseInt(izquierdo,10) > parseFloat(derecho);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if (this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER) {
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return parseInt(izquierdo,10) > ASCII;
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseInt(izquierdo,10) > ASCII;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
                     {
-                        return this.operarDerId(derecho,tree,table,this.operandoRelacional);            
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = this.operarDerId(derecho,tree,table,this.operandoRelacional); 
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado         
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO){
-                        return parseFloat(izquierdo)> parseInt(derecho,10);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseFloat(izquierdo)> parseInt(derecho,10); 
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL){
-                        return parseFloat(izquierdo) > parseFloat(derecho);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseFloat(izquierdo) > parseFloat(derecho);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER){
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return parseFloat(izquierdo) > ASCII;
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseFloat(izquierdo) > ASCII;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
                     {
-                        return this.operarDerId(derecho,tree,table,this.operandoRelacional);            
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = this.operarDerId(derecho,tree,table,this.operandoRelacional);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado         
                     }
                     else if (this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO) {
                         this.preAscii = <string>izquierdo+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return ASCII > parseInt(derecho,10);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = ASCII > parseInt(derecho,10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado   
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL){
                         this.preAscii = <string>izquierdo+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return ASCII > parseFloat(derecho);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = ASCII > parseFloat(derecho);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER){
@@ -103,7 +132,10 @@ export default class Relacional extends Instruccion{
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii izquierdo
                         this.preAscii = <string>derecho+"";
                         let ASCII2:number = this.preAscii.charCodeAt(0); //Get ascii derecho
-                        return ASCII > ASCII2;
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = ASCII > ASCII2;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -141,19 +173,26 @@ export default class Relacional extends Instruccion{
 
                     if (this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
                     && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO) {
-
-                        return parseInt(izquierdo,10)  < parseInt(derecho,10);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseInt(izquierdo,10)  < parseInt(derecho,10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL){
-                        
-                        return parseInt(izquierdo,10) < parseFloat(derecho);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseInt(izquierdo,10) < parseFloat(derecho);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if (this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER) {
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return parseInt(izquierdo,10) < ASCII;
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseInt(izquierdo,10) < ASCII;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -162,17 +201,27 @@ export default class Relacional extends Instruccion{
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO){
-                        return parseFloat(izquierdo) < parseInt(derecho,10);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseFloat(izquierdo) < parseInt(derecho,10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL){
-                        return parseFloat(izquierdo) < parseFloat(derecho);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseFloat(izquierdo) < parseFloat(derecho);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER){
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return parseFloat(izquierdo) < ASCII;
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseFloat(izquierdo) < ASCII;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
+                        
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -183,13 +232,19 @@ export default class Relacional extends Instruccion{
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO) {
                         this.preAscii = <string>izquierdo+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return ASCII < parseInt(derecho,10);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = ASCII < parseInt(derecho,10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL){
                         this.preAscii = <string>izquierdo+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return ASCII < parseFloat(derecho);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = ASCII < parseFloat(derecho);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER){
@@ -197,7 +252,10 @@ export default class Relacional extends Instruccion{
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii izquierdo
                         this.preAscii = <string>derecho+"";
                         let ASCII2:number = this.preAscii.charCodeAt(0); //Get ascii derecho
-                        return ASCII < ASCII2;
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = ASCII < ASCII2;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -236,18 +294,26 @@ export default class Relacional extends Instruccion{
                     if (this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
                     && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO) {
 
-                        return parseInt(izquierdo,10)  == parseInt(derecho,10);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseInt(izquierdo,10)  == parseInt(derecho,10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL){
-                        
-                        return parseInt(izquierdo,10) == parseFloat(derecho);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseInt(izquierdo,10) == parseFloat(derecho);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if (this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER) {
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return parseInt(izquierdo,10) == ASCII;
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseInt(izquierdo,10) == ASCII;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -256,17 +322,27 @@ export default class Relacional extends Instruccion{
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO){
-                        return parseFloat(izquierdo) == parseInt(derecho,10);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseFloat(izquierdo) == parseInt(derecho,10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL){
-                        return parseFloat(izquierdo) == parseFloat(derecho);
+
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseFloat(izquierdo) == parseFloat(derecho);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER){
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return parseFloat(izquierdo) == ASCII;
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseFloat(izquierdo) == ASCII;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -277,13 +353,19 @@ export default class Relacional extends Instruccion{
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO) {
                         this.preAscii = <string>izquierdo+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return ASCII == parseInt(derecho,10);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = ASCII == parseInt(derecho,10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL){
                         this.preAscii = <string>izquierdo+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return ASCII == parseFloat(derecho);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = ASCII == parseFloat(derecho);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER){
@@ -291,7 +373,10 @@ export default class Relacional extends Instruccion{
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii izquierdo
                         this.preAscii = <string>derecho+"";
                         let ASCII2:number = this.preAscii.charCodeAt(0); //Get ascii derecho
-                        return ASCII == ASCII2;
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = ASCII == ASCII2;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -331,18 +416,27 @@ export default class Relacional extends Instruccion{
                     if (this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
                     && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO) {
 
-                        return parseInt(izquierdo,10)  >= parseInt(derecho,10);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseInt(izquierdo,10)  >= parseInt(derecho,10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL){
                         
-                        return parseInt(izquierdo,10) >= parseFloat(derecho);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseInt(izquierdo,10) >= parseFloat(derecho);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if (this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER) {
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return parseInt(izquierdo,10) >= ASCII;
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseInt(izquierdo,10) >= ASCII;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -351,17 +445,28 @@ export default class Relacional extends Instruccion{
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO){
-                        return parseFloat(izquierdo) >= parseInt(derecho,10);
+
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseFloat(izquierdo) >= parseInt(derecho,10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL){
-                        return parseFloat(izquierdo) >= parseFloat(derecho);
+
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseFloat(izquierdo) >= parseFloat(derecho);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER){
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return parseFloat(izquierdo) >= ASCII;
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseFloat(izquierdo) >= ASCII;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -372,13 +477,19 @@ export default class Relacional extends Instruccion{
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO) {
                         this.preAscii = <string>izquierdo+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return ASCII >= parseInt(derecho,10);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = ASCII >= parseInt(derecho,10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL){
                         this.preAscii = <string>izquierdo+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return ASCII >= parseFloat(derecho);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = ASCII >= parseFloat(derecho);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER){
@@ -386,7 +497,10 @@ export default class Relacional extends Instruccion{
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii izquierdo
                         this.preAscii = <string>derecho+"";
                         let ASCII2:number = this.preAscii.charCodeAt(0); //Get ascii derecho
-                        return ASCII >= ASCII2;
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = ASCII >= ASCII2;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -425,18 +539,28 @@ export default class Relacional extends Instruccion{
                     if (this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
                     && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO) {
 
-                        return parseInt(izquierdo,10)  <= parseInt(derecho,10);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseInt(izquierdo,10)  <= parseInt(derecho,10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL){
                         
-                        return parseInt(izquierdo,10) <= parseFloat(derecho);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseInt(izquierdo,10) <= parseFloat(derecho);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
+
                     }
                     else if (this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER) {
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return parseInt(izquierdo,10) <= ASCII;
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseInt(izquierdo,10) <= ASCII;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -445,17 +569,27 @@ export default class Relacional extends Instruccion{
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO){
-                        return parseFloat(izquierdo) <= parseInt(derecho,10);
+                        
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseFloat(izquierdo) <= parseInt(derecho,10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado  
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL){
-                        return parseFloat(izquierdo) <= parseFloat(derecho);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseFloat(izquierdo) <= parseFloat(derecho);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER){
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return parseFloat(izquierdo) <= ASCII;
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseFloat(izquierdo) <= ASCII;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -466,13 +600,19 @@ export default class Relacional extends Instruccion{
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO) {
                         this.preAscii = <string>izquierdo+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return ASCII <= parseInt(derecho,10);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = ASCII <= parseInt(derecho,10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL){
                         this.preAscii = <string>izquierdo+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return ASCII <= parseFloat(derecho);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = ASCII <= parseFloat(derecho);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER){
@@ -480,7 +620,10 @@ export default class Relacional extends Instruccion{
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii izquierdo
                         this.preAscii = <string>derecho+"";
                         let ASCII2:number = this.preAscii.charCodeAt(0); //Get ascii derecho
-                        return ASCII <= ASCII2;
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = ASCII <= ASCII2;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -519,7 +662,10 @@ export default class Relacional extends Instruccion{
                     if (this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
                     && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO) {
 
-                        return parseInt(izquierdo,10)  != parseInt(derecho,10);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseInt(izquierdo,10)  != parseInt(derecho,10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL){
@@ -530,7 +676,10 @@ export default class Relacional extends Instruccion{
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER) {
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return parseInt(izquierdo,10) != ASCII;
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseInt(izquierdo,10) != ASCII;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -539,17 +688,26 @@ export default class Relacional extends Instruccion{
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO){
-                        return parseFloat(izquierdo) != parseInt(derecho,10);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseFloat(izquierdo) != parseInt(derecho,10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL){
-                        return parseFloat(izquierdo) != parseFloat(derecho);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseFloat(izquierdo) != parseFloat(derecho);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER){
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return parseFloat(izquierdo) != ASCII;
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = parseFloat(izquierdo) != ASCII;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -560,13 +718,19 @@ export default class Relacional extends Instruccion{
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO) {
                         this.preAscii = <string>izquierdo+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return ASCII != parseInt(derecho,10);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = ASCII != parseInt(derecho,10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL){
                         this.preAscii = <string>izquierdo+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return ASCII != parseFloat(derecho);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = ASCII != parseFloat(derecho);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER){
@@ -574,7 +738,10 @@ export default class Relacional extends Instruccion{
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii izquierdo
                         this.preAscii = <string>derecho+"";
                         let ASCII2:number = this.preAscii.charCodeAt(0); //Get ascii derecho
-                        return ASCII != ASCII2;
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = ASCII != ASCII2;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -619,13 +786,13 @@ export default class Relacional extends Instruccion{
 
 
     public operarIzqId(izquierdo:any,tree:Arbol,table:tablaSimbolos,operador:any):any{
-        let variable:Simbolo|any = izquierdo;
+        let variable:Primitivo|any = izquierdo.getValor();
         let op:Relacional;
         let resultado;
         if(variable!=null){ //Si existe
             if (variable.getTipo().getTipos()<6){ //Si es del tipo correcto
-                let izq = new primitivo.default(variable.getTipo(),variable.getValor(),0,0);
-                op = new Relacional(izq,this.operandoDer,operador,0,0);
+                //let izq = new primitivo.default(variable.getTipo(),variable.getValor(),0,0);
+                op = new Relacional(variable,this.operandoDer,operador,0,0);
                 resultado = op.interpretar(tree,table);
                 return resultado;
             }else{
@@ -641,13 +808,13 @@ export default class Relacional extends Instruccion{
     }
 
     public operarDerId(derecha:any,tree:Arbol,table:tablaSimbolos,operador:any):any{
-        let variable:Simbolo|any = derecha;
+        let variable:Primitivo|any = derecha.getValor();
         let op:Relacional;
         let resultado;
         if(variable!=null){ //Si existe
             if (variable.getTipo().getTipos()<6){ //Si es del tipo correcto
-                let der = new primitivo.default(variable.getTipo(),variable.getValor(),0,0);
-                op = new Relacional(this.operandoIzq,der,operador,0,0);
+                //let der = new primitivo.default(variable.getTipo(),variable.getValor(),0,0);
+                op = new Relacional(this.operandoIzq,variable,operador,0,0);
                 resultado = op.interpretar(tree,table);
                 return resultado;
             }else{
@@ -663,15 +830,15 @@ export default class Relacional extends Instruccion{
     }
 
     public operarAmbosId(izquierda:any,derecha:any,operador:any,tree:Arbol,table:tablaSimbolos):any{
-        let variableDer:Simbolo|any = derecha;
-        let variableIzq:Simbolo|any = izquierda;
+        let variableDer:Simbolo|any = derecha.getValor();
+        let variableIzq:Simbolo|any = izquierda.getValor();
         let op:Relacional;
         let resultado;
         if(variableDer!=null && variableIzq!=null){ //Si existen
             if (variableIzq.getTipo().getTipos()<6 && variableDer.getTipo().getTipos()<6){ //Si es del tipo correcto
-                let der = new primitivo.default(variableDer.getTipo(),variableDer.getValor(),0,0);
-                let izq = new primitivo.default(variableIzq.getTipo(),variableIzq.getValor(),0,0);
-                op = new Relacional(izq,der,operador,0,0);
+                //let der = new primitivo.default(variableDer.getTipo(),variableDer.getValor(),0,0);
+                //let izq = new primitivo.default(variableIzq.getTipo(),variableIzq.getValor(),0,0);
+                op = new Relacional(variableIzq,variableDer,operador,0,0);
                 resultado = op.interpretar(tree,table);
                 return resultado;
             }else{

@@ -15,7 +15,7 @@ export default class Vector extends Instruccion{
     private tipoCreacion:Tipo;
 
 
-    constructor(tipo:Tipo, linea:Number, columna:Number,id:Identificador,size:number,tipoCreacion:Tipo,valor?:any){
+    constructor(tipo:Tipo, linea:number, columna:number,id:Identificador,size:number,tipoCreacion:Tipo,valor?:any){
         super(tipo, linea, columna);
         this.id = id; 
         this.tipoCreacion = tipoCreacion;

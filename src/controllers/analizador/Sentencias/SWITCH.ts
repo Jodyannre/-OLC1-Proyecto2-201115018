@@ -46,7 +46,7 @@ export default class SWITCH extends Instruccion{
     }
 
 
-    constructor(tipo:Tipo, linea:Number, columna:Number, condicion:any,casos:any) {
+    constructor(tipo:Tipo, linea:number, columna:number, condicion:any,casos:any) {
         super(tipo, linea, columna);
         this.condicion = condicion;
         if (casos !=null){

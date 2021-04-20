@@ -49,7 +49,7 @@ export default class WHILE extends Instruccion{
     }
 
 
-    constructor(tipo:Tipo, linea:Number, columna:Number, condicion:any,instrucciones:any) {
+    constructor(tipo:Tipo, linea:number, columna:number, condicion:any,instrucciones:any) {
         super(tipo, linea, columna);
         this.condicion = condicion;
         if (instrucciones!=null){

@@ -3,7 +3,7 @@ import Tipo, {tipos} from "./Tipo";
 
 export default class tablaSimbolos
 {
-    public tabla: Map<String, Simbolo>;
+    public tabla: Map<string, Simbolo>;
     private anterior: tablaSimbolos | any;
     private siguientes: Array<tablaSimbolos> | any;
     private tipo: Tipo;
@@ -13,7 +13,7 @@ export default class tablaSimbolos
     constructor(ambito:number,anterior?:tablaSimbolos)
     {
         this.anterior = anterior;
-        this.tabla = new Map<String, Simbolo>();
+        this.tabla = new Map<string, Simbolo>();
         this.tipo = new Tipo(tipos.ENTERO);
         this.ambito = ambito;
         this.siguientes = new Array();
@@ -41,7 +41,7 @@ export default class tablaSimbolos
         this.tabla.set(simbolo.getIdentificador(), simbolo)
     }
 
-    public getVariable(indentificador: String)
+    public getVariable(indentificador: string)
     {
         for(var e: tablaSimbolos = this; e != null; e = e.getAnterior())
         {
@@ -72,7 +72,7 @@ export default class tablaSimbolos
         return null;      
     }
 
-    public setTable(Table: Map<String, Simbolo>) {
+    public setTable(Table: Map<string, Simbolo>) {
         this.tabla = Table;
     }
 

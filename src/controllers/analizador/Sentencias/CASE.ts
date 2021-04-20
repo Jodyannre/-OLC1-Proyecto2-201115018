@@ -47,7 +47,7 @@ export default class CASE extends Instruccion{
     }
 
 
-    constructor(tipo:Tipo, linea:Number, columna:Number, valorEvaluado:any,instrucciones:any) {
+    constructor(tipo:Tipo, linea:number, columna:number, valorEvaluado:any,instrucciones:any) {
         super(tipo, linea, columna);
         this.valorEvaluado = valorEvaluado;
         this.instrucciones = instrucciones;
@@ -124,13 +124,17 @@ export default class CASE extends Instruccion{
         }
 
         if (this.valorAevaluar instanceof Primitivo){
-            tipoValorAevaluar = this.valorAevaluar.interpretar(tree,table);
+            //tipoValorAevaluar = this.valorAevaluar.interpretar(tree,table);
+            tipoValorAevaluar = this.valorAevaluar;
+            //El mismo primitivo
         }else
         if (this.valorAevaluar instanceof Relacional || this.valorAevaluar instanceof Logica){
             tipoValorAevaluar = this.valorAevaluar.interpretar(tree,table);
+            //Primitivo
         }else 
         if(this.valorAevaluar instanceof Aritmetica){
             tipoValorAevaluar =  this.valorAevaluar.interpretar(tree,table);
+            //Primitivo
         }else
         if (this.valorAevaluar.getTipo().getTipos()===tipo.tipos.IDENTIFICADOR){
             simbolo = this.valorAevaluar.interpretar(tree,table);
@@ -138,6 +142,7 @@ export default class CASE extends Instruccion{
                 return simbolo;
             }else{
                 tipoValorAevaluar = simbolo.getValor();
+                //Primitivo
             }
         }else{
             var ex:Excepcion = new Excepcion("Semantico", "Valor incorrecto en sentencia Switch.", this.linea, this.columna);
@@ -146,15 +151,16 @@ export default class CASE extends Instruccion{
         }
 
         //Ya tengo el valor en símbolo, solo hay que calcular el valor local
-        valor = this.valorEvaluado.interpretar(tree,table);
+        //valor = this.valorEvaluado.interpretar(tree,table); 
+        valor = this.valorEvaluado; //Primitivo
         if (simbolo != null){
-            if (valor === simbolo.getValor()){
+            if (valor.getValor() === simbolo.getValor().getValor()){
                 return true;
             }else{
                 return false;
             }
         }else{
-            if (valor === tipoValorAevaluar){
+            if (valor.getValor() === tipoValorAevaluar.getValor()){
                 return true;
             }else{
                 return false;

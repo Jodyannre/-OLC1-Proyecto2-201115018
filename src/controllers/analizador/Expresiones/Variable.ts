@@ -7,7 +7,7 @@ import Tipo from "../tablaSimbolos/Tipo";
 export default class Variable extends Instruccion{
     private valor: any;
 
-    constructor(tipo:Tipo, valor:any, linea:Number, columna:Number){
+    constructor(tipo:Tipo, valor:any, linea:number, columna:number){
         super(tipo, linea, columna);
         this.valor = valor;
     }

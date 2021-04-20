@@ -29,7 +29,7 @@ export default class BREAK extends Instruccion{
     }
 
 
-    constructor(tipo:Tipo, linea:Number, columna:Number) {
+    constructor(tipo:Tipo, linea:number, columna:number) {
         super(tipo, linea, columna);
     }
 

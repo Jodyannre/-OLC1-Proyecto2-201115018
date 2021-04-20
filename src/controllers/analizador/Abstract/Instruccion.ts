@@ -5,11 +5,12 @@ import TablaSimbolos from "../tablaSimbolos/tablaSimbolos";
 export abstract class Instruccion {
 
     public tipo: Tipo;
-    public linea: Number;
-    public columna: Number;
+    public linea: number;
+    public columna: number;
     public pasada:any;
+    public ambito:any;
 
-    constructor(tipo:Tipo, linea : Number, columna:Number, pasada?:any) {
+    constructor(tipo:Tipo, linea : number, columna:number, pasada?:any) {
         this.tipo = tipo;
         this.linea = linea;
         this.columna = columna;
@@ -29,5 +30,9 @@ export abstract class Instruccion {
 
     public setPasada(pasada:any){
         this.pasada = pasada;
+    }
+
+    public setAmbito(ambito:any){
+        this.ambito = ambito;
     }
 }

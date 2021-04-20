@@ -8,7 +8,7 @@ import { nodoInstruccion } from "../Abstract/nodoInstruccion";
 export default class Primitivo extends Instruccion{
     private valor: any;
 
-    constructor(tipo:Tipo, valor:any, linea:Number, columna:Number){
+    constructor(tipo:Tipo, valor:any, linea:number, columna:number){
         super(tipo, linea, columna);
         this.valor = valor;
     }
@@ -21,6 +21,18 @@ export default class Primitivo extends Instruccion{
         let nodo:nodoInstruccion = new nodoInstruccion("PRIMITIVO");
         nodo.agregarHijoCadena(this.valor+"");
         return nodo;
+    }
+
+    public setValor(valor:any){
+        this.valor = valor;
+    }
+
+    public getValor(){
+        return this.valor;
+    }
+
+    public setTipo(tipo:number){
+        this.tipo.setTipo(tipo);
     }
 
 }

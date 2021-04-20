@@ -55,7 +55,7 @@ export default class FOR extends Instruccion{
     }
 
 
-    constructor(tipo:Tipo, linea:Number, columna:Number, inicio:any,condicion:any,incremento:any,instrucciones:any) {
+    constructor(tipo:Tipo, linea:number, columna:number, inicio:any,condicion:any,incremento:any,instrucciones:any) {
         super(tipo, linea, columna);
         this.condicion = condicion;
         this.inicio = inicio;

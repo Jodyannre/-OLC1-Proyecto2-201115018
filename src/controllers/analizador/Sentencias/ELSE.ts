@@ -34,7 +34,7 @@ export default class ELSE extends Instruccion{
     }
 
 
-    constructor(tipo:Tipo, linea:Number, columna:Number, instrucciones?:any) {
+    constructor(tipo:Tipo, linea:number, columna:number, instrucciones?:any) {
         super(tipo, linea, columna);
         if (instrucciones!=null){
             this.instrucciones = instrucciones;

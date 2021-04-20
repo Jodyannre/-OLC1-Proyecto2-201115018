@@ -15,7 +15,7 @@ export default class Length extends Instruccion{
     private expresion: any;
     private retorno: any;
 
-    constructor(expresion:any, linea:Number, columna:Number, retorno:Tipo){
+    constructor(expresion:any, linea:number, columna:number, retorno:Tipo){
         super(new Tipo(tipos.LENGTH),linea, columna);
         this.expresion = expresion;
         this.retorno = retorno;
@@ -40,11 +40,13 @@ export default class Length extends Instruccion{
         let size,simbolo;
         if(this.expresion.getTipo().getTipos()===tipo.tipos.CADENA){
             size = this.expresion.interpretar(tree,table);
-            //let nuevoSimbolo = new Primitivo.default( new Tipo.default(Tipo.tipos.ENTERO),parseInt($1,10), @1.first_line, @1.first_column); 
-            return size.length;
+            let nTipo = new tipo.default(tipo.tipos.ENTERO);
+            let nValor = size.length;
+            let nPrimitivo = new primitivo.default( nTipo,nValor,this.linea,this.columna); 
+            return nPrimitivo;
         }else if(this.expresion.getTipo().getTipos()===tipo.tipos.IDENTIFICADOR){
             simbolo = this.expresion.interpretar(tree,table);
-            if (simbolo ==null){
+            if (simbolo ===null){
                 var ex:Excepcion = new Excepcion("Semántico", "La variable no existe.", this.linea, this.columna);
                 tree.getExcepciones().push(ex);
                 return ex;      
@@ -61,12 +63,22 @@ export default class Length extends Instruccion{
 
 
     public verificarTipo(variable:any,tree:Arbol){
+        //Variable viene como Simbolo
         if (variable.getTipo().getTipos()===tipo.tipos.VECTOR ){
-            return variable.getValor().getSize();
+            let nTipo = new tipo.default(tipo.tipos.ENTERO);
+            let nValor = variable.getValor().getSize();
+            let nPrimitivo = new primitivo.default( nTipo,nValor,this.linea,this.columna); 
+            return nPrimitivo;
         }else if (variable.getTipo().getTipos()===tipo.tipos.LISTA){
-            return variable.getValor().getSize();
+            let nTipo = new tipo.default(tipo.tipos.ENTERO);
+            let nValor = variable.getValor().getSize();
+            let nPrimitivo = new primitivo.default( nTipo,nValor,this.linea,this.columna); 
+            return nPrimitivo;
         }else if (variable.getTipo().getTipos()===tipo.tipos.CADENA){
-            return variable.getValor().length;
+            let nTipo = new tipo.default(tipo.tipos.ENTERO);
+            let nValor = variable.getValor().getValor().length;
+            let nPrimitivo = new primitivo.default( nTipo,nValor,this.linea,this.columna); 
+            return nPrimitivo;
         }else{
             var ex:Excepcion = new Excepcion("Semántico", "El valor no es cadena, ni lista, ni vector.", this.linea, this.columna);
             tree.getExcepciones().push(ex);

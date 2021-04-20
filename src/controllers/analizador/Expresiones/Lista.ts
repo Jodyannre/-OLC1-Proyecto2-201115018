@@ -15,7 +15,7 @@ export default class Lista extends Instruccion{
     private tipoCreacion:Tipo;
 
 
-    constructor(tipo:Tipo, linea:Number, columna:Number,id:Identificador,tipoCreacion:Tipo){
+    constructor(tipo:Tipo, linea:number, columna:number,id:Identificador,tipoCreacion:Tipo){
         super(tipo, linea, columna);
         this.id = id; 
         this.tipoCreacion = tipoCreacion;

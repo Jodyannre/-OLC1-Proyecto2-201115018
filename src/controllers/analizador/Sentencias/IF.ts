@@ -71,7 +71,7 @@ export default class IF extends Instruccion{
     }
 
 
-    constructor(tipo:Tipo, linea:Number, columna:Number, condicion:any,instrucciones:any,sino?:any) {
+    constructor(tipo:Tipo, linea:number, columna:number, condicion:any,instrucciones:any,sino?:any) {
         super(tipo, linea, columna);
         this.condicion = condicion;
         if (instrucciones!=null){

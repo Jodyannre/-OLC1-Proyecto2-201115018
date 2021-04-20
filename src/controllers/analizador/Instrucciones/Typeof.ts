@@ -8,12 +8,13 @@ const tipo = require('../tablaSimbolos/Tipo');
 import { nodoInstruccion } from "../Abstract/nodoInstruccion";
 import Vector from "../Expresiones/Vector";
 import Lista from "../Expresiones/Lista";
+const primitivo = require('../Expresiones/Primitivo');
 
 export default class Typeof extends Instruccion{
     private expresion: any;
     private retorno: any;
 
-    constructor(expresion:any, linea:Number, columna:Number, retorno:Tipo){
+    constructor(expresion:any, linea:number, columna:number, retorno:Tipo){
         super(new Tipo(tipos.TYPEOF),linea, columna);
         this.expresion = expresion;
         this.retorno = retorno;
@@ -37,15 +38,30 @@ export default class Typeof extends Instruccion{
     public interpretar(tree:Arbol, table:tablaSimbolos){
         let simbolo;
         if(this.expresion.getTipo().getTipos()===tipo.tipos.ENTERO){
-            return tipo.tipos[tipo.tipos.ENTERO]+"";
+            let nTipo = new tipo.default(tipo.tipos.CADENA);
+            let nValor = tipo.tipos[tipo.tipos.ENTERO]+"";
+            let nPrimitivo = new primitivo.default( nTipo,nValor,this.linea,this.columna); 
+            return nPrimitivo;
         }else if(this.expresion.getTipo().getTipos()===tipo.tipos.DECIMAL){
-            return tipo.tipos[tipo.tipos.DECIMAL]+""
+            let nTipo = new tipo.default(tipo.tipos.CADENA);
+            let nValor = tipo.tipos[tipo.tipos.DECIMAL]+"";
+            let nPrimitivo = new primitivo.default( nTipo,nValor,this.linea,this.columna); 
+            return nPrimitivo;
         }else if(this.expresion.getTipo().getTipos()===tipo.tipos.CADENA){
-            return tipo.tipos[tipo.tipos.CADENA]+""
+            let nTipo = new tipo.default(tipo.tipos.CADENA);
+            let nValor = tipo.tipos[tipo.tipos.CADENA]+"";
+            let nPrimitivo = new primitivo.default( nTipo,nValor,this.linea,this.columna); 
+            return nPrimitivo;
         }else if(this.expresion.getTipo().getTipos()===tipo.tipos.CARACTER){
-            return tipo.tipos[tipo.tipos.CARACTER]+""
+            let nTipo = new tipo.default(tipo.tipos.CADENA);
+            let nValor = tipo.tipos[tipo.tipos.CARACTER]+"";
+            let nPrimitivo = new primitivo.default( nTipo,nValor,this.linea,this.columna); 
+            return nPrimitivo;
         }else if(this.expresion.getTipo().getTipos()===tipo.tipos.BOOLEANO){
-            return tipo.tipos[tipo.tipos.BOOLEANO]+""
+            let nTipo = new tipo.default(tipo.tipos.CADENA);
+            let nValor = tipo.tipos[tipo.tipos.BOOLEANO]+"";
+            let nPrimitivo = new primitivo.default( nTipo,nValor,this.linea,this.columna); 
+            return nPrimitivo;
         }else if(this.expresion.getTipo().getTipos()===tipo.tipos.IDENTIFICADOR){
             simbolo = this.expresion.interpretar(tree,table);
             if (simbolo ==null){
@@ -66,19 +82,40 @@ export default class Typeof extends Instruccion{
 
     public verificarTipo(variable:any,tree:Arbol){
         if (variable.getTipo().getTipos()===tipo.tipos.ENTERO ){
-            return tipo.tipos[tipo.tipos.ENTERO]+"";
+            let nTipo = new tipo.default(tipo.tipos.CADENA);
+            let nValor = tipo.tipos[tipo.tipos.ENTERO]+"";
+            let nPrimitivo = new primitivo.default( nTipo,nValor,this.linea,this.columna); 
+            return nPrimitivo;
         }else if (variable.getTipo().getTipos()===tipo.tipos.DECIMAL){
-            return tipo.tipos[tipo.tipos.DECIMAL]+"";
+            let nTipo = new tipo.default(tipo.tipos.CADENA);
+            let nValor = tipo.tipos[tipo.tipos.DECIMAL]+"";
+            let nPrimitivo = new primitivo.default( nTipo,nValor,this.linea,this.columna); 
+            return nPrimitivo;
         }else if (variable.getTipo().getTipos()===tipo.tipos.CADENA){
-            return tipo.tipos[tipo.tipos.CADENA]+"";
+            let nTipo = new tipo.default(tipo.tipos.CADENA);
+            let nValor = tipo.tipos[tipo.tipos.CADENA]+"";
+            let nPrimitivo = new primitivo.default( nTipo,nValor,this.linea,this.columna); 
+            return nPrimitivo;
         }else if (variable.getTipo().getTipos()===tipo.tipos.CARACTER){
-            return tipo.tipos[tipo.tipos.CARACTER]+"";
+            let nTipo = new tipo.default(tipo.tipos.CADENA);
+            let nValor = tipo.tipos[tipo.tipos.CARACTER]+"";
+            let nPrimitivo = new primitivo.default( nTipo,nValor,this.linea,this.columna); 
+            return nPrimitivo;
         }else if (variable.getTipo().getTipos()===tipo.tipos.BOOLEANO){
-            return tipo.tipos[tipo.tipos.BOOLEANO]+"";
+            let nTipo = new tipo.default(tipo.tipos.CADENA);
+            let nValor = tipo.tipos[tipo.tipos.BOOLEANO]+"";
+            let nPrimitivo = new primitivo.default( nTipo,nValor,this.linea,this.columna); 
+            return nPrimitivo;
         }else if (variable.getTipo().getTipos()===tipo.tipos.VECTOR){
-            return tipo.tipos[tipo.tipos.VECTOR]+"";
+            let nTipo = new tipo.default(tipo.tipos.CADENA);
+            let nValor = tipo.tipos[tipo.tipos.VECTOR]+"";
+            let nPrimitivo = new primitivo.default( nTipo,nValor,this.linea,this.columna); 
+            return nPrimitivo;
         }else if (variable.getTipo().getTipos()===tipo.tipos.LISTA){
-            return tipo.tipos[tipo.tipos.LISTA]+"";
+            let nTipo = new tipo.default(tipo.tipos.CADENA);
+            let nValor = tipo.tipos[tipo.tipos.LISTA]+"";
+            let nPrimitivo = new primitivo.default( nTipo,nValor,this.linea,this.columna); 
+            return nPrimitivo;
         }else{
             var ex:Excepcion = new Excepcion("Semántico", "El valor no es un número.", this.linea, this.columna);
             tree.getExcepciones().push(ex);

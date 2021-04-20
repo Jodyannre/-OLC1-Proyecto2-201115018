@@ -10,7 +10,7 @@ export default class Identificador extends Instruccion{
     private table: tablaSimbolos|any;
     private tree: Arbol|any;
 
-    constructor(tipo:Tipo, valor:any, linea:Number, columna:Number,tree?:Arbol, table?:tablaSimbolos){
+    constructor(tipo:Tipo, valor:any, linea:number, columna:number,tree?:Arbol, table?:tablaSimbolos){
         super(tipo, linea, columna);
         this.valor = valor;
     }

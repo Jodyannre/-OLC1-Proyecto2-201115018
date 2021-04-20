@@ -15,7 +15,7 @@ export default class ToCharArray extends Instruccion{
     private expresion: any;
     private retorno: any;
 
-    constructor(expresion:any, linea:Number, columna:Number, retorno:Tipo){
+    constructor(expresion:any, linea:number, columna:number, retorno:Tipo){
         super(new Tipo(tipos.TO_CHAR_ARRAY),linea, columna);
         this.expresion = expresion;
         this.retorno = retorno;

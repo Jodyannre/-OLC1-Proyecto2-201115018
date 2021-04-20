@@ -3,10 +3,10 @@ import Tipo from "./Tipo";
 export default class Simbolo
 {
     private tipo: Tipo;
-    private identificador: String;
+    private identificador: string;
     private valor: any;
 
-    constructor(tipo: Tipo, identificador: String, valor?:any)
+    constructor(tipo: Tipo, identificador: string, valor?:any)
     {
         this.tipo = tipo;
         this.identificador = identificador;
@@ -25,7 +25,7 @@ export default class Simbolo
         return this.identificador;
     }
 
-    public setIdentificador(identificador: String) {
+    public setIdentificador(identificador: string) {
         this.identificador = identificador;
     }
     public getTipo(){

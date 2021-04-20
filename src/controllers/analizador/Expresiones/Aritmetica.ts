@@ -6,6 +6,7 @@ import Excepcion from "../Excepciones/Excepcion";
 import { nodoInstruccion } from "../Abstract/nodoInstruccion";
 import Simbolo from "../tablaSimbolos/Simbolo";
 import Primitivo from "./Primitivo";
+import {Consola} from "../Abstract/Consola";
 
 const primitivo = require('../Expresiones/Primitivo');
 const tipo = require('../tablaSimbolos/Tipo');
@@ -37,7 +38,7 @@ export default class Aritmetica extends Instruccion{
         return this.operandoDer;
     }
 
-    constructor(operandoDer:any, operandoAritmetico:Tipo, linea:Number, columna:Number,operandoIzq?:any, ) {
+    constructor(operandoDer:any, operandoAritmetico:Tipo, linea:number, columna:number,operandoIzq?:any, ) {
         super(operandoAritmetico, linea, columna);
         if (operandoIzq){
             this.operandoIzq = operandoIzq;
@@ -78,20 +79,28 @@ export default class Aritmetica extends Instruccion{
                     if (this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO) {
                         this.tipo = new Tipo(tipo.tipos.ENTERO);
-                        return parseInt(izquierdo, 10) + parseInt(derecho, 10);
+                        let nTipo = new Tipo(tipo.tipos.ENTERO);
+                        let nValor = parseInt(izquierdo, 10) + parseInt(derecho, 10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado;
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL)
                     {
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return parseFloat(izquierdo) + parseInt(derecho, 10);
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = parseFloat(izquierdo) + parseInt(derecho, 10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado;
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.BOOLEANO)
                     {
-                        let numBooleano = izquierdo.toLowerCase()==='true'? 1+parseInt(derecho, 10):parseInt(derecho, 10); //Get el número del booleano
+                        let numBooleano = izquierdo===true? 1+parseInt(derecho, 10):parseInt(derecho, 10); //Get el número del booleano
                         this.tipo = new Tipo(tipo.tipos.ENTERO);
-                        return numBooleano;
+                        let nTipo = new Tipo(tipo.tipos.ENTERO);
+                        let resultado:Primitivo = new primitivo.default(nTipo,numBooleano,this.linea,this.columna);
+                        return resultado;
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER)
@@ -99,7 +108,10 @@ export default class Aritmetica extends Instruccion{
                         this.tipo = new Tipo(tipo.tipos.ENTERO);
                         this.preAscii = <string>izquierdo+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return parseInt(derecho, 10) + ASCII;
+                        let nTipo = new Tipo(tipo.tipos.ENTERO);
+                        let nValor = parseInt(derecho, 10) + ASCII;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -110,20 +122,28 @@ export default class Aritmetica extends Instruccion{
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO)
                     {
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return parseFloat(derecho) + parseInt(izquierdo, 10);
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = parseFloat(derecho) + parseInt(izquierdo, 10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado;
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL)
                     {
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return parseFloat(derecho) + parseFloat(izquierdo);
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = parseFloat(derecho) + parseFloat(izquierdo);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado;
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.BOOLEANO)
                     {
-                        let numBooleano = izquierdo.toLowerCase()==='true'? 1+parseFloat(derecho):parseFloat(derecho); //Get el número del booleano
+                        let numBooleano = izquierdo===true? 1+parseFloat(derecho):parseFloat(derecho); //Get el número del booleano
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return numBooleano;
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let resultado:Primitivo = new primitivo.default(nTipo,numBooleano,this.linea,this.columna);
+                        return resultado;
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER)
@@ -131,7 +151,10 @@ export default class Aritmetica extends Instruccion{
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
                         this.preAscii = <string>izquierdo+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return parseFloat(derecho) + ASCII;
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = parseFloat(derecho) + ASCII;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado;
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -141,16 +164,20 @@ export default class Aritmetica extends Instruccion{
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.BOOLEANO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO)
                     {
-                        let numBooleano = derecho.toLowerCase()==='true'? 1+parseInt(izquierdo, 10):parseInt(izquierdo, 10); //Get el número del booleano
+                        let numBooleano = derecho===true? 1+parseInt(izquierdo, 10):parseInt(izquierdo, 10); //Get el número del booleano
                         this.tipo = new Tipo(tipo.tipos.ENTERO);
-                        return numBooleano;
+                        let nTipo = new Tipo(tipo.tipos.ENTERO);
+                        let resultado:Primitivo = new primitivo.default(nTipo,numBooleano,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.BOOLEANO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL)
                     {
-                        let numBooleano = derecho.toLowerCase()==='true'? 1+parseFloat(izquierdo):parseFloat(izquierdo); //Get el número del booleano
+                        let numBooleano = derecho===true? 1+parseFloat(izquierdo):parseFloat(izquierdo); //Get el número del booleano
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return numBooleano;
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let resultado:Primitivo = new primitivo.default(nTipo,numBooleano,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.BOOLEANO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -163,7 +190,10 @@ export default class Aritmetica extends Instruccion{
                         this.tipo = new Tipo(tipo.tipos.ENTERO);
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return parseInt(izquierdo, 10) + ASCII;
+                        let nTipo = new Tipo(tipo.tipos.ENTERO);
+                        let nValor = parseInt(izquierdo, 10) + ASCII;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL)
@@ -171,13 +201,19 @@ export default class Aritmetica extends Instruccion{
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return parseFloat(izquierdo) + ASCII;
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = parseFloat(izquierdo) + ASCII;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER)
                     {
                         this.tipo = new Tipo(tipo.tipos.CADENA);
-                        return "" + izquierdo + derecho;
+                        let nTipo = new Tipo(tipo.tipos.CADENA);
+                        let nValor = "" + izquierdo + derecho;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -247,11 +283,13 @@ export default class Aritmetica extends Instruccion{
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.CADENA) {
                         this.tipo = new Tipo(tipo.tipos.CADENA);
                         let preCadena = "" + izquierdo + derecho;
-                        //preCadena = preCadena.toLowerCase();
-                        return preCadena
+                        let nTipo = new Tipo(tipo.tipos.CADENA);
+                        let resultado:Primitivo = new primitivo.default(nTipo,preCadena,this.linea,this.columna);
+                        return resultado
                     } else {
                         var ex:Excepcion = new Excepcion("Semantico", "Error de Tipo con el operador +", this.linea, this.columna);
                         tree.getExcepciones().push(ex);
+                        tree.updateConsola(ex.toString());
                         return ex;
                     }
                 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -263,20 +301,28 @@ export default class Aritmetica extends Instruccion{
                     if (this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO) {
                         this.tipo = new Tipo(tipo.tipos.ENTERO);
-                        return parseInt(izquierdo, 10) - parseInt(derecho, 10);
+                        let nTipo = new Tipo(tipo.tipos.ENTERO);
+                        let nValor = parseInt(izquierdo, 10) - parseInt(derecho, 10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL)
                     {
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return parseFloat(izquierdo) - parseInt(derecho, 10);
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = parseFloat(izquierdo) - parseInt(derecho, 10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.BOOLEANO)
                     {
-                        let numBooleano = izquierdo.toLowerCase()==='true'? 1-parseInt(derecho, 10):parseInt(derecho, 10); //Get el número del booleano
+                        let numBooleano = izquierdo===true? 1-parseInt(derecho, 10):parseInt(derecho, 10); //Get el número del booleano
                         this.tipo = new Tipo(tipo.tipos.ENTERO);
-                        return numBooleano;
+                        let nTipo = new Tipo(tipo.tipos.ENTERO);
+                        let resultado:Primitivo = new primitivo.default(nTipo,numBooleano,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER)
@@ -284,7 +330,10 @@ export default class Aritmetica extends Instruccion{
                         this.tipo = new Tipo(tipo.tipos.ENTERO);
                         this.preAscii = <string>izquierdo+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return ASCII - parseInt(derecho, 10);
+                        let nTipo = new Tipo(tipo.tipos.ENTERO);
+                        let nValor = ASCII - parseInt(derecho, 10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -295,20 +344,28 @@ export default class Aritmetica extends Instruccion{
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO)
                     {
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return parseInt(izquierdo, 10) - parseFloat(derecho);
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = parseInt(izquierdo, 10) - parseFloat(derecho);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL)
                     {
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return parseFloat(izquierdo) - parseFloat(derecho);
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = parseFloat(izquierdo) - parseFloat(derecho);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.BOOLEANO)
                     {
-                        let numBooleano = izquierdo.toLowerCase()==='true'? 1-parseFloat(derecho):parseFloat(derecho); //Get el número del booleano
+                        let numBooleano = izquierdo===true? 1-parseFloat(derecho):parseFloat(derecho); //Get el número del booleano
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return numBooleano;
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let resultado:Primitivo = new primitivo.default(nTipo,numBooleano,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER)
@@ -316,7 +373,10 @@ export default class Aritmetica extends Instruccion{
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
                         this.preAscii = <string>izquierdo+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return ASCII - parseFloat(derecho);
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = ASCII - parseFloat(derecho);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -326,16 +386,20 @@ export default class Aritmetica extends Instruccion{
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.BOOLEANO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO)
                     {
-                        let numBooleano = derecho.toLowerCase()==='true'? parseInt(izquierdo, 10)-1:parseInt(izquierdo, 10); //Get el número del booleano
+                        let numBooleano = derecho===true? parseInt(izquierdo, 10)-1:parseInt(izquierdo, 10); //Get el número del booleano
                         this.tipo = new Tipo(tipo.tipos.ENTERO);
-                        return numBooleano;
+                        let nTipo = new Tipo(tipo.tipos.ENTERO);
+                        let resultado:Primitivo = new primitivo.default(nTipo,numBooleano,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.BOOLEANO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL)
                     {
-                        let numBooleano = derecho.toLowerCase()==='true'? parseFloat(izquierdo)-1:parseFloat(izquierdo); //Get el número del booleano
+                        let numBooleano = derecho===true? parseFloat(izquierdo)-1:parseFloat(izquierdo); //Get el número del booleano
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return numBooleano;
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let resultado:Primitivo = new primitivo.default(nTipo,numBooleano,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.BOOLEANO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -348,7 +412,10 @@ export default class Aritmetica extends Instruccion{
                         this.tipo = new Tipo(tipo.tipos.ENTERO);
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return parseInt(izquierdo, 10) - ASCII;
+                        let nTipo = new Tipo(tipo.tipos.ENTERO);
+                        let nValor = parseInt(izquierdo, 10) - ASCII;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL)
@@ -356,7 +423,10 @@ export default class Aritmetica extends Instruccion{
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return parseFloat(izquierdo) - ASCII;
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = parseFloat(izquierdo) - ASCII;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -401,13 +471,19 @@ export default class Aritmetica extends Instruccion{
                     if (this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO) {
                         this.tipo = new Tipo(tipo.tipos.ENTERO);
-                        return parseInt(izquierdo, 10) * parseInt(derecho, 10);
+                        let nTipo = new Tipo(tipo.tipos.ENTERO);
+                        let nValor = parseInt(izquierdo, 10) * parseInt(derecho, 10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL)
                     {
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return parseFloat(izquierdo) * parseInt(derecho, 10);
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = parseFloat(izquierdo) * parseInt(derecho, 10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER)
@@ -415,7 +491,10 @@ export default class Aritmetica extends Instruccion{
                         this.tipo = new Tipo(tipo.tipos.ENTERO);
                         this.preAscii = <string>izquierdo+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return parseInt(derecho, 10) * ASCII;
+                        let nTipo = new Tipo(tipo.tipos.ENTERO);
+                        let nValor = parseInt(derecho, 10) * ASCII;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -426,13 +505,19 @@ export default class Aritmetica extends Instruccion{
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO)
                     {
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return parseFloat(derecho) * parseInt(izquierdo, 10);
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = parseFloat(derecho) * parseInt(izquierdo, 10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL)
                     {
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return parseFloat(derecho) * parseFloat(izquierdo);
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = parseFloat(derecho) * parseFloat(izquierdo);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER)
@@ -440,7 +525,10 @@ export default class Aritmetica extends Instruccion{
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
                         this.preAscii = <string>izquierdo+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return parseFloat(derecho) * ASCII;
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = parseFloat(derecho) * ASCII;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -453,7 +541,10 @@ export default class Aritmetica extends Instruccion{
                         this.tipo = new Tipo(tipo.tipos.ENTERO);
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return parseInt(izquierdo, 10) * ASCII;
+                        let nTipo = new Tipo(tipo.tipos.ENTERO);
+                        let nValor = parseInt(izquierdo, 10) * ASCII;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL)
@@ -461,7 +552,10 @@ export default class Aritmetica extends Instruccion{
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
                         this.preAscii = <string>derecho+"";
                         let ASCII:number = this.preAscii.charCodeAt(0); //Get ascii
-                        return parseFloat(izquierdo) * ASCII;
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = parseFloat(izquierdo) * ASCII;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -506,7 +600,10 @@ export default class Aritmetica extends Instruccion{
                             return ex;                        
                         }                    
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return parseInt(izquierdo, 10) / parseInt(derecho, 10);
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = parseInt(izquierdo, 10) / parseInt(derecho, 10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL)
@@ -518,7 +615,10 @@ export default class Aritmetica extends Instruccion{
                             return ex;                        
                         }                    
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return parseFloat(izquierdo) / parseInt(derecho, 10);
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = parseFloat(izquierdo) / parseInt(derecho, 10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER)
@@ -532,7 +632,10 @@ export default class Aritmetica extends Instruccion{
                             return ex;                        
                         }
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return ASCII/parseInt(derecho, 10);
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = ASCII/parseInt(derecho, 10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -549,7 +652,10 @@ export default class Aritmetica extends Instruccion{
                             return ex;                        
                         }
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return parseInt(izquierdo, 10) / parseFloat(derecho);
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = parseInt(izquierdo, 10) / parseFloat(derecho);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL)
@@ -561,7 +667,10 @@ export default class Aritmetica extends Instruccion{
                             return ex;                        
                         }
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return parseFloat(izquierdo) / parseFloat(derecho);
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = parseFloat(izquierdo) / parseFloat(derecho);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.CARACTER)
@@ -578,7 +687,10 @@ export default class Aritmetica extends Instruccion{
                         }
 
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return ASCII / parseFloat(derecho);
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = ASCII / parseFloat(derecho);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -597,7 +709,10 @@ export default class Aritmetica extends Instruccion{
                             return ex;                        
                         }
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return parseInt(izquierdo, 10) / ASCII;
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = parseInt(izquierdo, 10) / ASCII;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL)
@@ -611,7 +726,10 @@ export default class Aritmetica extends Instruccion{
                             return ex;                        
                         }
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return parseFloat(izquierdo) / ASCII;
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = parseFloat(izquierdo) / ASCII;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.CARACTER
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -656,7 +774,10 @@ export default class Aritmetica extends Instruccion{
                             return ex;                        
                         }   
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return parseInt(izquierdo, 10) % parseInt(derecho, 10);
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = parseInt(izquierdo, 10) % parseInt(derecho, 10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL)
@@ -668,7 +789,10 @@ export default class Aritmetica extends Instruccion{
                             return ex;                        
                         }  
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return parseFloat(izquierdo) % parseInt(derecho, 10);
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = parseFloat(izquierdo) % parseInt(derecho, 10);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -685,7 +809,10 @@ export default class Aritmetica extends Instruccion{
                             return ex;                        
                         }  
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return parseInt(izquierdo, 10) % parseFloat(derecho);
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = parseInt(izquierdo, 10) % parseFloat(derecho);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL)
@@ -697,7 +824,10 @@ export default class Aritmetica extends Instruccion{
                             return ex;                        
                         }  
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return parseFloat(izquierdo) % parseFloat(derecho);
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = parseFloat(izquierdo) % parseFloat(derecho);
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -730,14 +860,20 @@ export default class Aritmetica extends Instruccion{
                 case 14: //Potencia
                     if (this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO) {
-                        this.tipo = new Tipo(tipo.tipos.ENTERO);                   
-                        return  Math.pow(parseInt(izquierdo, 10),parseInt(derecho, 10));
+                        this.tipo = new Tipo(tipo.tipos.ENTERO);  
+                        let nTipo = new Tipo(tipo.tipos.ENTERO);
+                        let nValor = Math.pow(parseInt(izquierdo, 10),parseInt(derecho, 10));
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado                  
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL)
                     {
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return Math.pow(parseFloat(izquierdo),parseInt(derecho, 10));
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = Math.pow(parseFloat(izquierdo),parseInt(derecho, 10));
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -748,13 +884,19 @@ export default class Aritmetica extends Instruccion{
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.ENTERO)
                     {
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return Math.pow(parseInt(izquierdo, 10),parseFloat(derecho));
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = Math.pow(parseInt(izquierdo, 10),parseFloat(derecho));
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.DECIMAL)
                     {
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return Math.pow(parseFloat(izquierdo),parseFloat(derecho));
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = Math.pow(parseFloat(izquierdo),parseFloat(derecho));
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL
                             && this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -788,17 +930,23 @@ export default class Aritmetica extends Instruccion{
                 case 15: //Negacion
                     if (this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO)
                     {
-                        this.tipo = new Tipo(tipo.tipos.ENTERO);                   
-                        return  parseInt(unario, 10) * -1;
+                        this.tipo = new Tipo(tipo.tipos.ENTERO);  
+                        let nTipo = new Tipo(tipo.tipos.ENTERO);
+                        let nValor = parseInt(unario, 10) * -1;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado                   
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
                     {
-                        return this.operarDerId(derecho,tree,table,this.operandoAritmetico);            
+                        return this.operarDerId(unario,tree,table,this.operandoAritmetico);            
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL)
                     {
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
-                        return parseFloat(unario) * -1;
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = parseFloat(unario) * -1;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado 
                     }
                     else {
                         var ex:Excepcion = new Excepcion("Semantico", "Error de Tipo con el operador - unario", this.linea, this.columna);
@@ -812,17 +960,22 @@ export default class Aritmetica extends Instruccion{
                 case 16: //Incremento
                     if (this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO)
                     {
-                        this.tipo = new Tipo(tipo.tipos.ENTERO); 
+                         
                         let result:number = parseInt(unario, 10);
-                        result++;                                   
-                        return  result;
+                        result++;    
+                        this.tipo = new Tipo(tipo.tipos.ENTERO);
+                        let nTipo = new Tipo(tipo.tipos.ENTERO);
+                        let resultado:Primitivo = new primitivo.default(nTipo,result,this.linea,this.columna);
+                        return resultado                                
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL)
-                    {
-                        this.tipo = new Tipo(tipo.tipos.DECIMAL);
+                    {               
                         let result:number = parseFloat(unario);
                         result++;
-                        return result;
+                        this.tipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let resultado:Primitivo = new primitivo.default(nTipo,result,this.linea,this.columna);
+                        return resultado 
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
                     {
@@ -842,17 +995,23 @@ export default class Aritmetica extends Instruccion{
                 case 17: //Decremento
                     if (this.operandoDer.tipo.getTipos() == tipo.tipos.ENTERO)
                     {
-                        this.tipo = new Tipo(tipo.tipos.ENTERO);  
+                         
                         let result:number = parseInt(unario, 10);  
-                        result--;               
-                        return  result;
+                        result--;     
+                        this.tipo = new Tipo(tipo.tipos.ENTERO);  
+                        let nTipo = new Tipo(tipo.tipos.ENTERO);
+                        let resultado:Primitivo = new primitivo.default(nTipo,result,this.linea,this.columna);
+                        return resultado          
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.DECIMAL)
                     {
-                        this.tipo = new Tipo(tipo.tipos.DECIMAL);
+                        
                         let result:number = parseFloat(unario);
                         result--;
-                        return result;
+                        this.tipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let resultado:Primitivo = new primitivo.default(nTipo,result,this.linea,this.columna);
+                        return resultado  
                     }
                     else if(this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
                     {
@@ -872,13 +1031,14 @@ export default class Aritmetica extends Instruccion{
     }
 
     public operarIzqId(izquierdo:any,tree:Arbol,table:tablaSimbolos,operador:any){
-        let variable:Simbolo|any = izquierdo;
+        //Izquierdo es un símbolo traido por el ID
+        let variable:Primitivo|any = izquierdo.getValor();
         let op:Aritmetica;
         let resultado;
         if(variable!=null){ //Si existe
             if (variable.getTipo().getTipos()<6){ //Si es del tipo correcto
-                let izq = new primitivo.default(variable.getTipo(),variable.getValor(),0,0);
-                op = new Aritmetica(this.operandoDer,operador,0,0,izq);
+                //let izq = new primitivo.default(variable.getTipo(),variable.getValor(),0,0);
+                op = new Aritmetica(this.operandoDer,operador,0,0,variable);
                 resultado = op.interpretar(tree,table);
                 return resultado;
             }else{
@@ -894,16 +1054,16 @@ export default class Aritmetica extends Instruccion{
     }
 
     public operarDerId(derecha:any,tree:Arbol,table:tablaSimbolos,operador:any){
-        let variable:Simbolo|any = derecha;
+        let variable:Primitivo|any = derecha.getValor();
         let op:Aritmetica;
         let resultado;
         if(variable!=null){ //Si existe
             if (variable.getTipo().getTipos()<6){ //Si es del tipo correcto
-                let der = new primitivo.default(variable.getTipo(),variable.getValor(),0,0);
+                //let der = new primitivo.default(variable.getTipo(),variable.getValor(),0,0);
                 if (this.operandoIzq){
-                    op = new Aritmetica(der,operador,0,0,this.operandoIzq);
+                    op = new Aritmetica(variable,operador,0,0,this.operandoIzq);
                 }else{
-                    op = new Aritmetica(der,operador,0,0);
+                    op = new Aritmetica(variable,operador,0,0);
                 }
                 
                 resultado = op.interpretar(tree,table);
@@ -921,15 +1081,15 @@ export default class Aritmetica extends Instruccion{
     }
 
     public operarAmbosId(derecha:any,izquierda:any,tree:Arbol,table:tablaSimbolos,operador:any){
-        let variableDer:Simbolo|any = derecha;
-        let variableIzq:Simbolo|any = izquierda;
+        let variableDer:Primitivo|any = derecha.getValor();
+        let variableIzq:Primitivo|any = izquierda.getValor();
         let op:Aritmetica;
         let resultado;
         if(variableDer!=null && variableIzq!=null){ //Si existen
             if (variableIzq.getTipo().getTipos()<6 && variableDer.getTipo().getTipos()<6){ //Si es del tipo correcto
-                let der = new primitivo.default(variableDer.getTipo(),variableDer.getValor(),0,0);
-                let izq = new primitivo.default(variableIzq.getTipo(),variableIzq.getValor(),0,0);
-                op = new Aritmetica(der,operador,0,0,izq);
+                //let der = new primitivo.default(variableDer.getTipo(),variableDer.getValor(),0,0);
+                //let izq = new primitivo.default(variableIzq.getTipo(),variableIzq.getValor(),0,0);
+                op = new Aritmetica(variableDer,operador,0,0,variableIzq);
                 resultado = op.interpretar(tree,table);
                 return resultado;
             }else{
@@ -947,6 +1107,7 @@ export default class Aritmetica extends Instruccion{
 
     public getTipoResultado(tree:Arbol, table:tablaSimbolos){
         var resultado = this.interpretar(tree,table);
+        return resultado.getTipo();
         if (resultado instanceof Excepcion){
             return Excepcion;
         }else

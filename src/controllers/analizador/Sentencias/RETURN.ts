@@ -38,7 +38,7 @@ export default class RETURN extends Instruccion{
     }
 
 
-    constructor(tipo:Tipo, linea:Number, columna:Number, retorno:any) {
+    constructor(tipo:Tipo, linea:number, columna:number, retorno:any) {
         super(tipo, linea, columna);
         this.retorno = retorno;
 

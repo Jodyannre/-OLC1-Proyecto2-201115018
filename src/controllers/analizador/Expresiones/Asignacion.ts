@@ -27,7 +27,7 @@ export default class Asignacion extends Instruccion{
     Una función
     Una función primitiva
     */
-    constructor(id:Identificador,tipo:Tipo, linea : Number, columna:Number, instruccion:any){
+    constructor(id:Identificador,tipo:Tipo, linea : number, columna:number, instruccion:any){
         super(tipo,linea,columna);
         this.id = id;
         this.instruccion = instruccion;
@@ -60,6 +60,12 @@ export default class Asignacion extends Instruccion{
         if (this.pasada <1){
             return true;
         }
+        if (this.pasada===1){
+            this.setAmbito(0);
+        }
+        if (this.pasada > 1 && this.ambito ===0){
+            return true;
+        }
         let valorFinal:any = null;
         let tipoI = this.instruccion.getTipo().getTipos();
         let esTipo1= tipoI <= 26; //Logico, relacional, aritmetico, primitivo
@@ -74,8 +80,8 @@ export default class Asignacion extends Instruccion{
             if (simbolo!=null){            
                 if (this.instruccion instanceof Primitivo){
                     //Casos especiales entre decimal-entero y entero-booleano
-                    tipoB = this.instruccion.getTipo().getTipos();
-                    tipoEspecial = this.verificarEspecialesOp(simbolo.getTipo().getTipos(),tipoB,simbolo,this.instruccion,tree,table);
+                    //tipoB = this.instruccion.getTipo().getTipos();
+                    tipoEspecial = this.verificarEspeciales(simbolo,this.instruccion,tree,table);
                     if (tipoEspecial instanceof Excepcion){
                         return tipoEspecial;
                     }else
@@ -87,7 +93,8 @@ export default class Asignacion extends Instruccion{
                     
                 }else{
                     if (this.instruccion instanceof Aritmetica){
-                        tipoB = this.instruccion.getTipoResultado(tree,table);
+                        tipoB = this.instruccion.interpretar(tree,table);
+                        tipoB = tipoB.getTipo().getTipos();
                         tipoEspecial = this.verificarEspecialesOp(simbolo.getTipo().getTipos(),tipoB,simbolo,this.instruccion,tree,table);
                         if (tipoEspecial instanceof Excepcion){
                             return tipoEspecial;
@@ -118,7 +125,11 @@ export default class Asignacion extends Instruccion{
                     if (typeof resultTipo != 'boolean'){
                         nuevoValor = resultTipo;
                     }else{
-                        nuevoValor = this.instruccion.interpretar(tree,table);
+                        if (this.instruccion instanceof Primitivo){
+                            nuevoValor = this.instruccion;
+                        }else{
+                            nuevoValor = this.instruccion.interpretar(tree,table);
+                        }             
                     }
                     simbolo.setValor(nuevoValor);
                 }else{
@@ -160,7 +171,7 @@ export default class Asignacion extends Instruccion{
             let tipoEspecial:any;
             let tipoB:any;
             if (simbolo!=null){
-                if (simbolo.getValor()===null){
+                if (simbolo.getValor()===null && this.pasada!= 1){
                     var ex:Excepcion = new Excepcion("Semántico", "Variable no existe.", this.linea, this.columna);
                     tree.getExcepciones().push(ex);
                     return ex;                
@@ -212,36 +223,40 @@ export default class Asignacion extends Instruccion{
 
     public verificarEspeciales(variable:any,valorFinal:any,tree:Arbol, table:tablaSimbolos){
         if (valorFinal.getTipo().getTipos()===tipo.tipos.IDENTIFICADOR){
-            valorFinal = valorFinal.interpretar(tree,table);
+            valorFinal = valorFinal.interpretar(tree,table); //Se convierte en un símbolo
         }
 
-        if (variable.getTipos()=== tipo.tipos.DECIMAL && valorFinal.getTipo().getTipos()===tipo.tipos.ENTERO){
-            let numero:number = valorFinal instanceof Simbolo? valorFinal.getValor(): valorFinal.interpretar(tree,table);
-            if (numero > 2147483647 || numero < -2147483647){
+        if (variable.getTipo().getTipos()=== tipo.tipos.DECIMAL && valorFinal.getTipo().getTipos()===tipo.tipos.ENTERO){
+            let numero:Primitivo = valorFinal instanceof Simbolo? valorFinal.getValor(): valorFinal;
+            if (numero.getValor() > 2147483647 || numero.getValor() < -2147483647){
                 var ex:Excepcion = new Excepcion("Semántico", "Número fuera de límite", this.linea, this.columna);
                 tree.getExcepciones().push(ex);
                 return ex;                        
             }
-            return parseFloat(numero+".0");
+            variable.getValor().setValor(valorFinal.getValor());
+            return variable.getValor();
         }
         else
-        if (variable.getTipos()=== tipo.tipos.ENTERO && valorFinal.getTipo().getTipos()===tipo.tipos.BOOLEANO){
-            let booleano:any = valorFinal instanceof Simbolo? valorFinal.getValor(): valorFinal.interpretar(tree,table);
-            if (booleano ===true){
-                return 1;
+        if (variable.getTipo().getTipos()=== tipo.tipos.ENTERO && valorFinal.getTipo().getTipos()===tipo.tipos.BOOLEANO){
+            let booleano:Primitivo = valorFinal instanceof Simbolo? valorFinal.getValor(): valorFinal;
+            if (booleano.getValor() ===true){
+                variable.getValor().setValor(1);
+                return variable.getValor();
             }else{
-                return 0;
+                variable.getValor().setValor(0);
+                return variable.getValor();
             }
         }
         else
-        if (variable.getTipos()=== tipo.tipos.ENTERO && valorFinal.getTipo().getTipos()===tipo.tipos.ENTERO){
-            let numero:number = valorFinal instanceof Simbolo? valorFinal.getValor(): valorFinal.interpretar(tree,table);
-            if (numero > 2147483647 || numero < -2147483647){
+        if (variable.getTipo().getTipos()=== tipo.tipos.ENTERO && valorFinal.getTipo().getTipos()===tipo.tipos.ENTERO){
+            let numero:Primitivo = valorFinal instanceof Simbolo? valorFinal.getValor(): valorFinal;
+            if (numero.getValor() > 2147483647 || numero.getValor() < -2147483647){
                 var ex:Excepcion = new Excepcion("Semántico", "Número fuera de límite", this.linea, this.columna);
                 tree.getExcepciones().push(ex);
                 return ex;                        
             }else{
-                return numero;
+                variable.getValor().setValor(valorFinal.getValor());
+                return variable.getValor();
             }
         }else{
             return true;
@@ -252,27 +267,29 @@ export default class Asignacion extends Instruccion{
         let valorFinal:any=variableB;
 
         if (tipoA=== tipo.tipos.DECIMAL && tipoB===tipo.tipos.ENTERO){
-            let numero:number = valorFinal instanceof Simbolo? valorFinal.getValor(): valorFinal.interpretar(tree,table);
-            if (numero > 2147483647 || numero < -2147483647){
+            let numero:any = valorFinal instanceof Simbolo? valorFinal.getValor(): valorFinal.interpretar(tree,table);
+            if (numero.getValor() > 2147483647 || numero.getValor() < -2147483647){
                 var ex:Excepcion = new Excepcion("Semántico", "Número fuera de límite", this.linea, this.columna);
                 tree.getExcepciones().push(ex);
                 return ex;                        
             }
-            return parseFloat(numero+".0");
+            variableA.getValor().setValor(numero);
+            return variableA.getValor();
         }
         else
         if (tipoA=== tipo.tipos.ENTERO && tipoB===tipo.tipos.BOOLEANO){
-            let booleano:any = valorFinal instanceof Simbolo? valorFinal.getValor(): valorFinal.interpretar(tree,table);
-            if (booleano ===true){
-                return 1;
+            let booleano:Primitivo= valorFinal instanceof Simbolo? valorFinal.getValor(): valorFinal.interpretar(tree,table);
+            if (booleano.getValor()===true){
+                variableA.getValor().setValor(1);
             }else{
-                return 0;
-            }
+                variableA.getValor().setValor(0);
+            }        
+            return variableA.getValor();
         }
         else
         if (tipoA=== tipo.tipos.ENTERO && tipoB===tipo.tipos.ENTERO){
-            let numero:number = valorFinal instanceof Simbolo? valorFinal.getValor(): valorFinal.interpretar(tree,table);
-            if (numero > 2147483647 || numero < -2147483647){
+            let numero:Primitivo = valorFinal instanceof Simbolo? valorFinal.getValor(): valorFinal.interpretar(tree,table);
+            if (numero.getValor() > 2147483647 || numero.getValor() < -2147483647){
                 var ex:Excepcion = new Excepcion("Semántico", "Número fuera de límite", this.linea, this.columna);
                 tree.getExcepciones().push(ex);
                 return ex;                        
@@ -280,7 +297,7 @@ export default class Asignacion extends Instruccion{
                 return numero;
             }
         }else{
-            return true;
+            return false;
         }        
     }
 }

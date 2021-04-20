@@ -5,6 +5,7 @@ import Tipo from "../tablaSimbolos/Tipo";
 import Excepcion from "../Excepciones/Excepcion";
 import { nodoInstruccion } from "../Abstract/nodoInstruccion";
 import Simbolo from "../tablaSimbolos/Simbolo";
+import Primitivo from "./Primitivo";
 const primitivo = require('../Expresiones/Primitivo');
 const tipo = require('../tablaSimbolos/Tipo');
 
@@ -15,7 +16,7 @@ export default class Logica extends Instruccion{
     private operandoUnario:any;
     private operadorLogico:Tipo;
 
-    constructor(operandoIzq:any, operadorLogico:Tipo, linea:Number, columna:Number,operandoDer?:any ) {
+    constructor(operandoIzq:any, operadorLogico:Tipo, linea:number, columna:number,operandoDer?:any ) {
         super(operadorLogico, linea, columna);
         if (operandoDer){
             this.operandoDer = operandoDer;
@@ -70,7 +71,10 @@ export default class Logica extends Instruccion{
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.BOOLEANO) {
                         var valorIzq:boolean = Boolean(izquierdo);
                         var valorDer:boolean = Boolean(derecho);
-                        return valorIzq && valorDer;
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = valorIzq && valorDer;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     } 
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.BOOLEANO
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -97,7 +101,10 @@ export default class Logica extends Instruccion{
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.BOOLEANO) {
                             var valorIzq:boolean = Boolean(izquierdo);
                             var valorDer:boolean = Boolean(derecho);
-                            return valorIzq || valorDer;
+                            let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                            let nValor = valorIzq || valorDer;
+                            let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                            return resultado
                     } 
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.BOOLEANO
                             && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
@@ -122,11 +129,14 @@ export default class Logica extends Instruccion{
                 case 26:
                     if (this.operandoIzq.tipo.getTipos() == tipo.tipos.BOOLEANO) {
                         var valorUnario:boolean = Boolean(unario);
-                        return !valorUnario;
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = !valorUnario;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        return resultado
                     }
                     else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
                     {
-                        return this.operarIzqId(izquierdo,tree,table,this.operadorLogico);            
+                        return this.operarIzqId(unario,tree,table,this.operadorLogico);            
                     }     
                     else {
                         var ex:Excepcion = new Excepcion("Semantico", "Error de Tipo con el operador NOT", this.linea, this.columna);
@@ -142,16 +152,16 @@ export default class Logica extends Instruccion{
     }
 
     public operarIzqId(izquierdo:any,tree:Arbol,table:tablaSimbolos,operador:any):any{
-        let variable:Simbolo|any = izquierdo;
+        let variable:Simbolo|any = izquierdo.getValor();     
         let op:Logica;
         let resultado;
         if(variable!=null){ //Si existe
             if (variable.getTipo().getTipos()<6){ //Si es del tipo correcto
-                let izq = new primitivo.default(variable.getTipo(),variable.getValor(),0,0);
+                //let izq = new primitivo.default(variable.getTipo(),variable.getValor(),0,0);
                 if (this.operandoDer){       //Operación unaria             
-                    op = new Logica(izq,operador,0,0,this.operandoDer);
+                    op = new Logica(variable,operador,0,0,this.operandoDer);
                 }else{
-                    op = new Logica(izq,operador,0,0);                                    
+                    op = new Logica(variable,operador,0,0);                                    
                 }
                 resultado = op.interpretar(tree,table); 
                 return resultado;
@@ -169,13 +179,13 @@ export default class Logica extends Instruccion{
     }
 
     public operarDerId(derecha:any,tree:Arbol,table:tablaSimbolos,operador:any):any{
-        let variable:Simbolo|any = derecha;
+        let variable:Simbolo|any = derecha.getValor();
         let op:Logica;
         let resultado;
         if(variable!=null){ //Si existe
             if (variable.getTipo().getTipos()<6){ //Si es del tipo correcto
-                let der = new primitivo.default(variable.getTipo(),variable.getValor(),0,0);
-                op = new Logica(this.operandoIzq,operador,0,0,der);
+                //let der = new primitivo.default(variable.getTipo(),variable.getValor(),0,0);
+                op = new Logica(this.operandoIzq,operador,0,0,variable);
                 resultado = op.interpretar(tree,table);
                 return resultado;
             }else{
@@ -191,15 +201,15 @@ export default class Logica extends Instruccion{
     }
 
     public operarAmbosId(izquierda:any,derecha:any,operador:any,tree:Arbol,table:tablaSimbolos):any{
-        let variableDer:Simbolo|any = derecha;
-        let variableIzq:Simbolo|any = izquierda;
+        let variableDer:Simbolo|any = derecha.getValor();
+        let variableIzq:Simbolo|any = izquierda.getValor();
         let op:Logica;
         let resultado;
         if(variableDer!=null && variableIzq!=null){ //Si existen
             if (variableIzq.getTipo().getTipos()<6 && variableDer.getTipo().getTipos()<6){ //Si es del tipo correcto
-                let der = new primitivo.default(variableDer.getTipo(),variableDer.getValor(),0,0);
-                let izq = new primitivo.default(variableIzq.getTipo(),variableIzq.getValor(),0,0);
-                op = new Logica(izq,operador,0,0,der);
+                //let der = new primitivo.default(variableDer.getTipo(),variableDer.getValor(),0,0);
+                //let izq = new primitivo.default(variableIzq.getTipo(),variableIzq.getValor(),0,0);
+                op = new Logica(variableIzq,operador,0,0,variableDer);
                 resultado = op.interpretar(tree,table);
                 return resultado;
             }else{

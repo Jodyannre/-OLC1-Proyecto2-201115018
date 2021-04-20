@@ -6,7 +6,7 @@ import {Instruccion} from "../Abstract/Instruccion";
 export default class Arbol {
     private instrucciones: Array<Instruccion>;
     private errores: Array<Excepcion>;
-    private consola: String;
+    private consola: string;
     private global: tablaSimbolos;
     private siguientes: Array<Arbol>|any;
 
@@ -18,6 +18,9 @@ export default class Arbol {
         this.siguientes = new Array<Arbol>();
     }
 
+    public getSiguientes(){
+        return this.siguientes;
+    }
 
     public addSiguiente(siguiente:Arbol){
         this.siguientes.push(siguiente);
@@ -43,15 +46,15 @@ export default class Arbol {
         this.errores = errores;
     }
 
-    public getConsola():String{
+    public getConsola():string{
         return this.consola;
     }
 
-    public setConsola(consola:String){
+    public setConsola(consola:string){
         this.consola = consola;
     }
 
-    public updateConsola(update:String){
+    public updateConsola(update:string){
         this.consola = `${this.consola}${update}\n`;
     }
 

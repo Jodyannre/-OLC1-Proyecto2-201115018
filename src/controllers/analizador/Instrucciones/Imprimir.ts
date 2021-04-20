@@ -8,7 +8,7 @@ import Tipo, { tipos } from "../tablaSimbolos/Tipo";
 export default class Imprimir extends Instruccion{
     private expresion: Instruccion;
 
-    constructor(expresion:Instruccion, linea:Number, columna:Number){
+    constructor(expresion:Instruccion, linea:number, columna:number){
         super(new Tipo(tipos.CADENA),linea, columna);
         this.expresion = expresion;
     }

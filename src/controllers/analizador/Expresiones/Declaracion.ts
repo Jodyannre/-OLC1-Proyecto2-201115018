@@ -17,6 +17,7 @@ import ToCharArray from "../Instrucciones/toCharArray";
 const tipo = require('../tablaSimbolos/Tipo');
 const vector = require('../Expresiones/Vector');
 const lista = require('../Expresiones/Lista');
+const primitivo = require('../Expresiones/Primitivo');
 export default class Declaracion extends Instruccion{
 
     private id:Identificador;
@@ -24,7 +25,7 @@ export default class Declaracion extends Instruccion{
     private asignacion:any;
     private valor2:any;
 
-    constructor(id:Identificador,tipo:Tipo, linea : Number, columna:Number, valor?:any,valor2?:any){
+    constructor(id:Identificador,tipo:Tipo, linea : number, columna:number, valor?:any,valor2?:any){
         //Para el tochararray valor2 trae la lista
         super(tipo,linea,columna);
         this.id = id;
@@ -98,7 +99,9 @@ export default class Declaracion extends Instruccion{
 
     public interpretar(tree:Arbol, table:tablaSimbolos){
         let valorFinal:any = null;
-
+        if (this.pasada > 1 && this.ambito ===0){
+            return true;
+        }
         //Verificar que la variable ya existe en el ámbito local
         if (table.tabla.has(this.id.getValor()) && this.pasada != 1){
             var ex:Excepcion = new Excepcion("Semántico", "Error, la variable ya existe", this.linea, this.columna);
@@ -106,6 +109,7 @@ export default class Declaracion extends Instruccion{
             return ex;
         }
         if (this.pasada ===0){ //Solo crear el símbolo en la tabla
+            this.setAmbito(0);
             let nuevoSimbolo:any;
             if (this.tipo.getTipos()===tipo.tipos.ENTERO){
                 nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.ENTERO),this.id.getValor(),null);
@@ -193,21 +197,36 @@ export default class Declaracion extends Instruccion{
                 //Valores por defecto
                 let simbolo:any = <Simbolo>table.tabla.get(this.id.getValor());
                 if (this.tipo.getTipos()===tipo.tipos.ENTERO){
-                    simbolo.setValor(0);
+                    let nTipo = new Tipo(tipo.tipos.ENTERO);
+                    let nValor = 0;
+                    let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                    simbolo.setValor(resultado);
                 }else if (this.tipo.getTipos()===tipo.tipos.CADENA){
-                    simbolo.setValor("");
+                    let nTipo = new Tipo(tipo.tipos.CADENA);
+                    let nValor = "";
+                    let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                    simbolo.setValor(resultado);
                 }else if (this.tipo.getTipos()===tipo.tipos.DECIMAL){
-                    simbolo.setValor(parseFloat("0.0"));
+                    let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                    let nValor = 0;
+                    let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                    simbolo.setValor(resultado);
                 }else if (this.tipo.getTipos()===tipo.tipos.BOOLEANO){
-                    simbolo.setValor(true);
+                    let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                    let nValor = true;
+                    let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                    simbolo.setValor(resultado);
                 }else if (this.tipo.getTipos()===tipo.tipos.CARACTER){
-                    simbolo.setValor('\u0000');
+                    let nTipo = new Tipo(tipo.tipos.CARACTER);
+                    let nValor = '\u0000';
+                    let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                    simbolo.setValor(resultado);
                 }               
                 return true;
             }
 
             /////////////////////////////////////////////////////////////////////////////////////////////
-        }else{ //Ámbitos locales todavía no esta bien construida
+        }else if (this.pasada > 1 && this.ambito != 0){ //Ámbitos locales todavía no esta bien construida
             if (this.valor){
                 if (this.valor.getTipo().getTipos()    != tipo.tipos.LENGTH
                     && this.valor.getTipo().getTipos() != tipo.tipos.TRUNCATE
@@ -239,15 +258,30 @@ export default class Declaracion extends Instruccion{
                  
                     let nuevoSimbolo:any;
                     if (this.tipo.getTipos()===tipo.tipos.ENTERO){
-                        nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.ENTERO),this.id.getValor(),0);
+                        let nTipo = new Tipo(tipo.tipos.ENTERO);
+                        let nValor = 0;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.ENTERO),this.id.getValor(),resultado);
                     }else if (this.tipo.getTipos()===tipo.tipos.CADENA){
-                        nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.CADENA),this.id.getValor(),"");
+                        let nTipo = new Tipo(tipo.tipos.CADENA);
+                        let nValor = "";
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.CADENA),this.id.getValor(),resultado);
                     }else if (this.tipo.getTipos()===tipo.tipos.DECIMAL){
-                        nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.DECIMAL),this.id.getValor(),parseFloat("0.0"));
+                        let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                        let nValor = 0;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.DECIMAL),this.id.getValor(),resultado);
                     }else if (this.tipo.getTipos()===tipo.tipos.BOOLEANO){
-                        nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.BOOLEANO),this.id.getValor(),true);
+                        let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                        let nValor = true;
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.BOOLEANO),this.id.getValor(),resultado);
                     }else if (this.tipo.getTipos()===tipo.tipos.CARACTER){
-                        nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.CARACTER),this.id.getValor(),'\u0000');
+                        let nTipo = new Tipo(tipo.tipos.CARACTER);
+                        let nValor = '\u0000';
+                        let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                        nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.CARACTER),this.id.getValor(),resultado);
                     }else if (this.tipo.getTipos()===tipo.tipos.VECTOR){
                         let v:Vector = this.valor;
                         let tipoA = v.getTipo();
@@ -257,7 +291,7 @@ export default class Declaracion extends Instruccion{
                             tree.getExcepciones().push(ex);
                             return ex;                        
                         }            
-                        nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.VECTOR),this.id.getValor(),v);
+                        nuevoSimbolo = new Simbolo(new tipo.default(tipoCreacion.getTipos()),this.id.getValor(),v);
                     }else if (this.tipo.getTipos()===tipo.tipos.LISTA){
                         if (this.valor2 != null){ //Si viene tocharArray
                             let list:Lista = this.valor2; 
@@ -271,7 +305,7 @@ export default class Declaracion extends Instruccion{
                             }
                             //let listaNull:Lista = new lista.default(tipoA,0,0,id,tipoCreacion);
                             //listaNull.setValor(null);            
-                            nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.LISTA),id.getValor(),list);
+                            nuevoSimbolo = new Simbolo(new tipo.default(tipoCreacion.getTipos()),id.getValor(),list);
                         }else{ //Solo viene asignación normal de lista
                             let list:Lista = this.valor; 
                             let id = list.getId();
@@ -284,7 +318,7 @@ export default class Declaracion extends Instruccion{
                             }
                             //let listaNull:Lista = new lista.default(tipoA,0,0,id,tipoCreacion);
                             //listaNull.setValor(null);            
-                            nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.LISTA),id.getValor(),list);                    
+                            nuevoSimbolo = new Simbolo(new tipo.default(tipoCreacion.getTipos()),id.getValor(),list);                    
                         }
         
                     }
@@ -330,6 +364,7 @@ export default class Declaracion extends Instruccion{
             }
 
         }
+        return true;
     }
 
 
@@ -352,7 +387,7 @@ export default class Declaracion extends Instruccion{
                     return ex;                            
                 }else{
                     //this.valor = valorFinal;
-                    return valorFinal.interpretar(tree,table);
+                    return valorFinal;
                 }
             }
         else if (this.valor instanceof Vector){
@@ -411,82 +446,81 @@ export default class Declaracion extends Instruccion{
             }
         }else{
             var result = valorFinal.interpretar(tree,table);
-            if (typeof result === 'string'){
-                if (result.length>1){
-                    if (this.tipo.getTipos()===tipo.tipos.CARACTER){
-                        return result;
-                    }
+            if (this.tipo.getTipos()=== tipo.tipos.ENTERO && (
+                result.getTipo().getTipos()=== tipo.tipos.ENTERO
+            ||  result.getTipo().getTipos()=== tipo.tipos.BOOLEANO)){
+                if (result.getValor() < -2147483647 || result.getValor() > 2147483647){
+                    var ex:Excepcion = new Excepcion("Semantico", "Número fuera de rango.", this.linea, this.columna);
+                    tree.getExcepciones().push(ex);
+                    return ex;                          
                 }
-                if (this.tipo.getTipos()===tipo.tipos.CADENA){
-                    return result;
+                result.setTipo(tipo.tipos.ENTERO);
+                return result;
+            }else if(this.tipo.getTipos()=== tipo.tipos.DECIMAL && (
+                result.getTipo().getTipos()=== tipo.tipos.DECIMAL
+            ||  result.getTipo().getTipos()=== tipo.tipos.ENTERO      
+            )){
+                if (result.getValor() < -2147483647 || result.getValor() > 2147483647){
+                    var ex:Excepcion = new Excepcion("Semantico", "Número fuera de rango.", this.linea, this.columna);
+                    tree.getExcepciones().push(ex);
+                    return ex;                          
                 }
-            }else
-            if (typeof result === 'number'){
-                if (result%1 === 0){
-                    if (this.tipo.getTipos()===tipo.tipos.ENTERO
-                    || this.tipo.getTipos()=== tipo.tipos.DECIMAL){
-
-                    if (result < -2147483647 || result > 2147483647){
-                        var ex:Excepcion = new Excepcion("Semantico", "Número fuera de rango.", this.linea, this.columna);
-                        tree.getExcepciones().push(ex);
-                        return ex;                          
-                    }
-                        return result;
-                    }
-                }else{
-                    if (this.tipo.getTipos()===tipo.tipos.DECIMAL){
-                        return result;
-                    }
-
-                }
-            }else if (typeof result ==='boolean'){
-                if (this.tipo.getTipos()===tipo.tipos.BOOLEANO
-                || this.tipo.getTipos()===tipo.tipos.ENTERO){
-                    if (result ===true && this.tipo.getTipos()===tipo.tipos.ENTERO){
-                        return 1;
-                    }else if (result ===false && this.tipo.getTipos()===tipo.tipos.ENTERO) {
-                        return 0;
-                    }
-                    return result; //Booleano
-                }
+                result.setTipo(tipo.tipos.DECIMAL);
+                return result;    
             }
-
+            else if (this.tipo.getTipos()===result.getTipo().getTipos()){
+                return result;
+            }
+            else{
+                var ex:Excepcion = new Excepcion("Semántico", "Tipo incorrecto.", this.linea, this.columna);
+                tree.getExcepciones().push(ex);
+                return ex;
+            }
         }
-        var ex:Excepcion = new Excepcion("Semántico", "Tipo incorrecto.", this.linea, this.columna);
-        tree.getExcepciones().push(ex);
-        return ex;
     }
 
 
     public verificarEspeciales(valorFinal:any,tree:Arbol, table:tablaSimbolos){
 
         if (this.tipo.getTipos()=== tipo.tipos.DECIMAL && this.valor.getTipo().getTipos()===tipo.tipos.ENTERO){
-            let numero:number = valorFinal.interpretar(tree,table);
+            let numero = valorFinal.interpretar(tree,table);
             if (numero > 2147483647 || numero < -2147483647){
                 var ex:Excepcion = new Excepcion("Semántico", "Número fuera de límite", this.linea, this.columna);
                 tree.getExcepciones().push(ex);
                 return ex;                        
             }
-            return parseFloat(numero+".0");
+            let nTipo = new Tipo(tipo.tipos.DECIMAL);
+            let nValor = parseFloat(numero+".0");
+            let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+            return resultado;
         }
         else
         if (this.tipo.getTipos()=== tipo.tipos.ENTERO && this.valor.getTipo().getTipos()===tipo.tipos.BOOLEANO){
-            let booleano:any = this.valor.interpretar(tree,table);
-            if (booleano ===true){
-                return 1;
+            let booleano = this.valor.interpretar(tree,table);
+            let nTipo = new Tipo(tipo.tipos.ENTERO);
+            let resultado:Primitivo;
+            if (booleano === true){             
+                let nValor = 1
+                resultado = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                return resultado;
             }else{
-                return 0;
+                let nValor = 0
+                resultado = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                return resultado;
             }
         }
         else
         if (this.tipo.getTipos()=== tipo.tipos.ENTERO && this.valor.getTipo().getTipos()===tipo.tipos.ENTERO){
-            let numero:number = valorFinal.interpretar(tree,table);
-            if (numero > 2147483647 || numero < -2147483647){
+            let numero = valorFinal.interpretar(tree,table);
+            if (numero> 2147483647 || numero < -2147483647){
                 var ex:Excepcion = new Excepcion("Semántico", "Número fuera de límite", this.linea, this.columna);
                 tree.getExcepciones().push(ex);
                 return ex;                        
             }else{
-                return numero;
+                let nTipo = new Tipo(tipo.tipos.ENTERO);
+                let nValor = numero;
+                let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                return resultado;
             }
         }else{
             return true;

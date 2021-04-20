@@ -29,7 +29,7 @@ export default class Parametro extends Instruccion{
     }
 
 
-    constructor(tipo:Tipo, linea:Number, columna:Number,tipoValor:Tipo,valor:any) {
+    constructor(tipo:Tipo, linea:number, columna:number,tipoValor:Tipo,valor:any) {
         super(tipo, linea, columna);
         this.tipoValor = tipoValor;
         this.valor = valor;

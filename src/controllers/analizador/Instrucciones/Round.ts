@@ -8,12 +8,13 @@ const tipo = require('../tablaSimbolos/Tipo');
 import { nodoInstruccion } from "../Abstract/nodoInstruccion";
 import Vector from "../Expresiones/Vector";
 import Lista from "../Expresiones/Lista";
+const primitivo = require('../Expresiones/Primitivo');
 
 export default class Round extends Instruccion{
     private expresion: any;
     private retorno: any;
 
-    constructor(expresion:any, linea:Number, columna:Number, retorno:Tipo){
+    constructor(expresion:any, linea:number, columna:number, retorno:Tipo){
         super(new Tipo(tipos.ROUND),linea, columna);
         this.expresion = expresion;
         this.retorno = retorno;
@@ -38,10 +39,16 @@ export default class Round extends Instruccion{
         let numero,simbolo;
         if(this.expresion.getTipo().getTipos()===tipo.tipos.ENTERO){
             numero = this.expresion.interpretar(tree,table);
-            return numero;
+            let nTipo = new tipo.default(tipo.tipos.ENTERO);
+            let nValor = numero
+            let nPrimitivo = new primitivo.default( nTipo,nValor,this.linea,this.columna); 
+            return nPrimitivo;
         }else if(this.expresion.getTipo().getTipos()===tipo.tipos.DECIMAL){
             numero = this.expresion.interpretar(tree,table);
-            return Math.round(numero);
+            let nTipo = new tipo.default(tipo.tipos.DECIMAL);
+            let nValor = Math.round(numero);
+            let nPrimitivo = new primitivo.default( nTipo,nValor,this.linea,this.columna); 
+            return nPrimitivo;
         }else if(this.expresion.getTipo().getTipos()===tipo.tipos.IDENTIFICADOR){
             simbolo = this.expresion.interpretar(tree,table);
             if (simbolo ==null){
@@ -61,10 +68,18 @@ export default class Round extends Instruccion{
 
 
     public verificarTipo(variable:any,tree:Arbol){
+        //Variable es un símbolo
         if (variable.getTipo().getTipos()===tipo.tipos.ENTERO ){
-            return variable.getValor();
+            let nTipo = new tipo.default(tipo.tipos.ENTERO);
+            let nValor = variable.getValor().getValor();
+            let nPrimitivo = new primitivo.default( nTipo,nValor,this.linea,this.columna); 
+            return nPrimitivo;
         }else if (variable.getTipo().getTipos()===tipo.tipos.DECIMAL){
-            return Math.round(variable.getValor());
+            let nTipo = new tipo.default(tipo.tipos.ENTERO);
+            let nValor = Math.round(variable.getValor().getValor());
+            let nPrimitivo = new primitivo.default( nTipo,nValor,this.linea,this.columna); 
+            return nPrimitivo;
+            
         }else{
             var ex:Excepcion = new Excepcion("Semántico", "El valor no es un número.", this.linea, this.columna);
             tree.getExcepciones().push(ex);

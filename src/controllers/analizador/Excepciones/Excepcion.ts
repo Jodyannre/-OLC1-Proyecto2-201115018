@@ -1,10 +1,10 @@
 export default class Excepcion {
-    private tipo: String;
-    private descripcion: String;
-    private fila: Number;
-    private columna: Number;
+    private tipo: string;
+    private descripcion: string;
+    private fila: number;
+    private columna: number;
 
-    constructor(tipo: String, descripcion:String, fila:Number, columna:Number)
+    constructor(tipo: string, descripcion:string, fila:number, columna:number)
     {
         this.tipo = tipo;
         this.descripcion = descripcion;
@@ -12,27 +12,27 @@ export default class Excepcion {
         this.columna = columna;
     }
 
-    public toString():String{
+    public toString():string{
         return this.tipo + " - " + this.descripcion + " [" + this.fila + ", " + this.columna + "]";
     }
     public imprimir(){
         return this.toString() + "\n";
     }
 
-    public getTipo():String
+    public getTipo():string
     {
         return this.tipo;
     }
-    public getDesc():String
+    public getDesc():string
     {
         return this.descripcion;
     }
 
-    public getFila():Number
+    public getFila():number
     {
         return this.fila;
     }
-    public getColumna():Number
+    public getColumna():number
     {
         return this.columna;
     }
