@@ -7,6 +7,9 @@ import { nodoInstruccion } from "../Abstract/nodoInstruccion";
 import Relacional from "../Expresiones/Relacional";
 import Logica from "../Expresiones/Logica";
 import Identificador from "../Expresiones/Identificador";
+import BREAK from "./BREAK";
+import CONTINUE from "./CONTINUE";
+import RETURN from "./RETURN";
 var Errors:Array<Excepcion> = new Array<Excepcion>();
 
 const tipo = require('../tablaSimbolos/Tipo');
@@ -75,7 +78,16 @@ export default class ELSE extends Instruccion{
                     nArbol.addError(result);
                     nArbol.updateConsola((<Excepcion>result).toString());
                     return result;
-                }                    
+                }       
+                if (result instanceof CONTINUE){
+                    return result;
+                }      
+                if (result instanceof BREAK){
+                    return result;
+                }  
+                if (result instanceof RETURN){
+                    return result;
+                }                 
             }                         
             let corrimiento:number = 0;
             for (let index of instruccionesEliminar){

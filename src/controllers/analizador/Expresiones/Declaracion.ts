@@ -14,6 +14,7 @@ import Simbolo from "../tablaSimbolos/Simbolo";
 import Identificador from "./Identificador";
 import Asignacion from "./Asignacion";
 import ToCharArray from "../Instrucciones/toCharArray";
+import Casteo from "../Instrucciones/Casteo";
 const tipo = require('../tablaSimbolos/Tipo');
 const vector = require('../Expresiones/Vector');
 const lista = require('../Expresiones/Lista');

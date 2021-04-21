@@ -115,7 +115,7 @@ class typestyController{
             //Creando gráfica del ast despues lo trabajo
             
             let nodoInicial:nodoInstruccion = new nodoInstruccion("Raiz");
-            let nodoIns:nodoInstruccion = new nodoInstruccion("INSTRUCCION");
+            let nodoIns:nodoInstruccion = new nodoInstruccion("INSTRUCCIONES");
             let temp:any;
             for (let instruccion of astGrafica.getInstrucciones()){
                 temp = instruccion;

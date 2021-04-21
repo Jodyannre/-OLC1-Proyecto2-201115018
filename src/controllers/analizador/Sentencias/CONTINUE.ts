@@ -7,21 +7,21 @@ import { nodoInstruccion } from "../Abstract/nodoInstruccion";
 import Relacional from "../Expresiones/Relacional";
 import Logica from "../Expresiones/Logica";
 import Identificador from "../Expresiones/Identificador";
+import CASE from "./CASE";
 import Primitivo from "../Expresiones/Primitivo";
 var Errors:Array<Excepcion> = new Array<Excepcion>();
 
 const tipo = require('../tablaSimbolos/Tipo');
 
-export default class Parametro extends Instruccion{
-    private tipoValor:any;
-    private valor:any;
+export default class CONTINUE extends Instruccion{
+
 
 
     public getNodoInstruccion(){
         let nodo:nodoInstruccion = new nodoInstruccion("INSTRUCCION");
-        let nodo2:nodoInstruccion = new nodoInstruccion("Metodo");
+        let nodo2:nodoInstruccion = new nodoInstruccion("SENTENCIA_CONTINUE");
         if (this.tipo.getTipos()===60){
-            nodo2.agregarHijoCadena("BREAK");
+            nodo2.agregarHijoCadena("CONTINUE");
             nodo2.agregarHijoCadena(";");
         }     
         nodo.agregarHijoNodo(nodo2);    
@@ -29,31 +29,13 @@ export default class Parametro extends Instruccion{
     }
 
 
-    constructor(tipo:Tipo, linea:number, columna:number,tipoValor:Tipo,valor:any) {
+    constructor(tipo:Tipo, linea:number, columna:number) {
         super(tipo, linea, columna);
-        this.tipoValor = tipoValor;
-        this.valor = valor;
     }
 
 
     public interpretar(tree:Arbol, table:tablaSimbolos){
         return this;
     }   
-
-    public getTipo(){
-        return this.tipoValor.getTipos();
-    }
-
-    public compararTipo(tipo:number){
-        return this.tipoValor.getTipos()===tipo;
-    }
-
-    public getValor(){
-        return this.valor; //En teoría retorna un primitivo
-    }
-
-    public getIdValor(){
-        return this.valor.getValor();
-    }
 
 }

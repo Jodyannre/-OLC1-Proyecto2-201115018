@@ -6,6 +6,7 @@ import Excepcion from "../Excepciones/Excepcion";
 import { nodoInstruccion } from "../Abstract/nodoInstruccion";
 import Simbolo from "../tablaSimbolos/Simbolo";
 import Primitivo from "./Primitivo";
+import Identificador from "./Identificador";
 
 const primitivo = require('../Expresiones/Primitivo');
 const tipo = require('../tablaSimbolos/Tipo');
@@ -19,8 +20,12 @@ export default class Agrupacion extends Instruccion{
 
 
     public getNodoInstruccion():nodoInstruccion{
-        let nodo:nodoInstruccion = new nodoInstruccion('ARITMÉTICA');
-
+        let nodo:nodoInstruccion = new nodoInstruccion('INSTRUCCION');
+        let nodo2:nodoInstruccion = new nodoInstruccion('AGRUPACION');
+        nodo2.agregarHijoCadena("(");
+        nodo2.agregarHijoNodo(this.operacion.getNodoInstruccion());
+        nodo2.agregarHijoCadena(")");
+        nodo.agregarHijoNodo(nodo2);
         return nodo;
     }
 
@@ -31,37 +36,34 @@ export default class Agrupacion extends Instruccion{
         if (operacion != null){
             this.operacion = operacion;
         }
-
     }
 
 
     public interpretar(tree:Arbol, table:tablaSimbolos):any{
+        let result;
+        if (this.operacion instanceof Excepcion){
+            return this.operacion; //Error sintáctico
+        }
 
-    }
-
-
-    public getTipoResultado(tree:Arbol, table:tablaSimbolos){
-        var resultado = this.interpretar(tree,table);
-        if (resultado instanceof Excepcion){
-            return Excepcion;
-        }else
-        if (typeof resultado === 'number'){
-            if (resultado % 1 === 0){
-                return tipo.tipos.ENTERO;
-            }else{
-                return tipo.tipos.DECIMAL;
+        if (this.operacion instanceof Primitivo){
+            result = this.operacion; // Símbolo o null
+        }else if (this.operacion instanceof Identificador){
+            result = this.operacion.interpretar(tree,table);
+            if (result === null){
+                var ex:Excepcion = new Excepcion("Semántico", "La variable no existe.", this.linea, this.columna);
+                tree.getExcepciones().push(ex);
+                return ex;  
             }
-        }else
-        if (typeof resultado === 'string'){
-            if (resultado.length === 1){
-                return tipo.tipos.CARACTER;
-            }else{
-                return tipo.tipos.CADENA;
+            result = result.getValor(); //Get el primitivo del símbolo
+        }else{
+            result = this.operacion.interpretar(tree,table); //Cualquier operación, obtener valor; un primitivo
+            if (result instanceof Excepcion){
+                return result;
             }
         }
-        else
-        if (typeof resultado === 'boolean'){
-            return tipo.tipos.BOOLEANO;
-        }
+
+        //Trae un símbolo con el resultado
+        this.tipo.setTipo(result.getTipo().getTipos());
+        return result;
     }
 }

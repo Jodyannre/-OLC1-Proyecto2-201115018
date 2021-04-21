@@ -61,16 +61,18 @@ export default class RETURN extends Instruccion{
         }
 
         this.retorno.setPasada(2);
-        var resultado = this.retorno.interpretar(tree,table);
+        var resultado = this.retorno.interpretar(tree,table); //Retornar un primitivo como resultado
         if (resultado instanceof Excepcion){
             return resultado;
         }
-        this.tipoRetorno = this.getTipoRetorno(resultado);
-        this.valor = resultado;
+        this.tipoRetorno = resultado.getTipo(); //Tipo
+        this.valor = resultado; //Primitivo
         return this;
     }
 
-
+    public getValor(){
+        return this.valor;
+    }
     public getTipoRetorno(result:any){
         if (typeof result === 'string'){
             if (result.length>1){

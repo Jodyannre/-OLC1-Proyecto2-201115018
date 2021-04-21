@@ -8,6 +8,8 @@ import Relacional from "../Expresiones/Relacional";
 import Logica from "../Expresiones/Logica";
 import Identificador from "../Expresiones/Identificador";
 import BREAK from "./BREAK";
+import CONTINUE from "./CONTINUE";
+import RETURN from "./RETURN";
 var Errors:Array<Excepcion> = new Array<Excepcion>();
 
 const tipo = require('../tablaSimbolos/Tipo');
@@ -60,19 +62,18 @@ export default class WHILE extends Instruccion{
         if (this.pasada<2){
             return true;
         }
-        var estadoCondicion = this.verificarCondicion(tree,table);
+        var estadoCondicion = this.verificarCondicion(tree,table); //Devuelve un primitivo booleano
         if (estadoCondicion instanceof Excepcion){
             return estadoCondicion;
         }
-            if (estadoCondicion===true){
+            if (estadoCondicion.getValor()===true){
                 //Con instrucciones y condición true
                 //Crear nuevo enterno
                 let nArbol:Arbol = new Arbol(this.instrucciones);
                 let nTabla:tablaSimbolos = new tablaSimbolos(3,table);
                 table.addSiguiente(nTabla);
                 tree.addSiguiente(nArbol);
-                var instruccionesEliminar:number[] = [];
-                while (estadoCondicion ===true){
+                while (estadoCondicion.getValor() ===true){
 
                     try{
                         for (let m of nArbol.getInstrucciones()){
@@ -93,14 +94,20 @@ export default class WHILE extends Instruccion{
                             }   
                             if (result instanceof BREAK){
                                 return true;
-                            }                 
+                            }       
+                            if (result instanceof CONTINUE){
+                                break;;
+                            }
+                            if (result instanceof RETURN){
+                                return result;
+                            }    
                         }                                       
                     }catch(err){
                         console.log(err);
                         return false;
                     }                    
                     //Revisar como sigue la condición
-                    estadoCondicion = this.verificarCondicion(nArbol,nTabla);
+                    estadoCondicion = this.verificarCondicion(nArbol,nTabla); //Devuelve un primitivo booleano
                 }
 
 
@@ -114,13 +121,14 @@ export default class WHILE extends Instruccion{
     public verificarCondicion(tree:Arbol, table:tablaSimbolos){
         if (this.condicion instanceof Relacional || this.condicion instanceof Logica 
             || this.condicion.getTipo().getTipos() === tipo.tipos.BOOLEANO){
-            var r = this.condicion.interpretar(tree, table);
+            var r = this.condicion.interpretar(tree, table); 
+            //Devuelve un primitivo
             return r; //Si es relacion o lógica solo la retorna
         }else if (this.condicion instanceof Identificador){
             var resultado = table.existe(this.condicion.getValor()); //Verificar si existe y retorna un simbolo
             if (resultado !=null){
                 if (resultado.getTipo().getTipos()===tipo.tipos.BOOLEANO){
-                    return resultado.getValor();
+                    return resultado.getValor(); //Devuelve un primitivo
                 }else{ //No es booleana
                     var ex:Excepcion = new Excepcion("Semantico", "El tipo de la variable es incorrecto.", this.linea, this.columna);
                     tree.getExcepciones().push(ex);

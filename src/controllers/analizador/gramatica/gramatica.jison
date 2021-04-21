@@ -143,6 +143,8 @@
 	const Declaracion = require('../Expresiones/Declaracion');
 	const Vector = require('../Expresiones/Vector');
 	const Lista = require('../Expresiones/Lista');
+	const Funcion = require('../Expresiones/Funcion');
+	const Parametro = require('../Expresiones/Parametro');
 	const toUpper = require('../Instrucciones/toUpper');
 	const toLower = require('../Instrucciones/toLower');
 	const Length = require('../Instrucciones/Length');
@@ -151,7 +153,9 @@
 	const Typeof = require('../Instrucciones/Typeof');
 	const ToString = require('../Instrucciones/toString');
 	const ToCharArray = require('../Instrucciones/toCharArray');
+	const Casteo = require('../Instrucciones/Casteo');
 	const Asignacion = require('../Expresiones/Asignacion');
+	const Agrupacion = require('../Expresiones/Agrupacion');
 	const IF = require('../Sentencias/IF');
 	const ELSE = require('../Sentencias/ELSE');
 	const WHILE = require('../Sentencias/WHILE');
@@ -159,6 +163,7 @@
 	const SWITCH = require('../Sentencias/SWITCH');
 	const CASE = require('../Sentencias/CASE');
 	const BREAK = require('../Sentencias/BREAK');
+	const CONTINUE = require('../Sentencias/CONTINUE');
 	const FOR = require('../Sentencias/FOR');
 	var pilaAuxiliar = [];
 
@@ -271,8 +276,8 @@ relacional
 ;
 
 instruccionTemp
-	//: instrucciones_globales 			{$$ = $1}
-	: instrucciones_locales				{$$ = $1}
+	: instrucciones_globales 				{$$ = $1}
+	//: instrucciones_locales				{$$ = $1}
 ;
 
 expresion
@@ -285,7 +290,7 @@ expresion
 	| MENOS expresion %prec UMENOS {$$ = new Aritmetica.default($2,new Tipo.default(Tipo.tipos.NEGACION),@1.first_line, @1.first_column); }
 	| expresion INCREMENTO  {$$ = new Aritmetica.default($1,new Tipo.default(Tipo.tipos.INCREMENTO),@1.first_line, @1.first_column); }
 	| expresion DECREMENTO  {$$ = new Aritmetica.default($1,new Tipo.default(Tipo.tipos.DECREMENTO),@1.first_line, @1.first_column); }
-	| PARENTESIS_A condicion_logica PARENTESIS_C {$$ = $1+' '+$2+' '+$3}
+	| PARENTESIS_A condicion_logica PARENTESIS_C {$$ = new Agrupacion.default(new Tipo.default(Tipo.tipos.AGRUPACION),@1.first_line, @1.first_column,$2); }
 	| ENTERO {$$ = new Primitivo.default( new Tipo.default(Tipo.tipos.ENTERO),parseInt($1,10), @1.first_line, @1.first_column); }
 	| DECIMAL { $$ = new Primitivo.default( new Tipo.default(Tipo.tipos.DECIMAL),parseFloat($1), @1.first_line, @1.first_column); }
 	| TRUE { $$ = new Primitivo.default( new Tipo.default(Tipo.tipos.BOOLEANO),true, @1.first_line, @1.first_column); }
@@ -364,7 +369,12 @@ instrucciones_locales
 
 instruccion_local
 	: instruccion_local_metodo		{$$ = $1}				
-	| CONTINUE PUNTOCOMA			{$$ = $1+' '+$2}
+	| CONTINUE PUNTOCOMA			
+	{
+		var nTipo = new Tipo.default(Tipo.tipos.CONTINUE);
+		var nContinue = new CONTINUE.default(nTipo,@1.first_line, @1.first_column);
+		$$ = nContinue;
+	}
 	| BREAK PUNTOCOMA				
 	{
 		var nTipo = new Tipo.default(Tipo.tipos.BREAK);
@@ -394,8 +404,18 @@ instruccion_local_metodo
 	| condicion_switch				{$$ = $1}
 	| aritmetico_unario				{$$ = $1}
 	| llamada_metodo_funcion 		{$$ = $1+''}
-	| RETURN condicion_logica PUNTOCOMA {$$ = $1+' '+$2+' '+$3}
-	| RETURN PUNTOCOMA				{$$ = $1+' '+$2}
+	| RETURN condicion_logica PUNTOCOMA 
+	{
+		var nTipo = new Tipo.default(Tipo.tipos.RETURN);
+		var nReturn = new RETURN.default(nTipo,@1.first_line, @1.first_column,$2);
+		$$ = nReturn;			
+	}
+	| RETURN PUNTOCOMA				
+	{
+		var nTipo = new Tipo.default(Tipo.tipos.RETURN);
+		var nReturn = new RETURN.default(nTipo,@1.first_line, @1.first_column,null);
+		$$ = nReturn;		
+	}
 ;
 
 instruccion_global 
@@ -407,9 +427,9 @@ instruccion_global
 	| ciclo_while					{$$ = $1}
 	| condicion_if					{$$ = $1}
 	| condicion_switch				{$$ = $1}
-	| declaracion_funcion_metodo 	{$$ = $1+''}
+	| declaracion_funcion_metodo 	{$$ = $1}
 	| aritmetico_unario				{$$ = $1}
-	| llamada_metodo_funcion 		{$$ = $1}
+	| llamada_metodo_funcion 		{$$ = $1+''}
 ;
 
 creacion_variable
@@ -418,6 +438,7 @@ creacion_variable
 											//var idNodo = new Identificador.default(new Tipo.default(Tipo.tipos.IDENTIFICADOR),id,@1.first_line, @1.first_column);
 											$$ = new Declaracion.default(id,$1,@1.first_line, @1.first_column,$2,null);
 											}
+	//| asignacion_tipo asignacion_metodo
 ;
 
 asignacion_variable
@@ -446,12 +467,27 @@ asignacion_valor_variable
 		var nodo = crearToLower($4, @1.first_line, @1.first_column, tipo);
 		$$ = nodo;
 	}
-	| ASIGNACION PARENTESIS_A INT PARENTESIS_C expresion PUNTOCOMA 		{$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
-	| ASIGNACION PARENTESIS_A CHAR PARENTESIS_C expresion PUNTOCOMA 	{$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
-	| ASIGNACION PARENTESIS_A DOUBLE PARENTESIS_C expresion PUNTOCOMA 	{$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
-	| ASIGNACION metodos_nativos PUNTOCOMA 								{$$ = $2}
+	| ASIGNACION PARENTESIS_A INT PARENTESIS_C condicion_logica PUNTOCOMA 		
+	{
+		var tipo = new Tipo.default(Tipo.tipos.ENTERO); 
+		var nodo = new Casteo.default(tipo,$5,@1.first_line, @1.first_column);
+		$$ = nodo;		
+	}
+	| ASIGNACION PARENTESIS_A CHAR PARENTESIS_C condicion_logica PUNTOCOMA 	
+	{
+		var tipo = new Tipo.default(Tipo.tipos.CARACTER); 
+		var nodo = new Casteo.default(tipo,$5,@1.first_line, @1.first_column);;
+		$$ = nodo;
+	}
+	| ASIGNACION PARENTESIS_A DOUBLE PARENTESIS_C condicion_logica PUNTOCOMA 	
+	{
+		var tipo = new Tipo.default(Tipo.tipos.DECIMAL); 
+		var nodo = new Casteo.default(tipo,$5,@1.first_line, @1.first_column);
+		$$ = nodo;
+	}
+	| ASIGNACION metodos_nativos PUNTOCOMA 	{$$ = $2}
 	| ASIGNACION condicion_logica TERNARIO expresion DOSPUNTOS expresion PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7}
-	| ASIGNACION llamada_metodo_funcion
+	| ASIGNACION llamada_metodo_funcion {$$ = $1+' '+$2+' '}
 ;
 
 asignacion_valor_vector
@@ -753,19 +789,60 @@ acceso_lista
 
 /*GRAMATICA METODOS Y FUNCIONES---------------------------------------------*/
 declaracion_funcion_metodo
-	: asignacion_tipo ID PARENTESIS_A definicion_parametros PARENTESIS_C LLAVE_A /*instrucciones*/ LLAVE_C {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7}
-	| asignacion_tipo ID PARENTESIS_A definicion_parametros PARENTESIS_C LLAVE_A instrucciones_locales_metodo LLAVE_C {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7+' '+$8}
-	| asignacion_tipo ID PARENTESIS_A PARENTESIS_C LLAVE_A /*instrucciones*/ LLAVE_C {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
-	| asignacion_tipo ID PARENTESIS_A PARENTESIS_C LLAVE_A instrucciones_locales_metodo LLAVE_C {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7}
+	: asignacion_tipo ID PARENTESIS_A definicion_parametros PARENTESIS_C LLAVE_A /*instrucciones*/ LLAVE_C 
+	{
+		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @2.first_line, @2.first_column);
+		$$ = new Funcion.default($1,nId,$4,null,@1.first_line, @1.first_column);
+	}
+	| asignacion_tipo ID PARENTESIS_A definicion_parametros PARENTESIS_C LLAVE_A instrucciones_locales_metodo LLAVE_C 
+	{
+		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @2.first_line, @2.first_column);
+		$$ = new Funcion.default($1,nId,$4,$7,@1.first_line, @1.first_column);
+	}
+	| asignacion_tipo ID PARENTESIS_A PARENTESIS_C LLAVE_A /*instrucciones*/ LLAVE_C 
+	{
+		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @2.first_line, @2.first_column);
+		$$ = new Funcion.default($1,nId,null,null,@1.first_line, @1.first_column);
+	}
+	| asignacion_tipo ID PARENTESIS_A PARENTESIS_C LLAVE_A instrucciones_locales_metodo LLAVE_C 
+	{
+		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @2.first_line, @2.first_column);
+		$$ = new Funcion.default($1,nId,null,$6,@1.first_line, @1.first_column);
+	}
 	| VOID ID PARENTESIS_A definicion_parametros PARENTESIS_C LLAVE_A /*instrucciones*/ LLAVE_C {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7}
 	| VOID ID PARENTESIS_A definicion_parametros PARENTESIS_C LLAVE_A instrucciones_locales_metodo LLAVE_C {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7+' '+$8}
 	| VOID ID PARENTESIS_A PARENTESIS_C LLAVE_A /*instrucciones*/ LLAVE_C {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
 	| VOID ID PARENTESIS_A PARENTESIS_C LLAVE_A instrucciones_locales_metodo LLAVE_C {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7}
 ;
 
+asignacion_metodo
+	: ID PARENTESIS_A definicion_parametros PARENTESIS_C LLAVE_A /*instrucciones*/ LLAVE_C 
+	{
+
+	}
+;
+
+
 definicion_parametros
-	: definicion_parametros COMA asignacion_tipo ID {$$ = $1+' '+$2+' '+$3+' '+$4}
-	| asignacion_tipo ID 							{$$ = $1+' '+$2}
+	: definicion_parametros COMA parametro
+	{
+		$1.push($3);
+		$$ = $1;
+	}
+	| parametro  							
+	{
+		$$ = [$1]
+	}
+;
+
+parametro
+	: asignacion_tipo ID
+	{
+		let ntipo = new Tipo.default(Tipo.tipos.PARAMETRO);
+		let nParametro = new Parametro.default(ntipo,@1.first_line, @1.first_column,$1,$2);
+		$$ = nParametro;
+		
+	}
 ;
 /*GRAMATICA METODOS Y FUNCIONES---------------------------------------------*/
 

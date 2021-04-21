@@ -9,6 +9,8 @@ import Logica from "../Expresiones/Logica";
 import Identificador from "../Expresiones/Identificador";
 import CASE from "./CASE";
 import Primitivo from "../Expresiones/Primitivo";
+import CONTINUE from "./CONTINUE";
+import RETURN from "./RETURN";
 var Errors:Array<Excepcion> = new Array<Excepcion>();
 
 const tipo = require('../tablaSimbolos/Tipo');
@@ -67,7 +69,7 @@ export default class SWITCH extends Instruccion{
         }
 
         //Verificar si la condición es válida
-        let tipoCondicion = this.verificarCondicion(tree,table);
+        let tipoCondicion = this.verificarCondicion(tree,table); //Devuelve el número del enum
         if (tipoCondicion instanceof Excepcion){
             return tipoCondicion;
         }
@@ -79,7 +81,7 @@ export default class SWITCH extends Instruccion{
                 if (caso instanceof Excepcion){
                     return caso;
                 }
-                tipoCaso = caso.getTipoValorEvaluado(tree,table);
+                tipoCaso = caso.getTipoValorEvaluado(tree,table); //Devuelve  el número del enum
                 if (tipoCondicion != tipoCaso && tipoCaso!= tipo.tipos.DEFAULT){
                     var ex:Excepcion = new Excepcion("Semantico", "Valor incorrecto en case.", this.linea, this.columna);
                     tree.getExcepciones().push(ex);
@@ -96,9 +98,16 @@ export default class SWITCH extends Instruccion{
                 if (resultado instanceof Excepcion){
                     return resultado;
                 }
+                
                 if (resultado != false){
                     return resultado;
                 }
+                if (resultado instanceof CONTINUE){
+                    return resultado;
+                }
+                if (resultado instanceof RETURN){
+                    return resultado;
+                }    
             }
 
 
@@ -109,7 +118,7 @@ export default class SWITCH extends Instruccion{
 
     }
 
-
+    //Devuelve el número del enum
     public verificarCondicion(tree:Arbol, table:tablaSimbolos){
         if (this.condicion.getTipo().getTipos()=== tipo.tipos.IDENTIFICADOR){
             var simbolo = this.condicion.interpretar(tree,table);

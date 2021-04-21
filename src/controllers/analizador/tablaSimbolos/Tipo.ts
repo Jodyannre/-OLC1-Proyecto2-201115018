@@ -18,7 +18,7 @@ export default class Tipo
         return this.tipos
     }
 
-    public setTipo(tipo:tipos)
+    public setTipo(tipo:any)
     {
         this.tipos = tipo;
     }
@@ -82,5 +82,8 @@ export enum tipos
     SWITCH = 59,
     BREAK = 60,
     RETURN = 61,
-    FOR = 62
+    FOR = 62,
+    CASTEO = 63,
+    AGRUPACION = 64,
+    PARAMETRO = 65
 }

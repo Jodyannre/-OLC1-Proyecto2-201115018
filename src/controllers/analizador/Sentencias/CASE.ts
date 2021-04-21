@@ -9,7 +9,8 @@ import Logica from "../Expresiones/Logica";
 import Aritmetica from "../Expresiones/Aritmetica";
 import Primitivo from "../Expresiones/Primitivo";
 import BREAK from "./BREAK";
-
+import CONTINUE from "./CONTINUE";
+import RETURN from "./RETURN";
 var Errors:Array<Excepcion> = new Array<Excepcion>();
 
 const tipo = require('../tablaSimbolos/Tipo');
@@ -94,7 +95,13 @@ export default class CASE extends Instruccion{
                     if (result instanceof BREAK){
                         return true;
                     }
-                                        
+                    if (result instanceof CONTINUE){
+                        return result;
+                    } 
+                    if (result instanceof RETURN){
+                        return result;
+                    }      
+                                 
                 }                                      
             }catch(err){
                 console.log(err);
@@ -171,7 +178,7 @@ export default class CASE extends Instruccion{
 
     public getTipoValorEvaluado(tree:Arbol,table:tablaSimbolos){
         if (this.valorEvaluado instanceof Primitivo){
-            return this.valorEvaluado.getTipo().getTipos();
+            return this.valorEvaluado.getTipo().getTipos(); //Devuelve el número del enum
         }else if (this.tipo.getTipos()===tipo.tipos.DEFAULT){
             return tipo.tipos.DEFAULT;
         }else{

@@ -58,10 +58,16 @@ export default class Aritmetica extends Instruccion{
         let izquierdo:any = null, derecho:any = null, unario:any = null;
         if (!this.operandoUnario) {
             izquierdo = this.operandoIzq.interpretar(tree,table);
+            if (izquierdo instanceof Primitivo){
+                izquierdo = izquierdo.interpretar(tree,table);
+            }
 
             if (izquierdo instanceof Excepcion) return izquierdo;
 
             derecho = this.operandoDer.interpretar(tree,table);
+            if (derecho instanceof Primitivo){
+                derecho = derecho.interpretar(tree,table);
+            }
 
             if (derecho instanceof Excepcion) return derecho;
         } else {
