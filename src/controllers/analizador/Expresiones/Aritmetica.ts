@@ -1092,7 +1092,9 @@ export default class Aritmetica extends Instruccion{
         let op:Aritmetica;
         let resultado;
         if(variableDer!=null && variableIzq!=null){ //Si existen
-            if (variableIzq.getTipo().getTipos()<6 && variableDer.getTipo().getTipos()<6){ //Si es del tipo correcto
+            let tipoD = variableDer.getTipo().getTipos(); 
+            let tipoI = variableIzq.getTipo().getTipos();
+            if ((tipoD<6) && (tipoI<6)){ //Si es del tipo correcto
                 //let der = new primitivo.default(variableDer.getTipo(),variableDer.getValor(),0,0);
                 //let izq = new primitivo.default(variableIzq.getTipo(),variableIzq.getValor(),0,0);
                 op = new Aritmetica(variableDer,operador,0,0,variableIzq);

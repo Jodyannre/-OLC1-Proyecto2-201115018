@@ -85,5 +85,7 @@ export enum tipos
     FOR = 62,
     CASTEO = 63,
     AGRUPACION = 64,
-    PARAMETRO = 65
+    PARAMETRO = 65,
+    LLAMADA_FUNCION = 66,
+    VOID = 67
 }

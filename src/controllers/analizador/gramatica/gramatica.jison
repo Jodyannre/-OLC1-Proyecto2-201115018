@@ -144,6 +144,7 @@
 	const Vector = require('../Expresiones/Vector');
 	const Lista = require('../Expresiones/Lista');
 	const Funcion = require('../Expresiones/Funcion');
+	const Metodo = require('../Expresiones/Metodo');
 	const Parametro = require('../Expresiones/Parametro');
 	const toUpper = require('../Instrucciones/toUpper');
 	const toLower = require('../Instrucciones/toLower');
@@ -154,6 +155,7 @@
 	const ToString = require('../Instrucciones/toString');
 	const ToCharArray = require('../Instrucciones/toCharArray');
 	const Casteo = require('../Instrucciones/Casteo');
+	const llamadaFuncion = require('../Instrucciones/llamadaFuncion');
 	const Asignacion = require('../Expresiones/Asignacion');
 	const Agrupacion = require('../Expresiones/Agrupacion');
 	const IF = require('../Sentencias/IF');
@@ -403,7 +405,7 @@ instruccion_local_metodo
 	| condicion_if					{$$ = $1}
 	| condicion_switch				{$$ = $1}
 	| aritmetico_unario				{$$ = $1}
-	| llamada_metodo_funcion 		{$$ = $1+''}
+	| llamada_metodo_funcion 		{$$ = $1}
 	| RETURN condicion_logica PUNTOCOMA 
 	{
 		var nTipo = new Tipo.default(Tipo.tipos.RETURN);
@@ -427,9 +429,9 @@ instruccion_global
 	| ciclo_while					{$$ = $1}
 	| condicion_if					{$$ = $1}
 	| condicion_switch				{$$ = $1}
-	| declaracion_funcion_metodo 	{$$ = $1}
+	//| declaracion_funcion_metodo 	{$$ = $1}
 	| aritmetico_unario				{$$ = $1}
-	| llamada_metodo_funcion 		{$$ = $1+''}
+	| llamada_metodo_funcion 		{$$ = $1}
 ;
 
 creacion_variable
@@ -438,6 +440,13 @@ creacion_variable
 											//var idNodo = new Identificador.default(new Tipo.default(Tipo.tipos.IDENTIFICADOR),id,@1.first_line, @1.first_column);
 											$$ = new Declaracion.default(id,$1,@1.first_line, @1.first_column,$2,null);
 											}
+	| declaracion_funcion_metodo
+	{
+		var id = $1.getId_Obj();
+		var nTipo = new Tipo.default($1.getTipoRetorno());
+		//var idNodo = new Identificador.default(new Tipo.default(Tipo.tipos.IDENTIFICADOR),id,@1.first_line, @1.first_column);
+		$$ = new Declaracion.default(id,nTipo,@1.first_line, @1.first_column,$1,null);
+	}
 	//| asignacion_tipo asignacion_metodo
 ;
 
@@ -485,9 +494,15 @@ asignacion_valor_variable
 		var nodo = new Casteo.default(tipo,$5,@1.first_line, @1.first_column);
 		$$ = nodo;
 	}
-	| ASIGNACION metodos_nativos PUNTOCOMA 	{$$ = $2}
+	| ASIGNACION metodos_nativos PUNTOCOMA 	
+	{
+		$$ = $2
+	}
 	| ASIGNACION condicion_logica TERNARIO expresion DOSPUNTOS expresion PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7}
-	| ASIGNACION llamada_metodo_funcion {$$ = $1+' '+$2+' '}
+	| ASIGNACION llamada_metodo_funcion 
+	{
+		$$ = $1;
+	}
 ;
 
 asignacion_valor_vector
@@ -773,8 +788,14 @@ manejo_vector_lista
 ;
 
 elementos_coma
-	: expresion COMA elementos_coma {pilaAuxiliar.push($1); $$ = pilaAuxiliar}
-	| expresion 					{pilaAuxiliar.push($1); }
+	: elementos_coma COMA condicion_logica	
+	{
+		$1.push($3);
+	}
+	| condicion_logica 						
+	{
+		$$ = [$1];
+	}
 ;
 
 acceso_vector
@@ -809,10 +830,30 @@ declaracion_funcion_metodo
 		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @2.first_line, @2.first_column);
 		$$ = new Funcion.default($1,nId,null,$6,@1.first_line, @1.first_column);
 	}
-	| VOID ID PARENTESIS_A definicion_parametros PARENTESIS_C LLAVE_A /*instrucciones*/ LLAVE_C {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7}
-	| VOID ID PARENTESIS_A definicion_parametros PARENTESIS_C LLAVE_A instrucciones_locales_metodo LLAVE_C {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7+' '+$8}
-	| VOID ID PARENTESIS_A PARENTESIS_C LLAVE_A /*instrucciones*/ LLAVE_C {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
-	| VOID ID PARENTESIS_A PARENTESIS_C LLAVE_A instrucciones_locales_metodo LLAVE_C {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7}
+	| VOID ID PARENTESIS_A definicion_parametros PARENTESIS_C LLAVE_A /*instrucciones*/ LLAVE_C 
+	{
+		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @2.first_line, @2.first_column);
+		var nTipo = new Tipo.default(Tipo.tipos.VOID);
+		$$ = new Metodo.default(nTipo,nId,$4,null,@1.first_line, @1.first_column);		
+	}
+	| VOID ID PARENTESIS_A definicion_parametros PARENTESIS_C LLAVE_A instrucciones_locales_metodo LLAVE_C 
+	{
+		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @2.first_line, @2.first_column);
+		var nTipo = new Tipo.default(Tipo.tipos.VOID);
+		$$ = new Metodo.default(nTipo,nId,$4,$7,@1.first_line, @1.first_column);	
+	}
+	| VOID ID PARENTESIS_A PARENTESIS_C LLAVE_A /*instrucciones*/ LLAVE_C 
+	{
+		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @2.first_line, @2.first_column);
+		var nTipo = new Tipo.default(Tipo.tipos.VOID);
+		$$ = new Metodo.default(nTipo,nId,null,null,@1.first_line, @1.first_column);
+	}
+	| VOID ID PARENTESIS_A PARENTESIS_C LLAVE_A instrucciones_locales_metodo LLAVE_C 
+	{
+		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @2.first_line, @2.first_column);
+		var nTipo = new Tipo.default(Tipo.tipos.VOID);
+		$$ = new Metodo.default(nTipo,nId,null,$7,@1.first_line, @1.first_column);
+	}
 ;
 
 asignacion_metodo
@@ -839,7 +880,8 @@ parametro
 	: asignacion_tipo ID
 	{
 		let ntipo = new Tipo.default(Tipo.tipos.PARAMETRO);
-		let nParametro = new Parametro.default(ntipo,@1.first_line, @1.first_column,$1,$2);
+		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @2.first_line, @2.first_column);
+		let nParametro = new Parametro.default(ntipo,@1.first_line, @1.first_column,$1,nId);
 		$$ = nParametro;
 		
 	}
@@ -849,11 +891,24 @@ parametro
 
 /*LLAMADAS A METODO Y FUNCIONES INCLUYENDO EXEC Y PRINT---------------------*/
 llamada_metodo_funcion
-	: ID PARENTESIS_A elementos_coma PARENTESIS_C PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5}
-	| ID PARENTESIS_A PARENTESIS_C PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4}
-	| PRINT PARENTESIS_A expresion PARENTESIS_C PUNTOCOMA { $$ = new Imprimir.default($3, @1.first_line, @1.first_column); }
+	: ID PARENTESIS_A elementos_coma PARENTESIS_C PUNTOCOMA //LLamadas con parámetros
+	{
+		let rtipo = new Tipo.default(Tipo.tipos.LLAMADA_FUNCION);
+		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$1, @1.first_line, @1.first_column); 	
+		$$ = new llamadaFuncion.default(rtipo,nId,$3,@1.first_line, @1.first_column) 		
+	}
+	| ID PARENTESIS_A PARENTESIS_C PUNTOCOMA  //Llamadas sin parámetros
+	{
+		let nntipo = new Tipo.default(Tipo.tipos.LLAMADA_FUNCION);
+		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$1, @1.first_line, @1.first_column); 	
+		$$ = new llamadaFuncion.default(nntipo,nId,null,@1.first_line, @1.first_column) 
+	}
+	| PRINT PARENTESIS_A expresion PARENTESIS_C PUNTOCOMA 
+	{ 
+		$$ = new Imprimir.default($3, @1.first_line, @1.first_column); 
+	}
 	//| PRINT PARENTESIS_A ID PARENTESIS_C PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5}
-	| EXEC ID PARENTESIS_A elementos_coma PARENTESIS_C PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+''+$6}
-	| EXEC ID PARENTESIS_A PARENTESIS_C PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5}
+	| EXEC ID PARENTESIS_A elementos_coma PARENTESIS_C PUNTOCOMA {}
+	| EXEC ID PARENTESIS_A PARENTESIS_C PUNTOCOMA {}
 ;
 /*LLAMADAS A METODO Y FUNCIONES INCLUYENDO EXEC Y PRINT---------------------*/

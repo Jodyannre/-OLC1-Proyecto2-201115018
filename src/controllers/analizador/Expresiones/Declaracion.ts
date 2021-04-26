@@ -15,6 +15,8 @@ import Identificador from "./Identificador";
 import Asignacion from "./Asignacion";
 import ToCharArray from "../Instrucciones/toCharArray";
 import Casteo from "../Instrucciones/Casteo";
+import Funcion from "../Expresiones/Funcion";
+import Metodo from "../Expresiones/Metodo";
 const tipo = require('../tablaSimbolos/Tipo');
 const vector = require('../Expresiones/Vector');
 const lista = require('../Expresiones/Lista');
@@ -68,6 +70,10 @@ export default class Declaracion extends Instruccion{
                 nodo2.agregarHijoNodo(this.valor.getNodoInstruccion());
                 nodo2.agregarHijoCadena(";");
                 nodo.agregarHijoNodo(nodo2);                       
+            }else if (this.valor instanceof Funcion){
+                nodo.agregarHijoNodo(this.valor.getNodoInstruccion());         
+            }else if (this.valor instanceof Metodo){
+                nodo.agregarHijoNodo(this.valor.getNodoInstruccion());         
             }       
             else{
                 let nodo2:nodoInstruccion = new nodoInstruccion('VARIABLE');
@@ -112,7 +118,15 @@ export default class Declaracion extends Instruccion{
         if (this.pasada ===0){ //Solo crear el símbolo en la tabla
             this.setAmbito(0);
             let nuevoSimbolo:any;
-            if (this.tipo.getTipos()===tipo.tipos.ENTERO){
+            if (this.valor instanceof Funcion || this.valor instanceof Metodo){
+                let id = this.valor.getId(); //Get id en string de la función
+                let nTipo = new tipo.default(this.valor.getTipo());
+                if (this.valor instanceof Metodo){
+                    nTipo = new tipo.default(67);
+                }
+                nuevoSimbolo = new Simbolo(nTipo,id,this.valor);
+            }
+            else if (this.tipo.getTipos()===tipo.tipos.ENTERO){
                 nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.ENTERO),this.id.getValor(),null);
             }else if (this.tipo.getTipos()===tipo.tipos.CADENA){
                 nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.CADENA),this.id.getValor(),null);
@@ -167,6 +181,9 @@ export default class Declaracion extends Instruccion{
 
         }else if (this.pasada ===1){ //Asignar valores
             if (this.valor){
+                if (this.valor instanceof Funcion || this.valor instanceof Metodo){
+                    return true;
+                }else
                 if (this.valor.getTipo().getTipos()    != tipo.tipos.LENGTH
                     && this.valor.getTipo().getTipos() != tipo.tipos.TRUNCATE
                     && this.valor.getTipo().getTipos() != tipo.tipos.ROUND
@@ -193,7 +210,6 @@ export default class Declaracion extends Instruccion{
                     this.asignacion.setPasada(1);
                     return this.asignacion.interpretar(tree,table);
                 }
-       
             }else{
                 //Valores por defecto
                 let simbolo:any = <Simbolo>table.tabla.get(this.id.getValor());
@@ -229,6 +245,11 @@ export default class Declaracion extends Instruccion{
             /////////////////////////////////////////////////////////////////////////////////////////////
         }else if (this.pasada > 1 && this.ambito != 0){ //Ámbitos locales todavía no esta bien construida
             if (this.valor){
+                if (this.valor instanceof Funcion || this.valor instanceof Metodo){
+                    var ex:Excepcion = new Excepcion("Semántico", "Métodos o funciones solo pueden ser declarados en el ámbito global.", this.linea, this.columna);
+                    tree.getExcepciones().push(ex);
+                    return ex;   
+                }else
                 if (this.valor.getTipo().getTipos()    != tipo.tipos.LENGTH
                     && this.valor.getTipo().getTipos() != tipo.tipos.TRUNCATE
                     && this.valor.getTipo().getTipos() != tipo.tipos.ROUND

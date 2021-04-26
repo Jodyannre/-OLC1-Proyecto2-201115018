@@ -26,18 +26,46 @@ export default class Funcion extends Instruccion{
     private id:any;
 
     public getNodoInstruccion(){
-        let nodo:nodoInstruccion = new nodoInstruccion("INSTRUCCION");
-        let nodo2:nodoInstruccion = new nodoInstruccion("Metodo");
-        if (this.tipo.getTipos()===60){
-            nodo2.agregarHijoCadena("BREAK");
-            nodo2.agregarHijoCadena(";");
-        }     
-        nodo.agregarHijoNodo(nodo2);    
+        let nodo:nodoInstruccion = new nodoInstruccion("FUNCION");
+        let nodo2:nodoInstruccion = new nodoInstruccion("PARAMETROS");
+        let nodo3:nodoInstruccion = new nodoInstruccion("INSTRUCCIONES");
+        
+        nodo.agregarHijoNodo(this.tipo.getNodoInstruccion());
+        nodo.agregarHijoNodo(this.id.getNodoInstruccion());
+
+        //nodo.agregarHijoNodo(nodo2);    
+        if(this.parametros != null){
+            nodo.agregarHijoCadena("(");
+            let count = 0;
+            for (let m of this.parametros){
+                if (count != 0){
+                    nodo2.agregarHijoCadena(",");
+                }
+                nodo2.agregarHijoNodo(m.getNodoInstruccion());
+                count++;
+            }
+            nodo.agregarHijoNodo(nodo2);
+            nodo.agregarHijoCadena(")");
+        }
+        nodo.agregarHijoCadena("{");
+        if (this.instrucciones != null){
+            for (let m of this.instrucciones){
+                nodo3.agregarHijoNodo(m.getNodoInstruccion());
+            }
+            
+            nodo.agregarHijoNodo(nodo3);
+            
+        }  
+        nodo.agregarHijoCadena("}");
         return nodo;
     }
 
     public getId(){
         return this.id.getValor();
+    }
+
+    public getId_Obj(){
+        return this.id;
     }
 
     public getTipoRetorno(){
@@ -55,13 +83,12 @@ export default class Funcion extends Instruccion{
         this.instrucciones = instrucciones;
     }
 
+    public setTipo(tipo:any){
+        this.tipo.setTipo(tipo);
+    }
 
     public interpretar(tree:Arbol, table:tablaSimbolos):any{
-        if (this.pasada != 0){
-            var ex:Excepcion = new Excepcion("Semantico", "Solo se pueden crear métodos en el ámbito global.", this.linea, this.columna);
-            tree.getExcepciones().push(ex);
-            return ex;    
-        }
+        
         if (this.id instanceof Excepcion){
             return this.id;
         }
@@ -79,30 +106,37 @@ export default class Funcion extends Instruccion{
                 tree.getExcepciones().push(ex);
                 return ex;                   
             }            
+        }else{
+
+            if (this.parametros.length > 0){
+                //Tiene parámetros pero no envian nada
+                if (this.parametrosRecibidos === null){
+                    var ex:Excepcion = new Excepcion("Semantico", "El número de parámetros no concuerda.", this.linea, this.columna);
+                    tree.getExcepciones().push(ex);
+                    return ex;                   
+                }
+                //Si el número de parámetros es diferente
+                if (this.parametros.length != this.parametrosRecibidos.length){
+                    var ex:Excepcion = new Excepcion("Semantico", "El número de parámetros no concuerda.", this.linea, this.columna);
+                    tree.getExcepciones().push(ex);
+                    return ex;             
+                }
+                //Verificar el tipo de cada parámetro
+                let verificarParams = this.verificarParametros(tree,table);
+                //Si el tipo de parámetros es diferente
+                if (verificarParams instanceof Excepcion){
+                    return verificarParams;
+                }
+                if (!verificarParams){
+                    var ex:Excepcion = new Excepcion("Semantico", "Error en los tipos de los parámetros.", this.linea, this.columna);
+                    tree.getExcepciones().push(ex);
+                    return ex;                     
+                }
+                //return true;           
+            }
         }        
 
-        if (this.parametros.length > 0){
-            //Tiene parámetros pero no envian nada
-            if (this.parametrosRecibidos === null){
-                var ex:Excepcion = new Excepcion("Semantico", "El número de parámetros no concuerda.", this.linea, this.columna);
-                tree.getExcepciones().push(ex);
-                return ex;                   
-            }
-            //Si el número de parámetros es diferente
-            if (this.parametros.length != this.parametrosRecibidos.length){
-                var ex:Excepcion = new Excepcion("Semantico", "El número de parámetros no concuerda.", this.linea, this.columna);
-                tree.getExcepciones().push(ex);
-                return ex;             
-            }
-            //Verificar el tipo de cada parámetro
-            let verificarParams = this.verificarParametros(tree,table);
-            //Si el tipo de parámetros es diferente
-            if (verificarParams instanceof Excepcion){
-                return verificarParams;
-            }
-            return true;
-         
-        }
+        
 
         //Todo bien con los parámetros, entonces crear ámbito
         let nArbol:Arbol = new Arbol(this.instrucciones);
@@ -111,9 +145,11 @@ export default class Funcion extends Instruccion{
         tree.addSiguiente(nArbol);
 
         //Crear variables con los valores de los parámetros
-        this.crearVariablesParametros(tree,table);
+        if (this.parametros != null){
+            this.crearVariablesParametros(tree,table);
+        }
 
-        if (this.instrucciones!=null){
+        if (this.instrucciones===null){
             //Si no trae ninguna instrucción error porque no retorna nada
             var ex:Excepcion = new Excepcion("Semantico", "Función sin return.", this.linea, this.columna);
             tree.getExcepciones().push(ex);
@@ -173,8 +209,21 @@ export default class Funcion extends Instruccion{
     }   
 
     public verificarParametros(tree:Arbol, table:tablaSimbolos){
+        let nSimbolo;
         for (let i:number=0; i< this.parametros.length;i++){
-            if (this.parametros[i].getTipo().getTipos()!= this.parametrosRecibidos[i].getTipo().getTipos()){
+            if (this.parametrosRecibidos[i] instanceof Identificador){
+                nSimbolo = this.parametrosRecibidos[i].interpretar(tree,table);
+                if (nSimbolo instanceof Simbolo){
+                    nSimbolo = nSimbolo.getValor();
+                }
+            }else{
+                if ((this.parametrosRecibidos[i]instanceof Primitivo)===true){
+                    nSimbolo = this.parametrosRecibidos[i];
+                }else{
+                    nSimbolo = this.parametrosRecibidos[i].interpretar(tree,table);
+                }               
+            }
+            if (this.parametros[i].getTipo().getTipos()!= nSimbolo.getTipo().getTipos()){
                 var ex:Excepcion = new Excepcion("Semantico", "Los tipos de los parámetros no concuerdan.", this.parametros[i].linea, this.parametros[i].columna);
                 tree.getExcepciones().push(ex);
                 return ex;                  
@@ -185,19 +234,23 @@ export default class Funcion extends Instruccion{
     }
 
     public crearVariablesParametros(tree:Arbol, table:tablaSimbolos){
-        let nTipo,nValor,nPrimitivo,linea,columna,nSimbolo,nId;
+        let nTipo,nValor,linea,columna,nSimbolo,nId;
+        let nPrimitivo:any;
 
         for (let i:number=0; i< this.parametros.length;i++){
-            nTipo = new tipo.default(this.parametros[i].getTipo());
+            nTipo = new tipo.default(this.parametros[i].getTipo().getTipos());
             linea = this.parametros[i].linea;
             columna = this.parametros[i].columna;
-            nPrimitivo = this.parametrosRecibidos[i].getValor();
+            nPrimitivo = this.parametrosRecibidos[i];
             if (nPrimitivo instanceof Lista || nPrimitivo instanceof Vector){ //Esto sería acceso a lista y vector
                 nPrimitivo = nPrimitivo.interpretar(tree,table);
+            }else if (nPrimitivo instanceof Identificador){
+                nPrimitivo = nPrimitivo.interpretar(tree,table);
+                nPrimitivo = nPrimitivo.getValor();
             }
             nValor = nPrimitivo.interpretar(tree,table);
             nPrimitivo = new Primitivo(nTipo,nValor,linea,columna);
-            nSimbolo = new Simbolo(nTipo,this.parametros[i].getId(),nPrimitivo);
+            nSimbolo = new Simbolo(nTipo,this.parametros[i].getValor().getValor(),nPrimitivo);
             table.setVariableNueva(nSimbolo);
         }
 

@@ -6,6 +6,9 @@ import {Instruccion} from './analizador/Abstract/Instruccion';
 import { nodoInstruccion } from "./analizador/Abstract/nodoInstruccion";
 import Asignacion from "./analizador/Expresiones/Asignacion";
 import {Consola} from '../controllers/analizador/Abstract/Consola';
+import Funcion from "./analizador/Expresiones/Funcion";
+import Metodo from "./analizador/Expresiones/Metodo";
+import llamadaFuncion from './analizador/Instrucciones/llamadaFuncion';
 const { exec } = require("child_process");
 var Errors:Array<Excepcion> = new Array<Excepcion>();
 
@@ -65,6 +68,9 @@ class typestyController{
             instruccionesEliminar = [];
             for(let m of ast.getInstrucciones()){
                 m.setPasada(1);
+                if (m instanceof llamadaFuncion){
+                    continue;
+                }
                 var result = m.interpretar(ast, tabla);
                 if(result instanceof Excepcion){ // ERRORES SEMÁNTICOS
                     Errors.push(result);

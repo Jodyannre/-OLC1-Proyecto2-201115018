@@ -18,13 +18,9 @@ export default class Parametro extends Instruccion{
 
 
     public getNodoInstruccion(){
-        let nodo:nodoInstruccion = new nodoInstruccion("INSTRUCCION");
-        let nodo2:nodoInstruccion = new nodoInstruccion("Metodo");
-        if (this.tipo.getTipos()===60){
-            nodo2.agregarHijoCadena("BREAK");
-            nodo2.agregarHijoCadena(";");
-        }     
-        nodo.agregarHijoNodo(nodo2);    
+        let nodo:nodoInstruccion = new nodoInstruccion("PARAMETRO");
+        nodo.agregarHijoNodo(this.tipoValor.getNodoInstruccion());
+        nodo.agregarHijoNodo(this.valor.getNodoInstruccion());
         return nodo;
     }
 
@@ -41,7 +37,7 @@ export default class Parametro extends Instruccion{
     }   
 
     public getTipo(){
-        return this.tipoValor.getTipos();
+        return this.tipoValor;
     }
 
     public compararTipo(tipo:number){
@@ -49,7 +45,7 @@ export default class Parametro extends Instruccion{
     }
 
     public getValor(){
-        return this.valor; //En teoría retorna un primitivo
+        return this.valor; //En teoría retorna un primitivo o un id
     }
 
     public getIdValor(){
