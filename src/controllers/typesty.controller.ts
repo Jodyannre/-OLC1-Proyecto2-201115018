@@ -9,6 +9,7 @@ import {Consola} from '../controllers/analizador/Abstract/Consola';
 import Funcion from "./analizador/Expresiones/Funcion";
 import Metodo from "./analizador/Expresiones/Metodo";
 import llamadaFuncion from './analizador/Instrucciones/llamadaFuncion';
+import Exec from './analizador/Instrucciones/Exec';
 const { exec } = require("child_process");
 var Errors:Array<Excepcion> = new Array<Excepcion>();
 
@@ -26,6 +27,7 @@ class typestyController{
         var instruccionesEliminar:number[] = [];
 
         try{
+            let numExec = 0;
             let ast = new Arbol( parser.parse(texto) );
             let astGrafica = new Arbol( parser.parse(texto) );
 
@@ -35,6 +37,9 @@ class typestyController{
             for(let m of ast.getInstrucciones()){
                 if (m instanceof Asignacion){
                     continue;
+                }
+                if (m instanceof Exec){
+                    numExec++;
                 }
                 m.setPasada(0);
                 if(m instanceof Excepcion){ // ERRORES SINTACTICOS
@@ -91,29 +96,28 @@ class typestyController{
             }  
             
             
-            //Ultima pasada
-            
-            instruccionesEliminar = [];
-            for(let m of ast.getInstrucciones()){
-                m.setPasada(2);
-                var result = m.interpretar(ast, tabla);
-                if(result instanceof Excepcion){ // ERRORES SEMÁNTICOS
-                    Errors.push(result);
-                    ast.updateConsola((<Excepcion>result).toString());
-                    let lista:Array<Instruccion>= ast.getInstrucciones(); //Buscar index de instrucciones con errores
-                    let index: number = lista.findIndex(lista => lista === m);
-                    if (index != -1) {
-                        instruccionesEliminar.push(index);
-                        //ast.getInstrucciones().splice(index, 1);
+            //Verificar que no haya más de 1 exec
+            if (numExec > 1){
+                var ex:Excepcion = new Excepcion("Semántico", "Más de un exec.", 0, 0);
+                ast.getExcepciones().push(ex);
+            }else if (numExec ===1){
+                //Ultima pasada, buscar exec y ejecutar
+                for(let m of ast.getInstrucciones()){
+                    if (!(m instanceof Exec)){
+                        continue;
                     }
+                    m.setPasada(2);
+                    var result = m.interpretar(ast, tabla);
+                    if(result instanceof Excepcion){ // Error semántico
+                        Errors.push(result);
+                        ast.updateConsola((<Excepcion>result).toString());
+                    }
+                    break;
                 }
             }
-            corrimiento = 0;
-            for (let index of instruccionesEliminar){
-                index -= corrimiento;
-                ast.getInstrucciones().splice(index, 1); //Eliminar instrucciones con errores
-                corrimiento++;
-            } 
+            else{
+                //No hay exec, no hacer nada
+            }
             
             res.json({consola:ast.getConsola(), Errores: Errors});
             console.log(ast.getConsola());

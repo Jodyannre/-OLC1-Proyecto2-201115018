@@ -155,6 +155,7 @@
 	const ToString = require('../Instrucciones/toString');
 	const ToCharArray = require('../Instrucciones/toCharArray');
 	const Casteo = require('../Instrucciones/Casteo');
+	const Exec = require('../Instrucciones/Exec');
 	const llamadaFuncion = require('../Instrucciones/llamadaFuncion');
 	const Asignacion = require('../Expresiones/Asignacion');
 	const Agrupacion = require('../Expresiones/Agrupacion');
@@ -253,7 +254,7 @@
 
 ini
 	//:instrucciones_globales EOF {console.log($$)}
-	: instruccionTemp EOF {return $1}
+	: instrucciones_globales EOF {return $1}
 ;
 
 
@@ -852,7 +853,7 @@ declaracion_funcion_metodo
 	{
 		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @2.first_line, @2.first_column);
 		var nTipo = new Tipo.default(Tipo.tipos.VOID);
-		$$ = new Metodo.default(nTipo,nId,null,$7,@1.first_line, @1.first_column);
+		$$ = new Metodo.default(nTipo,nId,null,$6,@1.first_line, @1.first_column);
 	}
 ;
 
@@ -895,20 +896,40 @@ llamada_metodo_funcion
 	{
 		let rtipo = new Tipo.default(Tipo.tipos.LLAMADA_FUNCION);
 		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$1, @1.first_line, @1.first_column); 	
-		$$ = new llamadaFuncion.default(rtipo,nId,$3,@1.first_line, @1.first_column) 		
+		$$ = new llamadaFuncion.default(rtipo,nId,$3,@1.first_line, @1.first_column); 		
 	}
 	| ID PARENTESIS_A PARENTESIS_C PUNTOCOMA  //Llamadas sin parámetros
 	{
 		let nntipo = new Tipo.default(Tipo.tipos.LLAMADA_FUNCION);
 		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$1, @1.first_line, @1.first_column); 	
-		$$ = new llamadaFuncion.default(nntipo,nId,null,@1.first_line, @1.first_column) 
+		$$ = new llamadaFuncion.default(nntipo,nId,null,@1.first_line, @1.first_column); 
 	}
 	| PRINT PARENTESIS_A expresion PARENTESIS_C PUNTOCOMA 
 	{ 
 		$$ = new Imprimir.default($3, @1.first_line, @1.first_column); 
 	}
+	| PRINT PARENTESIS_A llamada_metodo_funcion PARENTESIS_C PUNTOCOMA 
+	{ 
+		$$ = new Imprimir.default($3, @1.first_line, @1.first_column); 
+	}
 	//| PRINT PARENTESIS_A ID PARENTESIS_C PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5}
-	| EXEC ID PARENTESIS_A elementos_coma PARENTESIS_C PUNTOCOMA {}
-	| EXEC ID PARENTESIS_A PARENTESIS_C PUNTOCOMA {}
+	| EXEC ID PARENTESIS_A elementos_coma PARENTESIS_C PUNTOCOMA 
+	{
+		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @1.first_line, @1.first_column); 	
+		var llamada = new llamadaFuncion.default(new Tipo.default(Tipo.tipos.LLAMADA_FUNCION),nId,$4,@1.first_line, @1.first_column);
+		$$ = new Exec.default(new Tipo.default(Tipo.tipos.EXEC),@1.first_line, @1.first_column,llamada);
+
+	}
+	| EXEC ID PARENTESIS_A PARENTESIS_C PUNTOCOMA 
+	{
+		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @1.first_line, @1.first_column); 	
+		var llamada = new llamadaFuncion.default(new Tipo.default(Tipo.tipos.LLAMADA_FUNCION),nId,null,@1.first_line, @1.first_column);
+		$$ = new Exec.default(new Tipo.default(Tipo.tipos.EXEC),@1.first_line, @1.first_column,llamada);
+	}
+	| EXEC PRINT PARENTESIS_A expresion PARENTESIS_C PUNTOCOMA 
+	{ 
+		var print = new Imprimir.default($4, @1.first_line, @1.first_column); 
+		$$ = new Exec.default(new Tipo.default(Tipo.tipos.EXEC),@1.first_line, @1.first_column,print);
+	}
 ;
 /*LLAMADAS A METODO Y FUNCIONES INCLUYENDO EXEC Y PRINT---------------------*/

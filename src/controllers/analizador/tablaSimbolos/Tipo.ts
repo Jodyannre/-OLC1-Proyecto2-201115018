@@ -87,5 +87,6 @@ export enum tipos
     AGRUPACION = 64,
     PARAMETRO = 65,
     LLAMADA_FUNCION = 66,
-    VOID = 67
+    VOID = 67,
+    EXEC = 68
 }
