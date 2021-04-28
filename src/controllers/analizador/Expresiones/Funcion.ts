@@ -192,7 +192,12 @@ export default class Funcion extends Instruccion{
                     }
                     if (result instanceof RETURN){
                         //Validar el tipo de retorno y si concuerda
-                        if (this.tipo.getTipos()!= result.getTipo().getTipos()){
+                        if (result.getValor()===null){
+                            var ex:Excepcion = new Excepcion("Semantico", "El tipo del return no es correcto.", this.linea, this.columna);
+                            tree.getExcepciones().push(ex);
+                            return ex;                              
+                        }
+                        if (this.tipo.getTipos()!= result.getTipoRetorno().getTipos()){
                             var ex:Excepcion = new Excepcion("Semantico", "El tipo del return no es correcto.", this.linea, this.columna);
                             tree.getExcepciones().push(ex);
                             return ex;     

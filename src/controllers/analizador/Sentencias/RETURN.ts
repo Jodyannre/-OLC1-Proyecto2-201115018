@@ -22,7 +22,7 @@ export default class RETURN extends Instruccion{
 
 
     public getNodoInstruccion(){
-        let nodo:nodoInstruccion = new nodoInstruccion("INSTRUCCION");
+        let nodo:nodoInstruccion = new nodoInstruccion("SENTENCIA");
         let nodo2:nodoInstruccion = new nodoInstruccion("SENTENCIA_RETURN");
         let nodo4:nodoInstruccion = new nodoInstruccion("INSTRUCCION");
         if (this.tipo.getTipos()===61){
@@ -61,7 +61,16 @@ export default class RETURN extends Instruccion{
         }
 
         this.retorno.setPasada(2);
-        var resultado = this.retorno.interpretar(tree,table); //Retornar un primitivo como resultado
+        let resultado:any;
+        if (this.retorno instanceof Primitivo){
+            resultado = this.retorno;
+        }else if (this.retorno instanceof Identificador){
+            resultado = this.retorno.interpretar(tree,table); //Retornar el símbolo
+            resultado = resultado.getValor(); //Get el símbolo
+        }else{
+            resultado = this.retorno.interpretar(tree,table); //Retornar un primitivo como resultado
+        }
+        
         if (resultado instanceof Excepcion){
             return resultado;
         }
@@ -73,20 +82,7 @@ export default class RETURN extends Instruccion{
     public getValor(){
         return this.valor;
     }
-    public getTipoRetorno(result:any){
-        if (typeof result === 'string'){
-            if (result.length>1){
-                return tipo.tipos.CARACTER;
-            }
-            return tipo.tipos.CADENA;
-        }else
-        if (typeof result === 'number'){
-            if (result%1 === 0){
-                    return tipo.tipos.ENTERO;
-            }
-            return tipo.tipos.DECIMAL;
-        }else if (typeof result ==='boolean'){
-                return tipo.tipos.BOOLEANO;
-        }            
+    public getTipoRetorno(){
+        return this.tipoRetorno;
     }
 }

@@ -184,7 +184,13 @@ export default class Metodo extends Instruccion{
                     }
                     if (result instanceof RETURN){
                         // Si todo esta bien, retorna el valor final en primitivo
-                        return result;
+                        if (result.getValor()!=null){
+                            var ex:Excepcion = new Excepcion("Semantico", "Método void no puede retornar un valor.", result.linea, result.columna);
+                            nArbol.getExcepciones().push(ex);
+                            return ex;                            
+                        }else{
+                            return true;
+                        }   
                     }    
                 }                                      
             }catch(err){

@@ -18,7 +18,7 @@ export default class BREAK extends Instruccion{
 
 
     public getNodoInstruccion(){
-        let nodo:nodoInstruccion = new nodoInstruccion("INSTRUCCION");
+        let nodo:nodoInstruccion = new nodoInstruccion("SENTENCIA");
         let nodo2:nodoInstruccion = new nodoInstruccion("SENTENCIA_BREAK");
         if (this.tipo.getTipos()===60){
             nodo2.agregarHijoCadena("BREAK");

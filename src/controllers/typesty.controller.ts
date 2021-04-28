@@ -30,7 +30,7 @@ class typestyController{
             let numExec = 0;
             let ast = new Arbol( parser.parse(texto) );
             let astGrafica = new Arbol( parser.parse(texto) );
-
+            Consola.setArbol(ast);
             var tabla = new tablaSimbolos(0);
             ast.setGlobal(tabla);
 
@@ -41,9 +41,9 @@ class typestyController{
                 if (m instanceof Exec){
                     numExec++;
                 }
-                m.setPasada(0);
                 if(m instanceof Excepcion){ // ERRORES SINTACTICOS
-                    Errors.push(m);
+                    //Errors.push(m);
+                    ast.addError(m);
                     ast.updateConsola((<Excepcion>m).toString());
                     let lista:Array<Instruccion>= ast.getInstrucciones(); //Buscar index de instrucciones con errores
                     let index: number = lista.findIndex(lista => lista === m);
@@ -51,10 +51,13 @@ class typestyController{
                         instruccionesEliminar.push(index);
                         //ast.getInstrucciones().splice(index, 1);
                     }
+                    continue;
                 }
+                m.setPasada(0);
                 var result = m.interpretar(ast, tabla);
                 if(result instanceof Excepcion){ // ERRORES SINTACTICOS
-                    Errors.push(result);
+                    //Errors.push(result);
+                    ast.addError(result);
                     ast.updateConsola((<Excepcion>result).toString());
                     let lista:Array<Instruccion>= ast.getInstrucciones(); //Buscar index de instrucciones con errores
                     let index: number = lista.findIndex(lista => lista === m);
@@ -78,7 +81,8 @@ class typestyController{
                 }
                 var result = m.interpretar(ast, tabla);
                 if(result instanceof Excepcion){ // ERRORES SEMÁNTICOS
-                    Errors.push(result);
+                    //Errors.push(result);
+                    ast.addError(result);
                     ast.updateConsola((<Excepcion>result).toString());
                     let lista:Array<Instruccion>= ast.getInstrucciones(); //Buscar index de instrucciones con errores
                     let index: number = lista.findIndex(lista => lista === m);
@@ -98,8 +102,10 @@ class typestyController{
             
             //Verificar que no haya más de 1 exec
             if (numExec > 1){
-                var ex:Excepcion = new Excepcion("Semántico", "Más de un exec.", 0, 0);
-                ast.getExcepciones().push(ex);
+                var ex:Excepcion = new Excepcion("Semántico", "Más de un exec.", 0, 0);          
+                //ast.getExcepciones().push(ex);
+                ast.addError(ex);
+                ast.updateConsola((<Excepcion>ex).toString());
             }else if (numExec ===1){
                 //Ultima pasada, buscar exec y ejecutar
                 for(let m of ast.getInstrucciones()){
@@ -109,7 +115,8 @@ class typestyController{
                     m.setPasada(2);
                     var result = m.interpretar(ast, tabla);
                     if(result instanceof Excepcion){ // Error semántico
-                        Errors.push(result);
+                        //Errors.push(result);
+                        ast.addError(result);
                         ast.updateConsola((<Excepcion>result).toString());
                     }
                     break;
@@ -147,7 +154,7 @@ class typestyController{
             });
         }   
         
-        Consola.updateConsola("este sería el texto");
+        //Consola.updateConsola("este sería el texto");
     }
 
 

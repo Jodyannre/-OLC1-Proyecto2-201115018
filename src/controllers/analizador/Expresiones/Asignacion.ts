@@ -71,7 +71,8 @@ export default class Asignacion extends Instruccion{
         let esTipo1= tipoI <= 26; //Logico, relacional, aritmetico, primitivo
         let esTipo2 = tipoI === 29//Id
         let esTipo3 = tipoI >=31 && tipoI<=38//Métodos nativos
-        let esTipo4 = tipoI === 27//Otros métodos
+        let esTipo4 = tipoI === 66//Otros métodos
+        let esTipo5 = tipoI === 69; // Ternario
         var resultTipo;
         if (esTipo1){
             var simbolo = this.id.interpretar(tree,table);
@@ -213,7 +214,51 @@ export default class Asignacion extends Instruccion{
             }
 
         }else if (esTipo4){
-            //Pendiente hasta que tenga los métodos
+            //Funciones
+            var simbolo = this.id.interpretar(tree,table);
+            if (simbolo != null){
+                let result = this.instruccion.interpretar(tree,table);
+                if (result instanceof Excepcion){
+                    return result;
+                }
+                if (result === true){ //Es un método y es error
+                    var ex:Excepcion = new Excepcion("Semántico", "No se puede asignar un valor VOID.", this.linea, this.columna);
+                    //tree.addError(ex);
+                    return ex;                       
+                }
+                if (simbolo.getTipo().getTipos()!= result.getTipo().getTipos()){
+                    var ex:Excepcion = new Excepcion("Semántico", "Los tipos no coinciden", this.linea, this.columna);
+                    //tree.addError(ex);
+                    return ex;                    
+                }
+                simbolo.setValor(result);
+            }else{
+                var ex:Excepcion = new Excepcion("Semántico", "La variable no existe", this.linea, this.columna);
+                //tree.addError(ex);
+                return ex;                
+            }
+
+        }else if (esTipo5){
+            //Ternario
+            var simbolo = this.id.interpretar(tree,table);
+            if (simbolo != null){
+                this.instruccion.setPasada(1);
+                let result = this.instruccion.interpretar(tree,table);
+                if (result instanceof Excepcion){
+                    return result;
+                }
+                if (simbolo.getTipo().getTipos()!= result.getTipo().getTipos()){
+                    var ex:Excepcion = new Excepcion("Semántico", "Los tipos no coinciden", this.linea, this.columna);
+                    //tree.addError(ex);
+                    return ex;                    
+                }
+                simbolo.setValor(result);
+            }else{
+                var ex:Excepcion = new Excepcion("Semántico", "La variable no existe", this.linea, this.columna);
+                //tree.addError(ex);
+                return ex;
+            }
+
         }
 
     }

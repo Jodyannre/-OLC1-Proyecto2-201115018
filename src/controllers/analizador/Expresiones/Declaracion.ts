@@ -189,7 +189,8 @@ export default class Declaracion extends Instruccion{
                     && this.valor.getTipo().getTipos() != tipo.tipos.ROUND
                     &&this.valor.getTipo().getTipos()  != tipo.tipos.TO_STRING
                     &&this.valor.getTipo().getTipos()  != tipo.tipos.TO_CHAR_ARRAY
-                    &&this.valor.getTipo().getTipos()  != tipo.tipos.TYPEOF){
+                    &&this.valor.getTipo().getTipos()  != tipo.tipos.TYPEOF
+                    &&this.valor.getTipo().getTipos()  != tipo.tipos.TERNARIO){
                     //valorFinal = this.valor.interpretar(tree,table);                         
                     var verificarTipo = this.verificacionTipos(this.valor,tree, table);
                     if (verificarTipo instanceof Excepcion){
@@ -206,7 +207,8 @@ export default class Declaracion extends Instruccion{
                         ||this.valor.getTipo().getTipos() === tipo.tipos.ROUND
                         ||this.valor.getTipo().getTipos() === tipo.tipos.TO_STRING
                         ||this.valor.getTipo().getTipos() === tipo.tipos.TO_CHAR_ARRAY
-                        ||this.valor.getTipo().getTipos() === tipo.tipos.TYPEOF){
+                        ||this.valor.getTipo().getTipos() === tipo.tipos.TYPEOF
+                        ||this.valor.getTipo().getTipos() === tipo.tipos.TERNARIO){
                     this.asignacion.setPasada(1);
                     return this.asignacion.interpretar(tree,table);
                 }
@@ -255,7 +257,8 @@ export default class Declaracion extends Instruccion{
                     && this.valor.getTipo().getTipos() != tipo.tipos.ROUND
                     &&this.valor.getTipo().getTipos()  != tipo.tipos.TO_STRING
                     &&this.valor.getTipo().getTipos()  != tipo.tipos.TO_CHAR_ARRAY
-                    &&this.valor.getTipo().getTipos()  != tipo.tipos.TYPEOF){
+                    &&this.valor.getTipo().getTipos()  != tipo.tipos.TYPEOF
+                    &&this.valor.getTipo().getTipos()  != tipo.tipos.TERNARIO){
                     //valorFinal = this.valor.interpretar(tree,table);                         
                     var verificarTipo = this.verificacionTipos(this.valor,tree, table);
                     if (verificarTipo instanceof Excepcion){
@@ -275,7 +278,8 @@ export default class Declaracion extends Instruccion{
                         ||this.valor.getTipo().getTipos() === tipo.tipos.ROUND
                         ||this.valor.getTipo().getTipos() === tipo.tipos.TO_STRING
                         ||this.valor.getTipo().getTipos() === tipo.tipos.TO_CHAR_ARRAY
-                        ||this.valor.getTipo().getTipos() === tipo.tipos.TYPEOF){
+                        ||this.valor.getTipo().getTipos() === tipo.tipos.TYPEOF
+                        ||this.valor.getTipo().getTipos() === tipo.tipos.TERNARIO){
                     //Crear símbolo
                  
                     let nuevoSimbolo:any;
@@ -467,7 +471,11 @@ export default class Declaracion extends Instruccion{
                 return simbolo.getValor();
             }
         }else{
+            valorFinal.setPasada(1);
             var result = valorFinal.interpretar(tree,table);
+            if (result instanceof Excepcion){
+                return result;
+            }
             if (this.tipo.getTipos()=== tipo.tipos.ENTERO && (
                 result.getTipo().getTipos()=== tipo.tipos.ENTERO
             ||  result.getTipo().getTipos()=== tipo.tipos.BOOLEANO)){

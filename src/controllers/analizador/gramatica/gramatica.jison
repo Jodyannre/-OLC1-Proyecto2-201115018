@@ -145,6 +145,7 @@
 	const Lista = require('../Expresiones/Lista');
 	const Funcion = require('../Expresiones/Funcion');
 	const Metodo = require('../Expresiones/Metodo');
+	const Ternario = require('../Expresiones/Ternario');
 	const Parametro = require('../Expresiones/Parametro');
 	const toUpper = require('../Instrucciones/toUpper');
 	const toLower = require('../Instrucciones/toLower');
@@ -167,77 +168,65 @@
 	const CASE = require('../Sentencias/CASE');
 	const BREAK = require('../Sentencias/BREAK');
 	const CONTINUE = require('../Sentencias/CONTINUE');
+	const RETURN = require('../Sentencias/RETURN');
 	const FOR = require('../Sentencias/FOR');
 	var pilaAuxiliar = [];
-
-
 	function crearVector(tipo,linea,columna,id,size,tipo_creacion,valor){
 		var nuevoVector = new Vector.default(tipo,linea,columna,id,parseInt(size),tipo_creacion,valor);
 		//pilaAuxiliar = [];
 		return nuevoVector;
 	}
-
 	function crearToUpper(expresion, linea, columna, retorno){
 		var nuevoNodo = new toUpper.default(expresion, linea, columna, retorno);
 		//pilaAuxiliar = [];
 		return nuevoNodo;
 	}
-
 	function crearToLower(expresion, linea, columna, retorno){
 		var nuevoNodo = new toLower.default(expresion, linea, columna, retorno);
 		//pilaAuxiliar = [];
 		return nuevoNodo;
 	}
-
 	function crearLength(expresion, linea, columna, retorno){
 		var nuevoNodo = new Length.default(expresion, linea, columna, retorno);
 		//pilaAuxiliar = [];
 		return nuevoNodo;
 	}
-
 	function crearTruncate(expresion, linea, columna, retorno){
 		var nuevoNodo = new Truncate.default(expresion, linea, columna, retorno);
 		//pilaAuxiliar = [];
 		return nuevoNodo;
 	}
-
 	function crearRound(expresion, linea, columna, retorno){
 		var nuevoNodo = new Round.default(expresion, linea, columna, retorno);
 		//pilaAuxiliar = [];
 		return nuevoNodo;
 	}
-
 	function crearTypeof(expresion, linea, columna, retorno){
 		var nuevoNodo = new Typeof.default(expresion, linea, columna, retorno);
 		//pilaAuxiliar = [];
 		return nuevoNodo;
 	}
-
 	function crearToString(expresion, linea, columna, retorno){
 		var nuevoNodo = new ToString.default(expresion, linea, columna, retorno);
 		//pilaAuxiliar = [];
 		return nuevoNodo;
 	}
-
 	function crearToCharArray(expresion, linea, columna, retorno){
 		var nuevoNodo = new ToCharArray.default(expresion, linea, columna, retorno);
 		//pilaAuxiliar = [];
 		return nuevoNodo;
 	}
-
 	function crearAsignacion(id,linea,columna,instruccion){
 		var tipo = new Tipo.default(Tipo.tipos.ASIGNACION);
 		var nuevaAsignacion = new Asignacion.default(id,tipo,linea,columna,instruccion);
 		//pilaAuxiliar = [];
 		return nuevaAsignacion;
 	}	
-
-
 %}
 
 /* Asociación de operadores y precedencia */
 
-
+%left 'TERNARIO'
 %left 'OR'
 %left 'AND'
 %right 'NOT'
@@ -448,7 +437,6 @@ creacion_variable
 		//var idNodo = new Identificador.default(new Tipo.default(Tipo.tipos.IDENTIFICADOR),id,@1.first_line, @1.first_column);
 		$$ = new Declaracion.default(id,nTipo,@1.first_line, @1.first_column,$1,null);
 	}
-	//| asignacion_tipo asignacion_metodo
 ;
 
 asignacion_variable
@@ -463,8 +451,8 @@ asignacion_variable
 ;
 
 asignacion_valor_variable
-	: PUNTOCOMA 																{$$ = null}	
-	| ASIGNACION condicion_logica PUNTOCOMA 									{$$ = $2}
+	: PUNTOCOMA 																{$$ = null;}	
+	| ASIGNACION condicion_logica PUNTOCOMA 									{$$ = $2;}
 	| ASIGNACION TO_UPPER PARENTESIS_A condicion_logica PARENTESIS_C PUNTOCOMA 	
 	{
 		var tipo = new Tipo.default(Tipo.tipos.CADENA); 
@@ -497,12 +485,15 @@ asignacion_valor_variable
 	}
 	| ASIGNACION metodos_nativos PUNTOCOMA 	
 	{
-		$$ = $2
+		$$ = $2;
 	}
-	| ASIGNACION condicion_logica TERNARIO expresion DOSPUNTOS expresion PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7}
+	| ASIGNACION condicion_logica TERNARIO condicion_logica DOSPUNTOS condicion_logica PUNTOCOMA 
+	{
+		$$ = new Ternario.default(new Tipo.default(Tipo.tipos.TERNARIO),$2,$4,$6,@1.first_line, @1.first_column);
+	}
 	| ASIGNACION llamada_metodo_funcion 
 	{
-		$$ = $1;
+		$$ = $2;
 	}
 ;
 
@@ -595,11 +586,6 @@ ciclo_do_while
 	}
 ;
 
-ciclo_while_condicion
-	: condiciones_logicas PARENTESIS_C  {$$ = $1+' '+$2}
-	| ID PARENTESIS_C 					{$$ = $1+' '+$2}
-	| TRUE PARENTESIS_C 				{$$ = $1+' '+$2}
-;
 /*GRAMATICA DO WHILE--------------------------------------------------------*/
 
 
@@ -857,13 +843,6 @@ declaracion_funcion_metodo
 	}
 ;
 
-asignacion_metodo
-	: ID PARENTESIS_A definicion_parametros PARENTESIS_C LLAVE_A /*instrucciones*/ LLAVE_C 
-	{
-
-	}
-;
-
 
 definicion_parametros
 	: definicion_parametros COMA parametro
@@ -918,7 +897,6 @@ llamada_metodo_funcion
 		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @1.first_line, @1.first_column); 	
 		var llamada = new llamadaFuncion.default(new Tipo.default(Tipo.tipos.LLAMADA_FUNCION),nId,$4,@1.first_line, @1.first_column);
 		$$ = new Exec.default(new Tipo.default(Tipo.tipos.EXEC),@1.first_line, @1.first_column,llamada);
-
 	}
 	| EXEC ID PARENTESIS_A PARENTESIS_C PUNTOCOMA 
 	{

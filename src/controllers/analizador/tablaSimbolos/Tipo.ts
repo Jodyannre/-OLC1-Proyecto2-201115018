@@ -88,5 +88,6 @@ export enum tipos
     PARAMETRO = 65,
     LLAMADA_FUNCION = 66,
     VOID = 67,
-    EXEC = 68
+    EXEC = 68,
+    TERNARIO = 69
 }

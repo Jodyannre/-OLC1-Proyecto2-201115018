@@ -23,7 +23,9 @@ router.put('/parse',controller.interpretar);
 
 //Intrucción para traer el resultado hacia la consola de la página
 router.get('/getConsola', (req,res)=>{
+    Consola.generarConsola();
     res.send(Consola.getConsola()); //Aquí se envia toda la información a mostrar en la consola
+    Consola.clearConsola();
 });
 
 export default router;

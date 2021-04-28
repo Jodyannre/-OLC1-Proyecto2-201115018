@@ -1,8 +1,17 @@
+import { nodoInstruccion } from "../Abstract/nodoInstruccion";
+
 export default class Excepcion {
     private tipo: string;
     private descripcion: string;
     private fila: number;
     private columna: number;
+
+
+    public getNodoInstruccion():nodoInstruccion{
+        let nodo:nodoInstruccion = new nodoInstruccion('ERROR');
+        nodo.agregarHijoCadena(this.tipo);      
+        return nodo;
+    }
 
     constructor(tipo: string, descripcion:string, fila:number, columna:number)
     {
