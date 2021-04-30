@@ -136,13 +136,13 @@ export default class Asignacion extends Instruccion{
                 }else{
                     //Tipos diferentes
                     var ex:Excepcion = new Excepcion("Semántico", "Los tipos no coinciden.", this.linea, this.columna);
-                    tree.getExcepciones().push(ex);
+                    //tree.getExcepciones().push(ex);
                     return ex;
                 }
             }else{
                 //La variable no existe
                 var ex:Excepcion = new Excepcion("Semántico", "La variable no existe", this.linea, this.columna);
-                tree.getExcepciones().push(ex);
+                //tree.getExcepciones().push(ex);
                 return ex;
                 
             }
@@ -150,7 +150,7 @@ export default class Asignacion extends Instruccion{
         else if (esTipo2){
             
             let simboloAgregar:any = this.id.interpretar(tree,table);
-            let tipoEspecial = this.verificarEspeciales(simboloAgregar.getTipo(),this.instruccion,tree,table);
+            let tipoEspecial = this.verificarEspeciales(simboloAgregar,this.instruccion,tree,table);
             let simboloValor:any;
             if (typeof tipoEspecial != 'boolean'){
                 simboloValor = tipoEspecial;
@@ -161,7 +161,7 @@ export default class Asignacion extends Instruccion{
                     simboloAgregar.setValor(simboloValor.getValor());
                 }else{
                     var ex:Excepcion = new Excepcion("Semántico", "Los tipos no coinciden.", this.linea, this.columna);
-                    tree.getExcepciones().push(ex);
+                    //tree.getExcepciones().push(ex);
                     return ex;                
                 }                
             } 
@@ -174,7 +174,7 @@ export default class Asignacion extends Instruccion{
             if (simbolo!=null){
                 if (simbolo.getValor()===null && this.pasada!= 1){
                     var ex:Excepcion = new Excepcion("Semántico", "Variable no existe.", this.linea, this.columna);
-                    tree.getExcepciones().push(ex);
+                    //tree.getExcepciones().push(ex);
                     return ex;                
                 }
                 tipoB = this.instruccion.getTipoRetorno().getTipos();
@@ -208,7 +208,7 @@ export default class Asignacion extends Instruccion{
             }else{
                 //La variable no existe
                 var ex:Excepcion = new Excepcion("Semántico", "La variable no existe", this.linea, this.columna);
-                tree.getExcepciones().push(ex);
+                //tree.getExcepciones().push(ex);
                 return ex;
                 
             }
@@ -260,7 +260,7 @@ export default class Asignacion extends Instruccion{
             }
 
         }
-
+        return true;
     }
 
 
@@ -275,7 +275,7 @@ export default class Asignacion extends Instruccion{
             let numero:Primitivo = valorFinal instanceof Simbolo? valorFinal.getValor(): valorFinal;
             if (numero.getValor() > 2147483647 || numero.getValor() < -2147483647){
                 var ex:Excepcion = new Excepcion("Semántico", "Número fuera de límite", this.linea, this.columna);
-                tree.getExcepciones().push(ex);
+                //tree.getExcepciones().push(ex);
                 return ex;                        
             }
             variable.getValor().setValor(valorFinal.getValor());
@@ -297,7 +297,7 @@ export default class Asignacion extends Instruccion{
             let numero:Primitivo = valorFinal instanceof Simbolo? valorFinal.getValor(): valorFinal;
             if (numero.getValor() > 2147483647 || numero.getValor() < -2147483647){
                 var ex:Excepcion = new Excepcion("Semántico", "Número fuera de límite", this.linea, this.columna);
-                tree.getExcepciones().push(ex);
+                //tree.getExcepciones().push(ex);
                 return ex;                        
             }else{
                 variable.getValor().setValor(valorFinal.getValor());
@@ -315,7 +315,7 @@ export default class Asignacion extends Instruccion{
             let numero:any = valorFinal instanceof Simbolo? valorFinal.getValor(): valorFinal.interpretar(tree,table);
             if (numero.getValor() > 2147483647 || numero.getValor() < -2147483647){
                 var ex:Excepcion = new Excepcion("Semántico", "Número fuera de límite", this.linea, this.columna);
-                tree.getExcepciones().push(ex);
+                //tree.getExcepciones().push(ex);
                 return ex;                        
             }
             variableA.getValor().setValor(numero);
@@ -336,7 +336,7 @@ export default class Asignacion extends Instruccion{
             let numero:Primitivo = valorFinal instanceof Simbolo? valorFinal.getValor(): valorFinal.interpretar(tree,table);
             if (numero.getValor() > 2147483647 || numero.getValor() < -2147483647){
                 var ex:Excepcion = new Excepcion("Semántico", "Número fuera de límite", this.linea, this.columna);
-                tree.getExcepciones().push(ex);
+                //tree.getExcepciones().push(ex);
                 return ex;                        
             }else{
                 return numero;

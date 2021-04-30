@@ -80,7 +80,7 @@ export default class FOR extends Instruccion{
         ||  this.condicion === null
         ||  this.incremento === null){
             var ex:Excepcion = new Excepcion("Semantico", "Error en la creación del for.", this.linea, this.columna);
-            tree.getExcepciones().push(ex);
+            //tree.getExcepciones().push(ex);
             return ex;             
         }
         if (this.inicio instanceof Excepcion){
@@ -130,9 +130,9 @@ export default class FOR extends Instruccion{
                             m.setPasada(2);
                             var result = m.interpretar(nArbol, nTabla);
                             if(result instanceof Excepcion){ // ERRORES SEMÁNTICOS
-                                Errors.push(result);
-                                nArbol.addError(result);
-                                nArbol.updateConsola((<Excepcion>result).toString());
+                                //Errors.push(result);
+                                //nArbol.addError(result);
+                                //nArbol.updateConsola((<Excepcion>result).toString());
                                 return result;
     
                             }        
@@ -181,18 +181,18 @@ export default class FOR extends Instruccion{
                     return resultado.getValor(); //Retorna primitivo booleano
                 }else{ //No es booleana
                     var ex:Excepcion = new Excepcion("Semantico", "El tipo de la variable es incorrecto.", this.linea, this.columna);
-                    tree.getExcepciones().push(ex);
+                    //tree.getExcepciones().push(ex);
                     return ex; 
                 }
             }else{ //No existe
                 var ex:Excepcion = new Excepcion("Semantico", "La variable no existe", this.linea, this.columna);
-                tree.getExcepciones().push(ex);
+                //tree.getExcepciones().push(ex);
                 return ex; 
             }
 
         }else{ //No es relacional ni logica ni identificador
             var ex:Excepcion = new Excepcion("Semantico", "Condición con resultado no booleano.", this.linea, this.columna);
-            tree.getExcepciones().push(ex);
+            //tree.getExcepciones().push(ex);
             return ex;             
         }
     }

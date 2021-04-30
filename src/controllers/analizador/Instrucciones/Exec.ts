@@ -33,6 +33,12 @@ export default class Exec extends Instruccion{
         }
         this.instruccion.setPasada(2);
         let result = this.instruccion.interpretar(tree,table);
+        /*
+        if (result instanceof Excepcion){
+            tree.addError(result);
+            tree.updateConsola((<Excepcion>result).toString());
+        }
+        */
         return result;
     }
 }

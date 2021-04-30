@@ -112,7 +112,7 @@ export default class Declaracion extends Instruccion{
         //Verificar que la variable ya existe en el ámbito local
         if (table.tabla.has(this.id.getValor()) && this.pasada != 1){
             var ex:Excepcion = new Excepcion("Semántico", "Error, la variable ya existe", this.linea, this.columna);
-            tree.getExcepciones().push(ex);
+            //tree.getExcepciones().push(ex);
             return ex;
         }
         if (this.pasada ===0){ //Solo crear el símbolo en la tabla
@@ -142,7 +142,7 @@ export default class Declaracion extends Instruccion{
                 let tipoCreacion = v.getTipoCreacion();
                 if (tipoA.getTipos()!= tipoCreacion.getTipos()){
                     var ex:Excepcion = new Excepcion("Semántico", "Los tipos no coinciden.", this.linea, this.columna);
-                    tree.getExcepciones().push(ex);
+                    //tree.getExcepciones().push(ex);
                     return ex;                        
                 }            
                 nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.VECTOR),this.id.getValor(),null);
@@ -154,7 +154,7 @@ export default class Declaracion extends Instruccion{
                     let tipoCreacion = list.getTipoCreacion();
                     if (tipoA.getTipos()!= tipoCreacion.getTipos()){
                         var ex:Excepcion = new Excepcion("Semántico", "Los tipos no coinciden.", this.linea, this.columna);
-                        tree.getExcepciones().push(ex);
+                        //tree.getExcepciones().push(ex);
                         return ex;                        
                     }
                     //let listaNull:Lista = new lista.default(tipoA,0,0,id,tipoCreacion);
@@ -167,7 +167,7 @@ export default class Declaracion extends Instruccion{
                     let tipoCreacion = list.getTipoCreacion();
                     if (tipoA.getTipos()!= tipoCreacion.getTipos()){
                         var ex:Excepcion = new Excepcion("Semántico", "Los tipos no coinciden.", this.linea, this.columna);
-                        tree.getExcepciones().push(ex);
+                        //tree.getExcepciones().push(ex);
                         return ex;                        
                     }
                     //let listaNull:Lista = new lista.default(tipoA,0,0,id,tipoCreacion);
@@ -249,7 +249,7 @@ export default class Declaracion extends Instruccion{
             if (this.valor){
                 if (this.valor instanceof Funcion || this.valor instanceof Metodo){
                     var ex:Excepcion = new Excepcion("Semántico", "Métodos o funciones solo pueden ser declarados en el ámbito global.", this.linea, this.columna);
-                    tree.getExcepciones().push(ex);
+                    //tree.getExcepciones().push(ex);
                     return ex;   
                 }else
                 if (this.valor.getTipo().getTipos()    != tipo.tipos.LENGTH
@@ -265,7 +265,7 @@ export default class Declaracion extends Instruccion{
                         table.tabla.delete(this.id.getValor()); //La elimino de la tabla de símbolos
                         return verificarTipo; //Retorno el error
                     }else{
-                        let nTipo = this.getNuevoTipo(verificarTipo);
+                        let nTipo = verificarTipo.getTipo().getTipos();
                         let nuevoSimbolo = new Simbolo(new tipo.default(nTipo),this.id.getValor(),verificarTipo);
                         table.setVariableNueva(nuevoSimbolo);
                         //Si la verificación de tipos esta bien entonces asigna el valor
@@ -314,7 +314,7 @@ export default class Declaracion extends Instruccion{
                         let tipoCreacion = v.getTipoCreacion();
                         if (tipoA.getTipos()!= tipoCreacion.getTipos()){
                             var ex:Excepcion = new Excepcion("Semántico", "Los tipos no coinciden.", this.linea, this.columna);
-                            tree.getExcepciones().push(ex);
+                            //tree.getExcepciones().push(ex);
                             return ex;                        
                         }            
                         nuevoSimbolo = new Simbolo(new tipo.default(tipoCreacion.getTipos()),this.id.getValor(),v);
@@ -326,7 +326,7 @@ export default class Declaracion extends Instruccion{
                             let tipoCreacion = list.getTipoCreacion();
                             if (tipoA.getTipos()!= tipoCreacion.getTipos()){
                                 var ex:Excepcion = new Excepcion("Semántico", "Los tipos no coinciden.", this.linea, this.columna);
-                                tree.getExcepciones().push(ex);
+                                //tree.getExcepciones().push(ex);
                                 return ex;                        
                             }
                             //let listaNull:Lista = new lista.default(tipoA,0,0,id,tipoCreacion);
@@ -339,7 +339,7 @@ export default class Declaracion extends Instruccion{
                             let tipoCreacion = list.getTipoCreacion();
                             if (tipoA.getTipos()!= tipoCreacion.getTipos()){
                                 var ex:Excepcion = new Excepcion("Semántico", "Los tipos no coinciden.", this.linea, this.columna);
-                                tree.getExcepciones().push(ex);
+                                //tree.getExcepciones().push(ex);
                                 return ex;                        
                             }
                             //let listaNull:Lista = new lista.default(tipoA,0,0,id,tipoCreacion);
@@ -398,7 +398,7 @@ export default class Declaracion extends Instruccion{
         //Valor tipo puede ser primitivo, excepcion, vector, lista o id
         if (valorFinal instanceof Excepcion){
             var ex:Excepcion = new Excepcion("Semántico", "Error en la creación de la variable", this.linea, this.columna);
-            tree.getExcepciones().push(ex);
+            //tree.getExcepciones().push(ex);
             return ex;
         }
         else if(this.valor instanceof Primitivo){
@@ -409,7 +409,7 @@ export default class Declaracion extends Instruccion{
                 }else
                 if (this.tipo.getTipos()!= this.valor.getTipo().getTipos()){
                     var ex:Excepcion = new Excepcion("Semantico", "Error en la asignación del tipo.", this.linea, this.columna);
-                    tree.getExcepciones().push(ex);
+                    //tree.getExcepciones().push(ex);
                     return ex;                            
                 }else{
                     //this.valor = valorFinal;
@@ -420,7 +420,7 @@ export default class Declaracion extends Instruccion{
             if (this.valor.getTipo().getTipos()!= this.valor.getTipoCreacion().getTipos()){
                 //El valor esta mal
                 var ex:Excepcion = new Excepcion("Semantico", "Error en la asignación del tipo.", this.linea, this.columna);
-                tree.getExcepciones().push(ex);
+                //tree.getExcepciones().push(ex);
                 return ex;                 
             }else{
                 let copiarLista:Array<any> = new Array();
@@ -446,7 +446,7 @@ export default class Declaracion extends Instruccion{
             if (this.valor.getTipo().getTipos()!= this.valor.getTipoCreacion().getTipos()){
                 //El valor esta mal
                 var ex:Excepcion = new Excepcion("Semantico", "Error en la asignación del tipo.", this.linea, this.columna);
-                tree.getExcepciones().push(ex);
+                //tree.getExcepciones().push(ex);
                 return ex; 
             }else{
                 return this.valor;
@@ -460,12 +460,12 @@ export default class Declaracion extends Instruccion{
                 }else               
                 if (this.tipo.getTipos()!= simbolo.getTipo().getTipos()){
                     var ex:Excepcion = new Excepcion("Semantico", "Error en la asignación del tipo.", this.linea, this.columna);
-                    tree.getExcepciones().push(ex);
+                    //tree.getExcepciones().push(ex);
                     return ex;                 
                 }
                 if (simbolo.getValor()===null){
                     var ex:Excepcion = new Excepcion("Semantico", "Variable no declarada.", this.linea, this.columna);
-                    tree.getExcepciones().push(ex);
+                    //tree.getExcepciones().push(ex);
                     return ex;                      
                 }              
                 return simbolo.getValor();
@@ -481,7 +481,7 @@ export default class Declaracion extends Instruccion{
             ||  result.getTipo().getTipos()=== tipo.tipos.BOOLEANO)){
                 if (result.getValor() < -2147483647 || result.getValor() > 2147483647){
                     var ex:Excepcion = new Excepcion("Semantico", "Número fuera de rango.", this.linea, this.columna);
-                    tree.getExcepciones().push(ex);
+                    //tree.getExcepciones().push(ex);
                     return ex;                          
                 }
                 result.setTipo(tipo.tipos.ENTERO);
@@ -492,7 +492,7 @@ export default class Declaracion extends Instruccion{
             )){
                 if (result.getValor() < -2147483647 || result.getValor() > 2147483647){
                     var ex:Excepcion = new Excepcion("Semantico", "Número fuera de rango.", this.linea, this.columna);
-                    tree.getExcepciones().push(ex);
+                    //tree.getExcepciones().push(ex);
                     return ex;                          
                 }
                 result.setTipo(tipo.tipos.DECIMAL);
@@ -503,7 +503,7 @@ export default class Declaracion extends Instruccion{
             }
             else{
                 var ex:Excepcion = new Excepcion("Semántico", "Tipo incorrecto.", this.linea, this.columna);
-                tree.getExcepciones().push(ex);
+                //tree.getExcepciones().push(ex);
                 return ex;
             }
         }
@@ -516,7 +516,7 @@ export default class Declaracion extends Instruccion{
             let numero = valorFinal.interpretar(tree,table);
             if (numero > 2147483647 || numero < -2147483647){
                 var ex:Excepcion = new Excepcion("Semántico", "Número fuera de límite", this.linea, this.columna);
-                tree.getExcepciones().push(ex);
+                //tree.getExcepciones().push(ex);
                 return ex;                        
             }
             let nTipo = new Tipo(tipo.tipos.DECIMAL);
@@ -544,7 +544,7 @@ export default class Declaracion extends Instruccion{
             let numero = valorFinal.interpretar(tree,table);
             if (numero> 2147483647 || numero < -2147483647){
                 var ex:Excepcion = new Excepcion("Semántico", "Número fuera de límite", this.linea, this.columna);
-                tree.getExcepciones().push(ex);
+                //tree.getExcepciones().push(ex);
                 return ex;                        
             }else{
                 let nTipo = new Tipo(tipo.tipos.ENTERO);

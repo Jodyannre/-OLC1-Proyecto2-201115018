@@ -6,6 +6,7 @@ import Excepcion from "../Excepciones/Excepcion";
 import { nodoInstruccion } from "../Abstract/nodoInstruccion";
 import Simbolo from "../tablaSimbolos/Simbolo";
 import Primitivo from "./Primitivo";
+import Identificador from "./Identificador";
 const primitivo = require('../Expresiones/Primitivo');
 const tipo = require('../tablaSimbolos/Tipo');
 
@@ -15,6 +16,8 @@ export default class Logica extends Instruccion{
     private operandoDer:any;
     private operandoUnario:any;
     private operadorLogico:Tipo;
+    private operadorDerecho:any;
+    private operadorIzq:any;
 
     constructor(operandoIzq:any, operadorLogico:Tipo, linea:number, columna:number,operandoDer?:any ) {
         super(operadorLogico, linea, columna);
@@ -50,15 +53,66 @@ export default class Logica extends Instruccion{
         let izquierdo:any = null, derecho:any = null, unario:any = null;
 
         if (this.operandoUnario == null) {
-            izquierdo = this.operandoIzq.interpretar(tree, table);
-            if (izquierdo instanceof Excepcion) return izquierdo;
+            //izquierdo = this.operandoIzq.interpretar(tree, table);
+            if (this.operandoIzq instanceof Primitivo 
+                || this.operandoIzq instanceof Identificador){
+                    izquierdo = this.operandoIzq;
+            }else{
+                izquierdo = this.operandoIzq.interpretar(tree,table);
+            }
 
-            derecho = this.operandoDer.interpretar(tree, table);
+            if (izquierdo instanceof Excepcion) return izquierdo;
+            if (izquierdo instanceof Primitivo){
+                //Estamos bien
+                //this.operadorIzq2 = izquierdo;
+                this.operadorIzq = izquierdo;
+                izquierdo = izquierdo.interpretar(tree,table);
+            }else if (izquierdo instanceof Identificador){
+                //this.operadorIzq2 = izquierdo.getValor();
+                izquierdo = izquierdo.interpretar(tree,table);
+                this.operadorIzq = izquierdo.getValor();
+                izquierdo = this.operadorIzq.interpretar(tree,table);
+            }
+            //derecho = this.operandoDer.interpretar(tree, table);
+            if (this.operandoDer instanceof Primitivo 
+                || this.operandoDer instanceof Identificador){
+                    derecho = this.operandoDer;
+            }else{
+                derecho = this.operandoDer.interpretar(tree,table);
+            }
             if (derecho instanceof Excepcion) return derecho; 
+            if (derecho instanceof Primitivo){
+                //Estamos bien
+                //this.operadorDerecho = derecho;
+                this.operadorDerecho = derecho;
+                derecho = derecho.interpretar(tree,table);
+            }else if (derecho instanceof Identificador){
+                //this.operadorDerecho = derecho.getValor();
+                derecho = derecho.interpretar(tree,table);
+                this.operadorDerecho = derecho.getValor();
+                derecho = this.operadorDerecho.interpretar(tree,table);
+            }
             
         } else {
-            unario = this.operandoIzq.interpretar(tree, table);
+            //unario = this.operandoIzq.interpretar(tree, table);
+            if (this.operandoIzq instanceof Primitivo 
+                || this.operandoIzq instanceof Identificador){
+                    unario = this.operandoIzq;
+            }else{
+                unario = this.operandoIzq.interpretar(tree,table);
+            }
             if (unario instanceof Excepcion) return unario;
+            if (unario instanceof Primitivo){
+                //Estamos bien
+                //this.operandoIz2 = unario;
+                this.operadorIzq = izquierdo;
+                unario = unario.interpretar(tree,table);
+            }else if (unario instanceof Identificador){
+                //this.operadorIzq2 = unario.getValor();
+                izquierdo = izquierdo.interpretar(tree,table);
+                this.operadorIzq = izquierdo.getValor();
+                unario = this.operadorIzq.interpretar(tree,table);
+            }
         }
 
         this.tipo = new tipo.default(tipo.tipos.BOOLEANO);
@@ -67,8 +121,8 @@ export default class Logica extends Instruccion{
               
             switch (this.operadorLogico.getTipos()) {
                 case 24:
-                    if (this.operandoIzq.tipo.getTipos() == tipo.tipos.BOOLEANO
-                            && this.operandoDer.tipo.getTipos() == tipo.tipos.BOOLEANO) {
+                    if (this.operadorIzq.tipo.getTipos() == tipo.tipos.BOOLEANO
+                            && this.operadorDerecho.tipo.getTipos() == tipo.tipos.BOOLEANO) {
                         var valorIzq:boolean = Boolean(izquierdo);
                         var valorDer:boolean = Boolean(derecho);
                         let nTipo = new Tipo(tipo.tipos.BOOLEANO);
@@ -76,29 +130,29 @@ export default class Logica extends Instruccion{
                         let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
                         return resultado
                     } 
-                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.BOOLEANO
-                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    else if(this.operadorIzq.tipo.getTipos() == tipo.tipos.BOOLEANO
+                            && this.operadorDerecho.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
                     {
                         return this.operarDerId(derecho,tree,table,this.operadorLogico);            
                     }    
-                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
-                            && this.operandoDer.tipo.getTipos() == tipo.tipos.BOOLEANO)
+                    else if(this.operadorIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operadorDerecho.tipo.getTipos() == tipo.tipos.BOOLEANO)
                     {
                         return this.operarIzqId(izquierdo,tree,table,this.operadorLogico);            
                     }        
-                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
-                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    else if(this.operadorIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operadorDerecho.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
                     {
                         return this.operarAmbosId(izquierdo,derecho,this.operadorLogico,tree,table);            
                     }              
                     else {
                         var ex:Excepcion = new Excepcion("Semantico", "Error de Tipo con el operador AND", this.linea, this.columna);
-                        tree.getExcepciones().push(ex);
+                        //tree.getExcepciones().push(ex);
                         return ex;
                     }
                 case 25:
-                    if (this.operandoIzq.tipo.getTipos() == tipo.tipos.BOOLEANO
-                            && this.operandoDer.tipo.getTipos() == tipo.tipos.BOOLEANO) {
+                    if (this.operadorIzq.tipo.getTipos() == tipo.tipos.BOOLEANO
+                            && this.operadorDerecho.tipo.getTipos() == tipo.tipos.BOOLEANO) {
                             var valorIzq:boolean = Boolean(izquierdo);
                             var valorDer:boolean = Boolean(derecho);
                             let nTipo = new Tipo(tipo.tipos.BOOLEANO);
@@ -106,41 +160,41 @@ export default class Logica extends Instruccion{
                             let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
                             return resultado
                     } 
-                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.BOOLEANO
-                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    else if(this.operadorIzq.tipo.getTipos() == tipo.tipos.BOOLEANO
+                            && this.operadorDerecho.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
                     {
                         return this.operarDerId(derecho,tree,table,this.operadorLogico);            
                     }    
-                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
-                            && this.operandoDer.tipo.getTipos() == tipo.tipos.BOOLEANO)
+                    else if(this.operadorIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operadorDerecho.tipo.getTipos() == tipo.tipos.BOOLEANO)
                     {
                         return this.operarIzqId(izquierdo,tree,table,this.operadorLogico);            
                     }        
-                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
-                            && this.operandoDer.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    else if(this.operadorIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR
+                            && this.operadorDerecho.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
                     {
                         return this.operarAmbosId(izquierdo,derecho,this.operadorLogico,tree,table);            
                     } 
                     else {
                         var ex:Excepcion = new Excepcion("Semantico", "Error de Tipo con el operador OR", this.linea, this.columna);
-                        tree.getExcepciones().push(ex);
+                        //tree.getExcepciones().push(ex);
                         return ex;
                     }
                 case 26:
-                    if (this.operandoIzq.tipo.getTipos() == tipo.tipos.BOOLEANO) {
+                    if (this.operadorIzq.tipo.getTipos() == tipo.tipos.BOOLEANO) {
                         var valorUnario:boolean = Boolean(unario);
                         let nTipo = new Tipo(tipo.tipos.BOOLEANO);
                         let nValor = !valorUnario;
                         let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
                         return resultado
                     }
-                    else if(this.operandoIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
+                    else if(this.operadorIzq.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)
                     {
                         return this.operarIzqId(unario,tree,table,this.operadorLogico);            
                     }     
                     else {
                         var ex:Excepcion = new Excepcion("Semantico", "Error de Tipo con el operador NOT", this.linea, this.columna);
-                        tree.getExcepciones().push(ex);
+                        //tree.getExcepciones().push(ex);
                         return ex;
                     }
                 default:
@@ -158,8 +212,8 @@ export default class Logica extends Instruccion{
         if(variable!=null){ //Si existe
             if (variable.getTipo().getTipos()<6){ //Si es del tipo correcto
                 //let izq = new primitivo.default(variable.getTipo(),variable.getValor(),0,0);
-                if (this.operandoDer){       //Operación unaria             
-                    op = new Logica(variable,operador,0,0,this.operandoDer);
+                if (this.operadorDerecho){       //Operación unaria             
+                    op = new Logica(variable,operador,0,0,this.operadorDerecho);
                 }else{
                     op = new Logica(variable,operador,0,0);                                    
                 }
@@ -168,12 +222,12 @@ export default class Logica extends Instruccion{
 
             }else{
                 var ex:Excepcion = new Excepcion("Semantico", "Tipo inválido", this.linea, this.columna);
-                tree.getExcepciones().push(ex);
+                //tree.getExcepciones().push(ex);
                 return ex;                                  
             }
         }else{
             var ex:Excepcion = new Excepcion("Semantico", "La variable no existe", this.linea, this.columna);
-            tree.getExcepciones().push(ex);
+            //tree.getExcepciones().push(ex);
             return ex;                            
         }  
     }
@@ -185,17 +239,17 @@ export default class Logica extends Instruccion{
         if(variable!=null){ //Si existe
             if (variable.getTipo().getTipos()<6){ //Si es del tipo correcto
                 //let der = new primitivo.default(variable.getTipo(),variable.getValor(),0,0);
-                op = new Logica(this.operandoIzq,operador,0,0,variable);
+                op = new Logica(this.operadorIzq,operador,0,0,variable);
                 resultado = op.interpretar(tree,table);
                 return resultado;
             }else{
                 var ex:Excepcion = new Excepcion("Semantico", "Tipo inválido", this.linea, this.columna);
-                tree.getExcepciones().push(ex);
+                //tree.getExcepciones().push(ex);
                 return ex;                                  
             }
         }else{
             var ex:Excepcion = new Excepcion("Semantico", "La variable no existe", this.linea, this.columna);
-            tree.getExcepciones().push(ex);
+            //tree.getExcepciones().push(ex);
             return ex;                            
         }  
     }
@@ -214,12 +268,12 @@ export default class Logica extends Instruccion{
                 return resultado;
             }else{
                 var ex:Excepcion = new Excepcion("Semantico", "Tipo inválido", this.linea, this.columna);
-                tree.getExcepciones().push(ex);
+                //tree.getExcepciones().push(ex);
                 return ex;                                  
             }
         }else{
             var ex:Excepcion = new Excepcion("Semantico", "La variable no existe", this.linea, this.columna);
-            tree.getExcepciones().push(ex);
+            //tree.getExcepciones().push(ex);
             return ex;                            
         }  
     }

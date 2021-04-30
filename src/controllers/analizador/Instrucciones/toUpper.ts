@@ -45,7 +45,7 @@ export default class toUpper extends Instruccion{
             simbolo = this.expresion.interpretar(tree,table);
             if (simbolo ==null){
                 var ex:Excepcion = new Excepcion("Semántico", "La variable no existe.", this.linea, this.columna);
-                tree.getExcepciones().push(ex);
+                //tree.getExcepciones().push(ex);
                 return ex;      
             }
             if (this.verificarTipo(simbolo)){ //Si tiene valor cadena la variable
@@ -58,7 +58,7 @@ export default class toUpper extends Instruccion{
         }else{
 
             var ex:Excepcion = new Excepcion("Semántico", "El valor no es una cadena", this.linea, this.columna);
-            tree.getExcepciones().push(ex);
+            //tree.getExcepciones().push(ex);
             return ex;            
 
         }

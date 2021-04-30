@@ -84,7 +84,7 @@ export default class SWITCH extends Instruccion{
                 tipoCaso = caso.getTipoValorEvaluado(tree,table); //Devuelve  el número del enum
                 if (tipoCondicion != tipoCaso && tipoCaso!= tipo.tipos.DEFAULT){
                     var ex:Excepcion = new Excepcion("Semantico", "Valor incorrecto en case.", this.linea, this.columna);
-                    tree.getExcepciones().push(ex);
+                    //tree.getExcepciones().push(ex);
                     return ex;                      
                 }
             }
@@ -130,7 +130,7 @@ export default class SWITCH extends Instruccion{
             return tipo.tipos.BOOLEANO;
         }else{
             var ex:Excepcion = new Excepcion("Semantico", "No se puede evaluar ese valor.", this.linea, this.columna);
-            tree.getExcepciones().push(ex);
+            //tree.getExcepciones().push(ex);
             return ex;                
         }
     }

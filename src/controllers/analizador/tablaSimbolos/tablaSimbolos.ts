@@ -96,4 +96,8 @@ export default class tablaSimbolos
         this.siguientes.push(siguiente);
     }
 
+    public getSiguientes(){
+        return this.siguientes;
+    }
+
 }

@@ -29,8 +29,8 @@ export default class RETURN extends Instruccion{
             nodo2.agregarHijoCadena("RETURN");
             if (this.retorno != null){
                 nodo4.agregarHijoNodo(this.retorno.getNodoInstruccion());
-            }
-            nodo2.agregarHijoNodo(nodo4);
+                nodo2.agregarHijoNodo(nodo4);
+            }  
             nodo2.agregarHijoCadena(";");
         }     
         nodo.agregarHijoNodo(nodo2);    
@@ -42,6 +42,10 @@ export default class RETURN extends Instruccion{
         super(tipo, linea, columna);
         this.retorno = retorno;
 
+    }
+    
+    public getRetorno(){
+        return this.retorno;
     }
 
 

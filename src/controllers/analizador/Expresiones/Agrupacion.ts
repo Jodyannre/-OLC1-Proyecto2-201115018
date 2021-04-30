@@ -51,7 +51,7 @@ export default class Agrupacion extends Instruccion{
             result = this.operacion.interpretar(tree,table);
             if (result === null){
                 var ex:Excepcion = new Excepcion("Semántico", "La variable no existe.", this.linea, this.columna);
-                tree.getExcepciones().push(ex);
+                //tree.getExcepciones().push(ex);
                 return ex;  
             }
             result = result.getValor(); //Get el primitivo del símbolo

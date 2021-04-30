@@ -46,19 +46,19 @@ export default class Imprimir extends Instruccion{
         }
         if (this.expresion instanceof Metodo){
             var ex:Excepcion = new Excepcion("Semántico", "Más de un exec.", 0, 0);
-            tree.getExcepciones().push(ex);
+            //tree.getExcepciones().push(ex);
             return ex;
         }
 
         if (this.expresion instanceof Imprimir){
             var ex:Excepcion = new Excepcion("Semántico", "Más de un exec.", 0, 0);
-            tree.getExcepciones().push(ex);
+            //tree.getExcepciones().push(ex);
             return ex;
         }
 
         if (this.expresion instanceof Exec){
             var ex:Excepcion = new Excepcion("Semántico", "Más de un exec.", 0, 0);
-            tree.getExcepciones().push(ex);
+            //tree.getExcepciones().push(ex);
             return ex;
         }
 
@@ -67,5 +67,6 @@ export default class Imprimir extends Instruccion{
         if(value instanceof Excepcion) return value;
 
         tree.updateConsola(value+"");
+        return true;
     }
 }

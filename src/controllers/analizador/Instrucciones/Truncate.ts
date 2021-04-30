@@ -53,14 +53,14 @@ export default class Truncate extends Instruccion{
             simbolo = this.expresion.interpretar(tree,table);
             if (simbolo ==null){
                 var ex:Excepcion = new Excepcion("Semántico", "La variable no existe.", this.linea, this.columna);
-                tree.getExcepciones().push(ex);
+                //tree.getExcepciones().push(ex);
                 return ex;      
             }
             return this.verificarTipo(simbolo,tree); //Si tiene valor cadena la variable
         }else{
 
             var ex:Excepcion = new Excepcion("Semántico", "El valor no es un número", this.linea, this.columna);
-            tree.getExcepciones().push(ex);
+            //tree.getExcepciones().push(ex);
             return ex;            
 
         }
@@ -80,7 +80,7 @@ export default class Truncate extends Instruccion{
             return nPrimitivo;
         }else{
             var ex:Excepcion = new Excepcion("Semántico", "El valor no es un número.", this.linea, this.columna);
-            tree.getExcepciones().push(ex);
+            //tree.getExcepciones().push(ex);
             return ex;                      
         }
     }

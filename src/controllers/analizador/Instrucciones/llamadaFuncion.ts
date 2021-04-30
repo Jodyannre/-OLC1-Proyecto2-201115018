@@ -76,13 +76,13 @@ export default class llamadaFuncion extends Instruccion{
 
         if (simbolo === null){
             var ex:Excepcion = new Excepcion("Semántico", "La variable no existe.", this.linea, this.columna);
-            tree.getExcepciones().push(ex);
+            //tree.getExcepciones().push(ex);
             return ex;  
         }
 
         if ((simbolo.getValor() instanceof Funcion || simbolo.getValor() instanceof Metodo)===false){
             var ex:Excepcion = new Excepcion("Semántico", "La variable no hace referencia a un método.", this.linea, this.columna);
-            tree.getExcepciones().push(ex);
+            //tree.getExcepciones().push(ex);
             return ex;              
         }
 

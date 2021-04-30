@@ -57,7 +57,7 @@ export default class Casteo extends Instruccion{
                     return nPrimitivo;
                 }else{
                     var ex:Excepcion = new Excepcion("Semántico", "Tipos incompatibles.", this.linea, this.columna);
-                    tree.getExcepciones().push(ex);
+                    //tree.getExcepciones().push(ex);
                     return ex;
                 }
 
@@ -76,7 +76,7 @@ export default class Casteo extends Instruccion{
                 return nPrimitivo;
             }else{
                 var ex:Excepcion = new Excepcion("Semántico", "Tipos incompatibles.", this.linea, this.columna);
-                tree.getExcepciones().push(ex);
+                //tree.getExcepciones().push(ex);
                 return ex;
             }            
 
@@ -86,7 +86,7 @@ export default class Casteo extends Instruccion{
                     //Rango va desde 33 - 126
                     if (resultado.getValor()>93){ 
                         var ex:Excepcion = new Excepcion("Semántico", "Char fuera de rango.", this.linea, this.columna);
-                        tree.getExcepciones().push(ex);
+                        //tree.getExcepciones().push(ex);
                         return ex;                        
                     }
                     let nValor = String.fromCharCode(33 + resultado.getValor());
@@ -95,7 +95,7 @@ export default class Casteo extends Instruccion{
                     return nPrimitivo;                   
                 }else{
                     var ex:Excepcion = new Excepcion("Semántico", "Tipos incompatibles.", this.linea, this.columna);
-                    tree.getExcepciones().push(ex);
+                    //tree.getExcepciones().push(ex);
                     return ex;
                 }
 
@@ -108,7 +108,7 @@ export default class Casteo extends Instruccion{
                     return nPrimitivo;
                 }else{
                     var ex:Excepcion = new Excepcion("Semántico", "Tipos incompatibles.", this.linea, this.columna);
-                    tree.getExcepciones().push(ex);
+                    //tree.getExcepciones().push(ex);
                     return ex;
                 }
         }

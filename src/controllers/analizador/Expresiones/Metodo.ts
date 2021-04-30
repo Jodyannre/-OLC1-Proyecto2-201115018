@@ -105,7 +105,7 @@ export default class Metodo extends Instruccion{
             //No tiene parámetros pero le envian
             if (this.parametrosRecibidos != null){
                 var ex:Excepcion = new Excepcion("Semantico", "El número de parámetros no concuerda.", this.linea, this.columna);
-                tree.getExcepciones().push(ex);
+                //tree.getExcepciones().push(ex);
                 return ex;                   
             }            
         }else{
@@ -113,13 +113,13 @@ export default class Metodo extends Instruccion{
                 //Tiene parámetros pero no envian nada
                 if (this.parametrosRecibidos === null){
                     var ex:Excepcion = new Excepcion("Semantico", "El número de parámetros no concuerda.", this.linea, this.columna);
-                    tree.getExcepciones().push(ex);
+                    //tree.getExcepciones().push(ex);
                     return ex;                   
                 }
                 //Si el número de parámetros es diferente
                 if (this.parametros.length != this.parametrosRecibidos.length){
                     var ex:Excepcion = new Excepcion("Semantico", "El número de parámetros no concuerda.", this.linea, this.columna);
-                    tree.getExcepciones().push(ex);
+                    //tree.getExcepciones().push(ex);
                     return ex;             
                 }
                 //Verificar el tipo de cada parámetro
@@ -130,7 +130,7 @@ export default class Metodo extends Instruccion{
                 }
                 if (!verificarParams){
                     var ex:Excepcion = new Excepcion("Semantico", "Error en los tipos de los parámetros.", this.linea, this.columna);
-                    tree.getExcepciones().push(ex);
+                    //tree.getExcepciones().push(ex);
                     return ex;                     
                 }
                 //return true;
@@ -148,7 +148,7 @@ export default class Metodo extends Instruccion{
 
         //Crear variables con los valores de los parámetros
         if (this.parametros != null){
-            this.crearVariablesParametros(tree,table);
+            this.crearVariablesParametros(nArbol,nTabla);
         }
 
         if (this.instrucciones===null){
@@ -159,34 +159,34 @@ export default class Metodo extends Instruccion{
                 for (let m of nArbol.getInstrucciones()){
                     m.setPasada(2);
                     if(m instanceof Excepcion){ // ERRORES SINTACTICOS
-                        Errors.push(m);
+                        //Errors.push(m);
                         nArbol.addError(m);
                         nArbol.updateConsola((<Excepcion>m).toString());
                     }
                     var result = m.interpretar(nArbol, nTabla);
                     if(result instanceof Excepcion){ // ERRORES SEMÁNTICOS
-                        Errors.push(result);
-                        nArbol.addError(result);
-                        nArbol.updateConsola((<Excepcion>result).toString());
+                        //Errors.push(result);
+                        //nArbol.addError(result);
+                        //nArbol.updateConsola((<Excepcion>result).toString());
                         return result;
                     } 
                     if (result instanceof BREAK){
                         //A nivel de método o función el break es error
                         var ex:Excepcion = new Excepcion("Semantico", "Error con Break fuera de ciclo o switch.", result.linea, result.columna);
-                        nArbol.getExcepciones().push(ex);
+                        //nArbol.addError(ex);
                         return ex;
                     }      
                     if (result instanceof CONTINUE){
                         //A nivel de método o función el continue es error
                         var ex:Excepcion = new Excepcion("Semantico", "Error con Continue fuera de Switch o ciclo", result.linea, result.columna);
-                        nArbol.getExcepciones().push(ex);
+                        //nArbol.getExcepciones().push(ex);
                         return ex;
                     }
                     if (result instanceof RETURN){
                         // Si todo esta bien, retorna el valor final en primitivo
                         if (result.getValor()!=null){
                             var ex:Excepcion = new Excepcion("Semantico", "Método void no puede retornar un valor.", result.linea, result.columna);
-                            nArbol.getExcepciones().push(ex);
+                            //nArbol.getExcepciones().push(ex);
                             return ex;                            
                         }else{
                             return true;
@@ -217,7 +217,7 @@ export default class Metodo extends Instruccion{
             }
             if (this.parametros[i].getTipo().getTipos()!= nSimbolo.getTipo().getTipos()){
                 var ex:Excepcion = new Excepcion("Semantico", "Los tipos de los parámetros no concuerdan.", this.parametros[i].linea, this.parametros[i].columna);
-                tree.getExcepciones().push(ex);
+                //tree.getExcepciones().push(ex);
                 return ex;                  
             }
         }
@@ -256,13 +256,13 @@ export default class Metodo extends Instruccion{
                 if (m instanceof BREAK){
                     //A nivel de método o función el break es error
                     var ex:Excepcion = new Excepcion("Semantico", "Error con Break fuera de ciclo o switch.", m.linea, m.columna);
-                    nArbol.getExcepciones().push(ex);
+                    //nArbol.getExcepciones().push(ex);
                     return ex;
                 }      
                 if (m instanceof CONTINUE){
                     //A nivel de método o función el continue es error
                     var ex:Excepcion = new Excepcion("Semantico", "Error con Continue fuera de Switch o ciclo", m.linea, m.columna);
-                    nArbol.getExcepciones().push(ex);
+                    //nArbol.getExcepciones().push(ex);
                     return ex;
                 }
                 if (m instanceof RETURN){

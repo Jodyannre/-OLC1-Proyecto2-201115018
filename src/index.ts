@@ -45,7 +45,6 @@ app.use("/css",no);
 no = express.static(__dirname + '/public/javaScript');
 app.use("/javascript",no);
 
-
 app.use('/', routeTypesty);
 
 app.get('**',(req,res)=>{

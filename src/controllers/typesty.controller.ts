@@ -126,7 +126,7 @@ class typestyController{
                 //No hay exec, no hacer nada
             }
             
-            res.json({consola:ast.getConsola(), Errores: Errors});
+            //res.json({consola:ast.getConsola(), Errores: Errors});
             console.log(ast.getConsola());
 
             //Creando gráfica del ast despues lo trabajo
@@ -142,7 +142,7 @@ class typestyController{
             nodoInicial = nodoIns;
 
             typestyController.graficarAST(nodoInicial);
-            console.log(ast.getConsola());
+            //console.log(ast.getConsola());
 
             
         }

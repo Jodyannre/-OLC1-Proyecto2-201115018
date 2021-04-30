@@ -79,7 +79,7 @@ export default class CASE extends Instruccion{
             try{
                 for (let m of nArbol.getInstrucciones()){               
                     if(m instanceof Excepcion){ // ERRORES SINTACTICOS
-                        Errors.push(m);
+                        //Errors.push(m);
                         nArbol.addError(m);
                         nArbol.updateConsola((<Excepcion>m).toString());
                         continue;
@@ -87,9 +87,9 @@ export default class CASE extends Instruccion{
                     m.setPasada(2);
                     var result = m.interpretar(nArbol, nTabla);
                     if(result instanceof Excepcion){ // ERRORES SEMÁNTICOS
-                        Errors.push(result);
-                        nArbol.addError(result);
-                        nArbol.updateConsola((<Excepcion>result).toString());
+                        //Errors.push(result);
+                        //nArbol.addError(result);
+                        //nArbol.updateConsola((<Excepcion>result).toString());
                         return result;
                     }
                     if (result instanceof BREAK){
@@ -153,7 +153,7 @@ export default class CASE extends Instruccion{
             }
         }else{
             var ex:Excepcion = new Excepcion("Semantico", "Valor incorrecto en sentencia Switch.", this.linea, this.columna);
-            tree.getExcepciones().push(ex);
+            //tree.getExcepciones().push(ex);
             return ex;             
         }
 
@@ -183,7 +183,7 @@ export default class CASE extends Instruccion{
             return tipo.tipos.DEFAULT;
         }else{
             var ex:Excepcion = new Excepcion("Semantico", "Valor incorrecto en sentencia Case.", this.linea, this.columna);
-            tree.getExcepciones().push(ex);
+            //tree.getExcepciones().push(ex);
             return ex; 
         }
       

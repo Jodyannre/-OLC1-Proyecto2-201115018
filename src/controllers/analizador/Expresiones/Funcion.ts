@@ -103,7 +103,7 @@ export default class Funcion extends Instruccion{
             //No tiene parámetros pero le envian
             if (this.parametrosRecibidos != null){
                 var ex:Excepcion = new Excepcion("Semantico", "El número de parámetros no concuerda.", this.linea, this.columna);
-                tree.getExcepciones().push(ex);
+                //tree.getExcepciones().push(ex);
                 return ex;                   
             }            
         }else{
@@ -112,13 +112,13 @@ export default class Funcion extends Instruccion{
                 //Tiene parámetros pero no envian nada
                 if (this.parametrosRecibidos === null){
                     var ex:Excepcion = new Excepcion("Semantico", "El número de parámetros no concuerda.", this.linea, this.columna);
-                    tree.getExcepciones().push(ex);
+                    //tree.getExcepciones().push(ex);
                     return ex;                   
                 }
                 //Si el número de parámetros es diferente
                 if (this.parametros.length != this.parametrosRecibidos.length){
                     var ex:Excepcion = new Excepcion("Semantico", "El número de parámetros no concuerda.", this.linea, this.columna);
-                    tree.getExcepciones().push(ex);
+                    //tree.getExcepciones().push(ex);
                     return ex;             
                 }
                 //Verificar el tipo de cada parámetro
@@ -129,7 +129,7 @@ export default class Funcion extends Instruccion{
                 }
                 if (!verificarParams){
                     var ex:Excepcion = new Excepcion("Semantico", "Error en los tipos de los parámetros.", this.linea, this.columna);
-                    tree.getExcepciones().push(ex);
+                    //tree.getExcepciones().push(ex);
                     return ex;                     
                 }
                 //return true;           
@@ -146,60 +146,62 @@ export default class Funcion extends Instruccion{
 
         //Crear variables con los valores de los parámetros
         if (this.parametros != null){
-            this.crearVariablesParametros(tree,table);
+            this.crearVariablesParametros(nArbol,nTabla);
         }
 
         if (this.instrucciones===null){
             //Si no trae ninguna instrucción error porque no retorna nada
             var ex:Excepcion = new Excepcion("Semantico", "Función sin return.", this.linea, this.columna);
-            tree.getExcepciones().push(ex);
+            //tree.getExcepciones().push(ex);
             return ex;    
         }
         //Buscar si trae return
         let ValidarRetorno = this.retornaValor(nArbol,nTabla);
+        if (ValidarRetorno instanceof Excepcion){
+            return ValidarRetorno;
+        }
         if (ValidarRetorno === false){
             var ex:Excepcion = new Excepcion("Semantico", "Función sin return.", this.linea, this.columna);
-            tree.getExcepciones().push(ex);
+            //tree.getExcepciones().push(ex);
             return ex;              
         }
-        
             try{
                 for (let m of nArbol.getInstrucciones()){
                     m.setPasada(2);
                     if(m instanceof Excepcion){ // ERRORES SINTACTICOS
-                        Errors.push(m);
+                        //Errors.push(m);
                         nArbol.addError(m);
                         nArbol.updateConsola((<Excepcion>m).toString());
                     }
                     var result = m.interpretar(nArbol, nTabla);
                     if(result instanceof Excepcion){ // ERRORES SEMÁNTICOS
-                        Errors.push(result);
-                        nArbol.addError(result);
-                        nArbol.updateConsola((<Excepcion>result).toString());
+                        //Errors.push(result);
+                        //nArbol.addError(result);
+                        //nArbol.updateConsola((<Excepcion>result).toString());
                         return result;
                     } 
                     if (result instanceof BREAK){
                         //A nivel de método o función el break es error
                         var ex:Excepcion = new Excepcion("Semantico", "Error con Break fuera de ciclo o switch.", result.linea, result.columna);
-                        nArbol.getExcepciones().push(ex);
+                        //nArbol.getExcepciones().push(ex);
                         return ex;
                     }      
                     if (result instanceof CONTINUE){
                         //A nivel de método o función el continue es error
                         var ex:Excepcion = new Excepcion("Semantico", "Error con Continue fuera de Switch o ciclo", result.linea, result.columna);
-                        nArbol.getExcepciones().push(ex);
+                        //nArbol.getExcepciones().push(ex);
                         return ex;
                     }
                     if (result instanceof RETURN){
                         //Validar el tipo de retorno y si concuerda
                         if (result.getValor()===null){
                             var ex:Excepcion = new Excepcion("Semantico", "El tipo del return no es correcto.", this.linea, this.columna);
-                            tree.getExcepciones().push(ex);
+                            //tree.getExcepciones().push(ex);
                             return ex;                              
                         }
                         if (this.tipo.getTipos()!= result.getTipoRetorno().getTipos()){
                             var ex:Excepcion = new Excepcion("Semantico", "El tipo del return no es correcto.", this.linea, this.columna);
-                            tree.getExcepciones().push(ex);
+                            //tree.getExcepciones().push(ex);
                             return ex;     
                         }
                         // Si todo esta bien, retorna el valor final en primitivo
@@ -230,7 +232,7 @@ export default class Funcion extends Instruccion{
             }
             if (this.parametros[i].getTipo().getTipos()!= nSimbolo.getTipo().getTipos()){
                 var ex:Excepcion = new Excepcion("Semantico", "Los tipos de los parámetros no concuerdan.", this.parametros[i].linea, this.parametros[i].columna);
-                tree.getExcepciones().push(ex);
+                //tree.getExcepciones().push(ex);
                 return ex;                  
             }
         }
@@ -269,17 +271,23 @@ export default class Funcion extends Instruccion{
                 if (m instanceof BREAK){
                     //A nivel de método o función el break es error
                     var ex:Excepcion = new Excepcion("Semantico", "Error con Break fuera de ciclo o switch.", m.linea, m.columna);
-                    nArbol.getExcepciones().push(ex);
+                    //nArbol.getExcepciones().push(ex);
                     return ex;
                 }      
                 if (m instanceof CONTINUE){
                     //A nivel de método o función el continue es error
                     var ex:Excepcion = new Excepcion("Semantico", "Error con Continue fuera de Switch o ciclo", m.linea, m.columna);
-                    nArbol.getExcepciones().push(ex);
+                    //nArbol.getExcepciones().push(ex);
                     return ex;
                 }
                 if (m instanceof RETURN){
                     //Validar el tipo de retorno y si concuerda
+                    if (m.getRetorno()===null){
+                        //A nivel de método o función el continue es error
+                        var ex:Excepcion = new Excepcion("Semantico", "La función no retorna el tipo correcto", m.linea, m.columna);
+                        //nArbol.getExcepciones().push(ex);
+                        return ex;                        
+                    }
                     return true;
                 }    
             } 

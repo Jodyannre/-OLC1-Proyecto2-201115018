@@ -118,18 +118,19 @@ export default class IF extends Instruccion{
                             Errors.push(m);
                             nArbol.addError(m);
                             nArbol.updateConsola((<Excepcion>m).toString());
-                            let lista:Array<Instruccion>= nArbol.getInstrucciones(); //Buscar index de instrucciones con errores
-                            let index: number = lista.findIndex(lista => lista === m);
-                            if (index != -1) {
-                                instruccionesEliminar.push(index);
+                            //let lista:Array<Instruccion>= nArbol.getInstrucciones(); //Buscar index de instrucciones con errores
+                            //let index: number = lista.findIndex(lista => lista === m);
+                            //if (index != -1) {
+                            //    instruccionesEliminar.push(index);
                                 //ast.getInstrucciones().splice(index, 1);
-                            }
+                            //}
+                            continue;
                         }
                         var result = m.interpretar(nArbol, nTabla);
                         if(result instanceof Excepcion){ // ERRORES SEMÁNTICOS
-                            Errors.push(result);
-                            nArbol.addError(result);
-                            nArbol.updateConsola((<Excepcion>result).toString());
+                            //Errors.push(result);
+                            //nArbol.addError(result);
+                            //nArbol.updateConsola((<Excepcion>result).toString());
                             return result;
                         } 
                         if (result instanceof BREAK){
@@ -143,11 +144,13 @@ export default class IF extends Instruccion{
                         }    
                     }                         
                     let corrimiento:number = 0;
+                    /*
                     for (let index of instruccionesEliminar){
                         index -= corrimiento;
                         nArbol.getInstrucciones().splice(index, 1); //Eliminar instrucciones con errores
                         corrimiento++;
-                    }                   
+                    }     
+                    */              
                 }catch(err){
                     console.log(err);
                 }
@@ -186,18 +189,18 @@ export default class IF extends Instruccion{
                     return resultado.getValor(); //Devuelve el primitivo booleano
                 }else{ //No es booleana
                     var ex:Excepcion = new Excepcion("Semantico", "El tipo de la variable es incorrecto.", this.linea, this.columna);
-                    tree.getExcepciones().push(ex);
+                    //tree.getExcepciones().push(ex);
                     return ex; 
                 }
             }else{ //No existe
                 var ex:Excepcion = new Excepcion("Semantico", "La variable no existe", this.linea, this.columna);
-                tree.getExcepciones().push(ex);
+                //tree.getExcepciones().push(ex);
                 return ex; 
             }
 
         }else{ //No es relacional ni logica ni identificador
             var ex:Excepcion = new Excepcion("Semantico", "Condición con resultado no booleano.", this.linea, this.columna);
-            tree.getExcepciones().push(ex);
+            //tree.getExcepciones().push(ex);
             return ex;             
         }
     }

@@ -62,21 +62,24 @@ export default class ELSE extends Instruccion{
             for (let m of nArbol.getInstrucciones()){
                 m.setPasada(2);
                 if(m instanceof Excepcion){ // ERRORES SINTACTICOS
-                    Errors.push(m);
+                    //Errors.push(m);
                     nArbol.addError(m);
                     nArbol.updateConsola((<Excepcion>m).toString());
+                    /*
                     let lista:Array<Instruccion>= nArbol.getInstrucciones(); //Buscar index de instrucciones con errores
                     let index: number = lista.findIndex(lista => lista === m);
                     if (index != -1) {
                         instruccionesEliminar.push(index);
                         //ast.getInstrucciones().splice(index, 1);
-                    }
+                    }   
+                    */
+                   continue;
                 }
                 var result = m.interpretar(nArbol, nTabla);
                 if(result instanceof Excepcion){ // ERRORES SEMÁNTICOS
-                    Errors.push(result);
-                    nArbol.addError(result);
-                    nArbol.updateConsola((<Excepcion>result).toString());
+                    //Errors.push(result);
+                    //nArbol.addError(result);
+                    //nArbol.updateConsola((<Excepcion>result).toString());
                     return result;
                 }       
                 if (result instanceof CONTINUE){
@@ -88,13 +91,15 @@ export default class ELSE extends Instruccion{
                 if (result instanceof RETURN){
                     return result;
                 }                 
-            }                         
+            }          
+            /*               
             let corrimiento:number = 0;
             for (let index of instruccionesEliminar){
                 index -= corrimiento;
                 nArbol.getInstrucciones().splice(index, 1); //Eliminar instrucciones con errores
                 corrimiento++;
-            }                   
+            }     
+            */              
         }catch(err){
             console.log(err);
         }
