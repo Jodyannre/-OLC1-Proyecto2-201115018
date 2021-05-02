@@ -22,6 +22,8 @@ export default class Arbol {
         return this.siguientes;
     }
 
+    
+
     public addSiguiente(siguiente:Arbol){
         this.siguientes.push(siguiente);
     }

@@ -276,7 +276,7 @@ export default class Asignacion extends Instruccion{
             if (numero.getValor() > 2147483647 || numero.getValor() < -2147483647){
                 var ex:Excepcion = new Excepcion("Semántico", "Número fuera de límite", this.linea, this.columna);
                 //tree.getExcepciones().push(ex);
-                return ex;                        
+                //return ex;                        
             }
             variable.getValor().setValor(valorFinal.getValor());
             return variable.getValor();
@@ -298,11 +298,11 @@ export default class Asignacion extends Instruccion{
             if (numero.getValor() > 2147483647 || numero.getValor() < -2147483647){
                 var ex:Excepcion = new Excepcion("Semántico", "Número fuera de límite", this.linea, this.columna);
                 //tree.getExcepciones().push(ex);
-                return ex;                        
-            }else{
-                variable.getValor().setValor(valorFinal.getValor());
-                return variable.getValor();
+                //return ex;                        
             }
+            variable.getValor().setValor(valorFinal.getValor());
+            return variable.getValor();
+            
         }else{
             return true;
         }
@@ -316,7 +316,7 @@ export default class Asignacion extends Instruccion{
             if (numero.getValor() > 2147483647 || numero.getValor() < -2147483647){
                 var ex:Excepcion = new Excepcion("Semántico", "Número fuera de límite", this.linea, this.columna);
                 //tree.getExcepciones().push(ex);
-                return ex;                        
+                //return ex;                        
             }
             variableA.getValor().setValor(numero);
             return variableA.getValor();
@@ -337,10 +337,9 @@ export default class Asignacion extends Instruccion{
             if (numero.getValor() > 2147483647 || numero.getValor() < -2147483647){
                 var ex:Excepcion = new Excepcion("Semántico", "Número fuera de límite", this.linea, this.columna);
                 //tree.getExcepciones().push(ex);
-                return ex;                        
-            }else{
-                return numero;
+                //return ex;                        
             }
+            return numero;
         }else{
             return false;
         }        

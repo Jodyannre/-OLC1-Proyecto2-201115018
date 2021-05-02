@@ -6,7 +6,8 @@ export default class tablaSimbolos
     public tabla: Map<string, Simbolo>;
     private anterior: tablaSimbolos | any;
     private siguientes: Array<tablaSimbolos> | any;
-    private tipo: Tipo;
+    //private tipo: Tipo;
+    private nombreAmbito:any;
     private ambito:number;
     //private funciones: Array<Func>;
 
@@ -14,11 +15,22 @@ export default class tablaSimbolos
     {
         this.anterior = anterior;
         this.tabla = new Map<string, Simbolo>();
-        this.tipo = new Tipo(tipos.ENTERO);
+        //this.tipo = new Tipo(tipos.ENTERO);
         this.ambito = ambito;
         this.siguientes = new Array();
     }
 
+    public setNombre(nombre:any){
+        this.nombreAmbito = nombre;
+    }
+
+    public Length():number{
+        return this.siguientes.length;
+    }
+
+    public getNombre(){
+        return this.nombreAmbito;
+    }
     public setVariable(simbolo:Simbolo)
     {
         for(var e: tablaSimbolos = this; e != null; e = e.getAnterior())

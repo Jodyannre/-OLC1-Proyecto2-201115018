@@ -24,6 +24,14 @@ export abstract class Instruccion {
     abstract interpretar(arbol: Arbol, tabla: TablaSimbolos):any;
     // TODO graficar AST
 
+    public getFila(){
+        return this.linea;
+    }
+    
+    public getColumna(){
+        return this.columna;
+    }
+
     public getTipo():Tipo{
         return this.tipo;
     }

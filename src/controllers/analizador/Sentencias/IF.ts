@@ -107,7 +107,7 @@ export default class IF extends Instruccion{
                 let nTabla:tablaSimbolos = new tablaSimbolos(3,table);
                 table.addSiguiente(nTabla);
                 tree.addSiguiente(nArbol);
-                var instruccionesEliminar:number[] = [];
+                nTabla.setNombre(table.getNombre()+"\n"+"If");
                 if (this.instrucciones===null){
                     return true;
                 }

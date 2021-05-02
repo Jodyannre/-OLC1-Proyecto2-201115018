@@ -56,7 +56,7 @@ export default class ELSE extends Instruccion{
         let nTabla:tablaSimbolos = new tablaSimbolos(3,table);
         table.addSiguiente(nTabla);
         tree.addSiguiente(nArbol);
-        var instruccionesEliminar:number[] = [];
+        nTabla.setNombre(table.getNombre()+"\n"+"Else");
 
         try{
             for (let m of nArbol.getInstrucciones()){

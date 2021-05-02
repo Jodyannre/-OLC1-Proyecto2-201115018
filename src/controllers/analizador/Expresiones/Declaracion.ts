@@ -376,15 +376,30 @@ export default class Declaracion extends Instruccion{
                 let nuevoSimbolo = new Simbolo(new tipo.default(nTipo),this.id.getValor(),"");
                 table.setVariableNueva(nuevoSimbolo);
                 if (this.tipo.getTipos()===tipo.tipos.ENTERO){
-                    nuevoSimbolo.setValor(0);
+                    let nTipo = new Tipo(tipo.tipos.ENTERO);
+                    let nValor = 0;
+                    let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                    nuevoSimbolo.setValor(resultado);
                 }else if (this.tipo.getTipos()===tipo.tipos.CADENA){
-                    nuevoSimbolo.setValor("");
+                    let nTipo = new Tipo(tipo.tipos.CADENA);
+                    let nValor = "";
+                    let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                    nuevoSimbolo.setValor(resultado);
                 }else if (this.tipo.getTipos()===tipo.tipos.DECIMAL){
-                    nuevoSimbolo.setValor(parseFloat("0.0"));
+                    let nTipo = new Tipo(tipo.tipos.DECIMAL);
+                    let nValor = parseFloat("0.0");
+                    let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                    nuevoSimbolo.setValor(resultado);
                 }else if (this.tipo.getTipos()===tipo.tipos.BOOLEANO){
-                    nuevoSimbolo.setValor(true);
+                    let nTipo = new Tipo(tipo.tipos.BOOLEANO);
+                    let nValor = true;
+                    let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                    nuevoSimbolo.setValor(resultado);            
                 }else if (this.tipo.getTipos()===tipo.tipos.CARACTER){
-                    nuevoSimbolo.setValor('\u0000');
+                    let nTipo = new Tipo(tipo.tipos.CARACTER);
+                    let nValor = '\u0000';
+                    let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
+                    nuevoSimbolo.setValor(resultado);
                 }               
                 return true;
             }

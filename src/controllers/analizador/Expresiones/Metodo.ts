@@ -145,7 +145,8 @@ export default class Metodo extends Instruccion{
         let nTabla:tablaSimbolos = new tablaSimbolos(3,table);
         table.addSiguiente(nTabla);
         tree.addSiguiente(nArbol);
-
+        nTabla.setNombre("Método:"+"\n"+this.id.getValor());
+        
         //Crear variables con los valores de los parámetros
         if (this.parametros != null){
             this.crearVariablesParametros(nArbol,nTabla);
@@ -239,6 +240,8 @@ export default class Metodo extends Instruccion{
             }else if (nPrimitivo instanceof Identificador){
                 nPrimitivo = nPrimitivo.interpretar(tree,table);
                 nPrimitivo = nPrimitivo.getValor();
+            }else if (!(nPrimitivo instanceof Primitivo)){
+                nPrimitivo = nPrimitivo.interpretar(tree,table); //Get resultado en primitivo
             }
             nValor = nPrimitivo.interpretar(tree,table);
             nPrimitivo = new Primitivo(nTipo,nValor,linea,columna);

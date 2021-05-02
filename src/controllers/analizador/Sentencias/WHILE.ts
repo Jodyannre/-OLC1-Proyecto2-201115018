@@ -75,6 +75,7 @@ export default class WHILE extends Instruccion{
                 while (estadoCondicion.getValor() ===true){
                     let nTabla:tablaSimbolos = new tablaSimbolos(3,table);
                     table.addSiguiente(nTabla);
+                    nTabla.setNombre(table.getNombre()+"\n"+"While");
                     try{
                         for (let m of nArbol.getInstrucciones()){
                             if(m instanceof Excepcion){ // ERRORES SINTACTICOS
@@ -122,6 +123,7 @@ export default class WHILE extends Instruccion{
                 //Condición fue falsa y terminó el ciclo while
                 return true;
             }
+            return true;
     }
 
 

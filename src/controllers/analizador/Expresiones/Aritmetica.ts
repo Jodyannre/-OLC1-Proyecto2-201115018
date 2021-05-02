@@ -1011,6 +1011,8 @@ export default class Aritmetica extends Instruccion{
                         this.tipo = new Tipo(tipo.tipos.ENTERO);
                         let nTipo = new Tipo(tipo.tipos.ENTERO);
                         let resultado:Primitivo = new primitivo.default(nTipo,result,this.linea,this.columna);
+                        let simbolo = this.operandoDer.interpretar(tree,table); //Get símbolo
+                        simbolo.setValor(resultado);
                         return resultado                                
                     }
                     else if(this.operadorDerecho.tipo.getTipos() == tipo.tipos.DECIMAL)
@@ -1020,6 +1022,8 @@ export default class Aritmetica extends Instruccion{
                         this.tipo = new Tipo(tipo.tipos.DECIMAL);
                         let nTipo = new Tipo(tipo.tipos.DECIMAL);
                         let resultado:Primitivo = new primitivo.default(nTipo,result,this.linea,this.columna);
+                        let simbolo = this.operandoDer.interpretar(tree,table); //Get símbolo
+                        simbolo.setValor(resultado);
                         return resultado 
                     }
                     else if(this.operadorDerecho.tipo.getTipos() == tipo.tipos.IDENTIFICADOR)

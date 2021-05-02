@@ -100,6 +100,8 @@ export default class FOR extends Instruccion{
         tree.addSiguiente(nArbol);
 
         //Inicializar la variable del for
+        this.inicio.setAmbito(1);
+        this.inicio.setPasada(2);
         var inicializacion = this.inicio.interpretar(nArbol,nTabla);
 
         if (inicializacion instanceof Excepcion){
@@ -114,8 +116,10 @@ export default class FOR extends Instruccion{
             if (estadoCondicion.getValor()===true){
                 //Con instrucciones y condición true
 
-                while (estadoCondicion.getValor() ===true){
-
+                while (estadoCondicion.getValor() ===true){     
+                    let nTabla2:tablaSimbolos = new tablaSimbolos(3,nTabla);
+                    nTabla.addSiguiente(nTabla2);       
+                    nTabla.setNombre(table.getNombre()+"\n"+"For");   
                     try{
                         for (let m of nArbol.getInstrucciones()){
                             if(m instanceof Excepcion){ // ERRORES SINTACTICOS
@@ -128,7 +132,7 @@ export default class FOR extends Instruccion{
                                 break;
                             }
                             m.setPasada(2);
-                            var result = m.interpretar(nArbol, nTabla);
+                            var result = m.interpretar(nArbol, nTabla2);
                             if(result instanceof Excepcion){ // ERRORES SEMÁNTICOS
                                 //Errors.push(result);
                                 //nArbol.addError(result);

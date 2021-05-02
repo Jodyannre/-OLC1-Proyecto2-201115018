@@ -73,7 +73,7 @@ export default class CASE extends Instruccion{
         let nTabla:tablaSimbolos = new tablaSimbolos(3,table);
         table.addSiguiente(nTabla);
         tree.addSiguiente(nArbol);
-        
+        nTabla.setNombre(table.getNombre()+"\n"+"Switch");
         if (this.instrucciones != null){
             //Operar
             try{

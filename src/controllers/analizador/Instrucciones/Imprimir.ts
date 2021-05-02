@@ -7,6 +7,8 @@ import { nodoInstruccion } from "../Abstract/nodoInstruccion";
 import Identificador from "../Expresiones/Identificador";
 import Metodo from "../Expresiones/Metodo";
 import Exec from '../Instrucciones/Exec';
+import Primitivo from "../Expresiones/Primitivo";
+import {Consola} from '../Abstract/Consola';
 
 export default class Imprimir extends Instruccion{
     private expresion: any;
@@ -64,9 +66,15 @@ export default class Imprimir extends Instruccion{
 
         value = value.interpretar(tree, table); //Obtener valor final del primitivo
 
+        if (value instanceof Primitivo){
+            value = value.interpretar(tree,table);
+        }
+
         if(value instanceof Excepcion) return value;
 
-        tree.updateConsola(value+"");
+        //Get árbol global
+        let treeGlobal:Arbol = Consola.getArbol();    
+        treeGlobal.updateConsola(value+"");
         return true;
     }
 }

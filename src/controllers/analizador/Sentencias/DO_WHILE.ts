@@ -74,6 +74,7 @@ export default class WHILE extends Instruccion{
         let nTabla:tablaSimbolos = new tablaSimbolos(3,table);
         table.addSiguiente(nTabla);
         tree.addSiguiente(nArbol);
+        nTabla.setNombre(table.getNombre()+"\n"+"Do_while");
         try{
             for (let m of nArbol.getInstrucciones()){
                 if(m instanceof Excepcion){ // ERRORES SINTACTICOS
@@ -110,12 +111,14 @@ export default class WHILE extends Instruccion{
         if (estadoCondicion instanceof Excepcion){
             return estadoCondicion;
         }
-            if (estadoCondicion===true){
+            if (estadoCondicion.getValor()===true){
                 //Con instrucciones y condición true
                 //Crear nuevo enterno
 
-                while (estadoCondicion ===true){
-
+                while (estadoCondicion.getValor() ===true){
+                    let nTabla:tablaSimbolos = new tablaSimbolos(3,table);
+                    table.addSiguiente(nTabla);
+                    nTabla.setNombre(table.getNombre()+"\n"+"Do_while");
                     try{
                         for (let m of nArbol.getInstrucciones()){
                             if(m instanceof Excepcion){ // ERRORES SINTACTICOS

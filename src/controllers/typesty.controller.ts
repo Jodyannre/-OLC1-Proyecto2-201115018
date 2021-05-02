@@ -10,8 +10,13 @@ import Funcion from "./analizador/Expresiones/Funcion";
 import Metodo from "./analizador/Expresiones/Metodo";
 import llamadaFuncion from './analizador/Instrucciones/llamadaFuncion';
 import Exec from './analizador/Instrucciones/Exec';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable'
+import 'jspdf-autotable'
+const doc = new jsPDF();
 const { exec } = require("child_process");
 var Errors:Array<Excepcion> = new Array<Excepcion>();
+var fs = require('fs');
 
 class typestyController{
     private static contadorEstados:number = 0;
@@ -33,6 +38,7 @@ class typestyController{
             Consola.setArbol(ast);
             var tabla = new tablaSimbolos(0);
             ast.setGlobal(tabla);
+            tabla.setNombre("-");
 
             for(let m of ast.getInstrucciones()){
                 if (m instanceof Asignacion){
@@ -75,11 +81,10 @@ class typestyController{
             }
             instruccionesEliminar = [];
             for(let m of ast.getInstrucciones()){
-                m.setPasada(1);
+                
                 if (m instanceof llamadaFuncion){
                     continue;
-                }
-                var result = m.interpretar(ast, tabla);
+                }   
                 if(result instanceof Excepcion){ // ERRORES SEMÁNTICOS
                     //Errors.push(result);
                     ast.addError(result);
@@ -91,6 +96,8 @@ class typestyController{
                         //ast.getInstrucciones().splice(index, 1);
                     }
                 }
+                m.setPasada(1);
+                var result = m.interpretar(ast, tabla);
             }
             corrimiento = 0;
             for (let index of instruccionesEliminar){
@@ -142,6 +149,25 @@ class typestyController{
             nodoInicial = nodoIns;
 
             typestyController.graficarAST(nodoInicial);
+
+            /////////////////////////////////////////////////////
+            try{
+                fs.unlinkSync('./dist/public/images/tablaSimbolos.pdf');
+            }catch(err){
+                console.log(err);
+            }
+            
+            const head = [['ID', 'Tipo', 'Tipo', 'Entorno','Linea','Columna']]
+            const data = Consola.generarTablaSimbolos();
+            autoTable(doc, {
+                head: head,
+                body: data,
+                didDrawCell: (data) => {
+                  //console.log(data.column.index)
+                },
+              })
+            doc.save('./dist/public/images/tablaSimbolos.pdf')
+            /////////////////////////////////////////////////////
             //console.log(ast.getConsola());
 
             
@@ -224,4 +250,6 @@ class typestyController{
 }   
 
 export const controller = new typestyController();
+
+
 

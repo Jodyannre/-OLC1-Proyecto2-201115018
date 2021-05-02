@@ -117,7 +117,7 @@
 /*-------------------------------------------*/
 
 /*--------------------identificadores---------------------*/
-[a-z]([a-z]|[0-9])*     				return 'ID';
+[a-z]([a-z]|[0-9]|"_")*     			return 'ID';
 [0-9]+("."[0-9]+)\b    					return 'DECIMAL';
 [0-9]+\b    							return 'ENTERO';
 /*--------------------------------------------------------*/
@@ -125,7 +125,7 @@
 
 <<EOF>>                 return 'EOF';
 
-.                       { console.error('Este es un error léxico: ' + yytext + ', en la linea: ' + yylloc.first_line + ', en la columna: ' + yylloc.first_column); }
+.                       { return 'EXCEPCION' }
 /lex
 
 
@@ -408,6 +408,13 @@ instruccion_local_metodo
 		var nReturn = new RETURN.default(nTipo,@1.first_line, @1.first_column,null);
 		$$ = nReturn;		
 	}
+	| EXCEPCION {
+		$$ = new Excepcion.default("Error léxico", "El elemento no pertenece al lenguaje.", @1.first_line, @1.first_column);
+	}
+	| error PUNTOCOMA
+	{
+		$$ = new Excepcion.default("Error Sintáctico", "El elemento no cumple con las reglas sintácticas.", @1.first_line, @1.first_column);
+	}	
 ;
 
 instruccion_global 
@@ -422,6 +429,13 @@ instruccion_global
 	//| declaracion_funcion_metodo 	{$$ = $1}
 	| aritmetico_unario				{$$ = $1}
 	| llamada_metodo_funcion 		{$$ = $1}
+	| EXCEPCION {
+		$$ = new Excepcion.default("Error léxico", "El elemento no pertenece al lenguaje.", @1.first_line, @1.first_column);
+	}
+	| error PUNTOCOMA
+	{
+		$$ = new Excepcion.default("Error Sintáctico", "El elemento no cumple con las reglas sintácticas.", @1.first_line, @1.first_column);
+	}	
 ;
 
 creacion_variable
@@ -447,7 +461,7 @@ asignacion_variable
 		$$ = asignacion;
 	}
 	| acceso_lista asignacion_valor_variable 	{$$ = $1+' '+$2}
-	| acceso_vector asignacion_valor_variable 	{$$ = $1+' '+$2}
+	| acceso_vector asignacion_valor_variable 	{$$ = $1+' '+$2}	
 ;
 
 asignacion_valor_variable
@@ -532,8 +546,8 @@ ciclo_for
 ;
 
 ciclo_for_variable
-	: creacion_variable 	{$$ = $1}
-	| asignacion_variable 	{$$ = $1}
+	: creacion_variable 	{$$ = $1;}
+	| asignacion_variable 	{$$ = $1;}
 ;
 
 ciclo_for_incremento
@@ -547,7 +561,7 @@ ciclo_for_incremento
 		var id = new Identificador.default(new Tipo.default(Tipo.tipos.IDENTIFICADOR),$1,@1.first_line, @1.first_column);
 		$$ = new Aritmetica.default(id,new Tipo.default(Tipo.tipos.INCREMENTO),@1.first_line, @1.first_column); 
 	}
-	| asignacion_variable {$$ = $1}	
+	| ID ASIGNACION condicion_logica {$$ = $3;}	
 ;
 
 
@@ -783,6 +797,14 @@ elementos_coma
 	{
 		$$ = [$1];
 	}
+	| llamada_metodo_funcion
+	{
+		$$ = [$1];
+	}
+	| metodos_nativos
+	{
+		$$ = [$1];
+	}
 ;
 
 acceso_vector
@@ -908,6 +930,6 @@ llamada_metodo_funcion
 	{ 
 		var print = new Imprimir.default($4, @1.first_line, @1.first_column); 
 		$$ = new Exec.default(new Tipo.default(Tipo.tipos.EXEC),@1.first_line, @1.first_column,print);
-	}
+	}	
 ;
 /*LLAMADAS A METODO Y FUNCIONES INCLUYENDO EXEC Y PRINT---------------------*/
