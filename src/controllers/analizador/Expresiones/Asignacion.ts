@@ -73,6 +73,8 @@ export default class Asignacion extends Instruccion{
         let esTipo3 = tipoI >=31 && tipoI<=38//Métodos nativos
         let esTipo4 = tipoI === 66//Otros métodos
         let esTipo5 = tipoI === 69; // Ternario
+        let esTipo6 = (tipoI === 70 || tipoI === 71); //Es vector o lista
+        let esTipo7 = (tipoI === 72 || tipoI === 73); //Es add lista o add vector
         var resultTipo;
         if (esTipo1){
             var simbolo = this.id.interpretar(tree,table);
@@ -132,7 +134,10 @@ export default class Asignacion extends Instruccion{
                             nuevoValor = this.instruccion.interpretar(tree,table);
                         }             
                     }
+                    nuevoValor.linea = this.linea;
+                    nuevoValor.columna = this.columna;
                     simbolo.setValor(nuevoValor);
+                    return true;
                 }else{
                     //Tipos diferentes
                     var ex:Excepcion = new Excepcion("Semántico", "Los tipos no coinciden.", this.linea, this.columna);
@@ -159,6 +164,7 @@ export default class Asignacion extends Instruccion{
                 simboloValor = this.instruccion.interpretar(tree,table);
                 if (simboloAgregar.getTipo().getTipos()=== simboloValor.getTipo().getTipos()){
                     simboloAgregar.setValor(simboloValor.getValor());
+                    return true;
                 }else{
                     var ex:Excepcion = new Excepcion("Semántico", "Los tipos no coinciden.", this.linea, this.columna);
                     //tree.getExcepciones().push(ex);
@@ -198,6 +204,8 @@ export default class Asignacion extends Instruccion{
                         nuevoValor = this.instruccion.interpretar(tree,table);
                     }
                     simbolo.setValor(nuevoValor);
+                    nuevoValor.linea = this.linea;
+                    nuevoValor.columna = this.columna;
                     return nuevoValor;
                 }else{
                     //Tipos diferentes
@@ -231,7 +239,10 @@ export default class Asignacion extends Instruccion{
                     //tree.addError(ex);
                     return ex;                    
                 }
+                result.linea = this.linea;
+                result.columna = this.columna;
                 simbolo.setValor(result);
+                return true;
             }else{
                 var ex:Excepcion = new Excepcion("Semántico", "La variable no existe", this.linea, this.columna);
                 //tree.addError(ex);
@@ -252,13 +263,63 @@ export default class Asignacion extends Instruccion{
                     //tree.addError(ex);
                     return ex;                    
                 }
+                result.linea = this.linea;
+                result.columna = this.columna;
                 simbolo.setValor(result);
+                return true;
             }else{
                 var ex:Excepcion = new Excepcion("Semántico", "La variable no existe", this.linea, this.columna);
                 //tree.addError(ex);
                 return ex;
             }
 
+        }else if (esTipo6){
+            var simbolo = this.id.interpretar(tree,table);
+            if (simbolo != null){
+                this.instruccion.setPasada(1);
+                let result = this.instruccion.interpretar(tree,table);
+                if (result instanceof Excepcion){
+                    return result;
+                }
+                if (simbolo.getTipo().getTipos()!= result.getTipo().getTipos()){
+                    var ex:Excepcion = new Excepcion("Semántico", "Los tipos no coinciden", this.linea, this.columna);
+                    //tree.addError(ex);
+                    return ex;                    
+                }
+                result.linea = this.linea;
+                result.columna = this.columna;
+                simbolo.setValor(result);
+                return true;
+            }else{
+                var ex:Excepcion = new Excepcion("Semántico", "La variable no existe", this.linea, this.columna);
+                //tree.addError(ex);
+                return ex;
+            }
+        }else if (esTipo7){
+            var simbolo = this.id.interpretar(tree,table);
+            if (simbolo != null){
+                this.instruccion.setPasada(1);
+                let result = this.instruccion.interpretar(tree,table);
+                if (result instanceof Excepcion){
+                    return result;
+                }
+                if (result instanceof Excepcion){
+                    return result;
+                    /*
+                    var ex:Excepcion = new Excepcion("Semántico", "Los tipos no coinciden", this.linea, this.columna);
+                    //tree.addError(ex);
+                    return ex;      
+                    */              
+                }
+                //result.linea = this.linea;
+                //result.columna = this.columna;
+                //simbolo.setValor(result);
+                return true;
+            }else{
+                var ex:Excepcion = new Excepcion("Semántico", "La variable no existe", this.linea, this.columna);
+                //tree.addError(ex);
+                return ex;
+            }            
         }
         return true;
     }

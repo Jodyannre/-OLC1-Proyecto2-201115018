@@ -158,6 +158,7 @@
 	const Casteo = require('../Instrucciones/Casteo');
 	const Exec = require('../Instrucciones/Exec');
 	const llamadaFuncion = require('../Instrucciones/llamadaFuncion');
+	const llamadaArray = require('../Instrucciones/llamadaArray');
 	const Asignacion = require('../Expresiones/Asignacion');
 	const Agrupacion = require('../Expresiones/Agrupacion');
 	const IF = require('../Sentencias/IF');
@@ -290,8 +291,8 @@ expresion
 	| CADENA { $$ = new Primitivo.default( new Tipo.default(Tipo.tipos.CADENA),$1, @1.first_line, @1.first_column); }
 	| CARACTER { $$ = new Primitivo.default( new Tipo.default(Tipo.tipos.CARACTER),$1, @1.first_line, @1.first_column); }
 	| ID {$$ = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$1, @1.first_line, @1.first_column); }
-	| acceso_vector {$$ = $1+' '}
-	| acceso_lista {$$ = $1+' '}
+	| acceso_vector {$$ = $1}
+	| acceso_lista {$$ = $1}
 ; 
 /*GRAMATICA OPERACIONES LÓGICAS Y ARITMÉTICAS-------------------------------*/
 
@@ -460,8 +461,8 @@ asignacion_variable
 		var asignacion = crearAsignacion(id,@1.first_line, @1.first_column,$2);
 		$$ = asignacion;
 	}
-	| acceso_lista asignacion_valor_variable 	{$$ = $1+' '+$2}
-	| acceso_vector asignacion_valor_variable 	{$$ = $1+' '+$2}	
+	//| acceso_lista asignacion_valor_variable 	{$$ = $1+' '+$2}
+	//| acceso_vector asignacion_valor_variable 	{$$ = $1+' '+$2}	
 ;
 
 asignacion_valor_variable
@@ -510,12 +511,6 @@ asignacion_valor_variable
 		$$ = $2;
 	}
 ;
-
-asignacion_valor_vector
-	: ASIGNACION NEW asignacion_tipo CORCHETE_A ENTERO CORCHETE_C PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7}
-	| ASIGNACION LLAVE_A elementos_coma LLAVE_C PUNTOCOMA 					{$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5}
-;
-
 
 asignacion_tipo
 	: INT 		{$$ = new Tipo.default(Tipo.tipos.ENTERO); }	
@@ -784,12 +779,33 @@ manejo_vector_lista
 		var asignacion = crearAsignacion(id,@1.first_line, @1.first_column,$7);
 		$$ = new Declaracion.default(id,new Tipo.default(Tipo.tipos.LISTA),@1.first_line, @1.first_column,asignacion,l);
 	}
-	| ID PUNTO ADD PARENTESIS_A expresion PARENTESIS_C PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6+' '+$7}
-	//| acceso_lista ASIGNACION operacion_aritmetica PUNTOCOMA {$$ = $1+' '+$2+' '+$3+' '+$4}
+	| ID PUNTO ADD PARENTESIS_A condicion_logica PARENTESIS_C PUNTOCOMA 
+	{
+		var id = new Identificador.default(new Tipo.default(Tipo.tipos.IDENTIFICADOR),$1,@1.first_line, @1.first_column);
+		var inst  = new llamadaArray.default(new Tipo.default(Tipo.tipos.ADD_LISTA),id,entero,$5,@1.first_line, @1.first_column);
+		var asignacion = crearAsignacion(id,@1.first_line, @1.first_column,inst);
+		$$ = asignacion;
+	}
+	| ID CORCHETE_A ENTERO CORCHETE_C ASIGNACION condicion_logica PUNTOCOMA
+	{
+		var id = new Identificador.default(new Tipo.default(Tipo.tipos.IDENTIFICADOR),$1,@1.first_line, @1.first_column);
+		var entero = new Primitivo.default( new Tipo.default(Tipo.tipos.ENTERO),parseInt($3,10), @1.first_line, @1.first_column);
+		var inst = new llamadaArray.default(new Tipo.default(Tipo.tipos.ADD_VECTOR),id,entero,$6,@1.first_line, @1.first_column);
+		var asignacion = crearAsignacion(id,@1.first_line, @1.first_column,inst);
+		$$ = asignacion;
+	}
 ;
 
 elementos_coma
 	: elementos_coma COMA condicion_logica	
+	{
+		$1.push($3);
+	}
+	| elementos_coma COMA llamada_metodo_funcion	
+	{
+		$1.push($3);
+	}
+	| elementos_coma COMA metodos_nativos	
 	{
 		$1.push($3);
 	}
@@ -808,11 +824,21 @@ elementos_coma
 ;
 
 acceso_vector
-	: ID CORCHETE_A ENTERO CORCHETE_C {$$ = $1+' '+$2+' '+$3+' '+$4}
+	: ID CORCHETE_A ENTERO CORCHETE_C 
+	{
+		var id = new Identificador.default(new Tipo.default(Tipo.tipos.IDENTIFICADOR),$1,@1.first_line, @1.first_column);
+		var entero = new Primitivo.default( new Tipo.default(Tipo.tipos.ENTERO),parseInt($3,10), @1.first_line, @1.first_column);
+		$$ = new llamadaArray.default(new Tipo.default(Tipo.tipos.LLAMADA_VECTOR),id,entero,null,@1.first_line, @1.first_column);
+	}
 ;
 
 acceso_lista
-	: ID CORCHETE_A CORCHETE_A ENTERO CORCHETE_C CORCHETE_C {$$ = $1+' '+$2+' '+$3+' '+$4+' '+$5+' '+$6}
+	: ID CORCHETE_A CORCHETE_A ENTERO CORCHETE_C CORCHETE_C 
+	{
+		var id = new Identificador.default(new Tipo.default(Tipo.tipos.IDENTIFICADOR),$1,@1.first_line, @1.first_column);
+		var entero = new Primitivo.default( new Tipo.default(Tipo.tipos.ENTERO),parseInt($4,10), @1.first_line, @1.first_column);
+		$$ = new llamadaArray.default(new Tipo.default(Tipo.tipos.LLAMADA_LISTA),id,entero,null,@1.first_line, @1.first_column);
+	}
 ;
 /*MANEJO DE LISTAS Y VECTORES-----------------------------------------------*/
 
@@ -821,45 +847,45 @@ acceso_lista
 declaracion_funcion_metodo
 	: asignacion_tipo ID PARENTESIS_A definicion_parametros PARENTESIS_C LLAVE_A /*instrucciones*/ LLAVE_C 
 	{
-		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @2.first_line, @2.first_column);
+		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @1.first_line, @1.first_column);
 		$$ = new Funcion.default($1,nId,$4,null,@1.first_line, @1.first_column);
 	}
 	| asignacion_tipo ID PARENTESIS_A definicion_parametros PARENTESIS_C LLAVE_A instrucciones_locales_metodo LLAVE_C 
 	{
-		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @2.first_line, @2.first_column);
+		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @1.first_line, @1.first_column);
 		$$ = new Funcion.default($1,nId,$4,$7,@1.first_line, @1.first_column);
 	}
 	| asignacion_tipo ID PARENTESIS_A PARENTESIS_C LLAVE_A /*instrucciones*/ LLAVE_C 
 	{
-		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @2.first_line, @2.first_column);
+		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @1.first_line, @1.first_column);
 		$$ = new Funcion.default($1,nId,null,null,@1.first_line, @1.first_column);
 	}
 	| asignacion_tipo ID PARENTESIS_A PARENTESIS_C LLAVE_A instrucciones_locales_metodo LLAVE_C 
 	{
-		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @2.first_line, @2.first_column);
+		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @1.first_line, @1.first_column);
 		$$ = new Funcion.default($1,nId,null,$6,@1.first_line, @1.first_column);
 	}
 	| VOID ID PARENTESIS_A definicion_parametros PARENTESIS_C LLAVE_A /*instrucciones*/ LLAVE_C 
 	{
-		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @2.first_line, @2.first_column);
+		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @1.first_line, @1.first_column);
 		var nTipo = new Tipo.default(Tipo.tipos.VOID);
 		$$ = new Metodo.default(nTipo,nId,$4,null,@1.first_line, @1.first_column);		
 	}
 	| VOID ID PARENTESIS_A definicion_parametros PARENTESIS_C LLAVE_A instrucciones_locales_metodo LLAVE_C 
 	{
-		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @2.first_line, @2.first_column);
+		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @1.first_line, @1.first_column);
 		var nTipo = new Tipo.default(Tipo.tipos.VOID);
 		$$ = new Metodo.default(nTipo,nId,$4,$7,@1.first_line, @1.first_column);	
 	}
 	| VOID ID PARENTESIS_A PARENTESIS_C LLAVE_A /*instrucciones*/ LLAVE_C 
 	{
-		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @2.first_line, @2.first_column);
+		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @1.first_line, @1.first_column);
 		var nTipo = new Tipo.default(Tipo.tipos.VOID);
 		$$ = new Metodo.default(nTipo,nId,null,null,@1.first_line, @1.first_column);
 	}
 	| VOID ID PARENTESIS_A PARENTESIS_C LLAVE_A instrucciones_locales_metodo LLAVE_C 
 	{
-		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @2.first_line, @2.first_column);
+		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @1.first_line, @1.first_column);
 		var nTipo = new Tipo.default(Tipo.tipos.VOID);
 		$$ = new Metodo.default(nTipo,nId,null,$6,@1.first_line, @1.first_column);
 	}
@@ -882,7 +908,7 @@ parametro
 	: asignacion_tipo ID
 	{
 		let ntipo = new Tipo.default(Tipo.tipos.PARAMETRO);
-		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @2.first_line, @2.first_column);
+		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$2, @1.first_line, @1.first_column);
 		let nParametro = new Parametro.default(ntipo,@1.first_line, @1.first_column,$1,nId);
 		$$ = nParametro;
 		

@@ -4,6 +4,7 @@ import tablaSimbolos from "../tablaSimbolos/tablaSimbolos";
 import Tipo from "../tablaSimbolos/Tipo";
 import { nodoInstruccion } from "../Abstract/nodoInstruccion";
 import Identificador from "./Identificador";
+import Excepcion from "../Excepciones/Excepcion";
 const tipo = require('../tablaSimbolos/Tipo');
 const Primitivo = require('../Expresiones/Primitivo');
 
@@ -31,9 +32,29 @@ export default class Lista extends Instruccion{
         this.valor = valor;
     }
 
-    public add(valor:any){
+    public get(pos:number):any{
+        let index = this.valor.indexOf(pos);   
+        if (index ===-1){
+            var ex:Excepcion = new Excepcion("Error semántico", "Esa posición no existe en la lista.", this.linea, this.columna);
+            return ex;
+        }
+        return this.valor[pos];
+    }
+
+    public delete(pos:number):any{
+        let index = this.valor.indexOf(pos);   
+        if (index ===-1){
+            var ex:Excepcion = new Excepcion("Error semántico", "Esa posición no existe en la lista.", this.linea, this.columna);
+            return ex;
+        }
+        this.valor.splice(pos,1);
+        return true;
+    }
+
+    public add(valor:any):any{
         this.valor.push(valor);
         this.count();
+        return true;
     }
 
     public getSize():number{

@@ -72,7 +72,7 @@ export default class ToCharArray extends Instruccion{
     public getListaDesdeCadena(cadena:string){
         let nTipo = new tipo.default(tipo.tipos.CARACTER);
         let nId = new Identificador.default(new tipo.default(tipo.tipos.IDENTIFICADOR),"",0,0);
-        let nuevaLista = new lista.default(nTipo,0,0,nId,nTipo);
+        let nuevaLista = new lista.default(nTipo,this.linea,this.columna,nId,nTipo);
         for (let elemento of cadena){
             nuevaLista.add(elemento);
         }

@@ -145,7 +145,7 @@ export default class Declaracion extends Instruccion{
                     //tree.getExcepciones().push(ex);
                     return ex;                        
                 }            
-                nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.VECTOR),this.id.getValor(),null);
+                nuevoSimbolo = new Simbolo(new tipo.default(tipoA.getTipos()),this.id.getValor(),null);
             }else if (this.tipo.getTipos()===tipo.tipos.LISTA){
                 if (this.valor2 != null){ //Si viene tocharArray
                     let list:Lista = this.valor2; 
@@ -159,7 +159,7 @@ export default class Declaracion extends Instruccion{
                     }
                     //let listaNull:Lista = new lista.default(tipoA,0,0,id,tipoCreacion);
                     //listaNull.setValor(null);            
-                    nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.LISTA),id.getValor(),null);
+                    nuevoSimbolo = new Simbolo(new tipo.default(tipoA.getTipos()),id.getValor(),null);
                 }else{ //Solo viene asignación normal de lista
                     let list:Lista = this.valor; 
                     let id = list.getId();
@@ -172,7 +172,7 @@ export default class Declaracion extends Instruccion{
                     }
                     //let listaNull:Lista = new lista.default(tipoA,0,0,id,tipoCreacion);
                     //listaNull.setValor(null);            
-                    nuevoSimbolo = new Simbolo(new tipo.default(tipo.tipos.LISTA),id.getValor(),null);                    
+                    nuevoSimbolo = new Simbolo(new tipo.default(tipoA.getTipos()),id.getValor(),null);                    
                 }
 
             }
@@ -190,7 +190,9 @@ export default class Declaracion extends Instruccion{
                     &&this.valor.getTipo().getTipos()  != tipo.tipos.TO_STRING
                     &&this.valor.getTipo().getTipos()  != tipo.tipos.TO_CHAR_ARRAY
                     &&this.valor.getTipo().getTipos()  != tipo.tipos.TYPEOF
-                    &&this.valor.getTipo().getTipos()  != tipo.tipos.TERNARIO){
+                    &&this.valor.getTipo().getTipos()  != tipo.tipos.TERNARIO
+                    &&this.valor.getTipo().getTipos()  != tipo.tipos.LLAMADA_LISTA
+                    &&this.valor.getTipo().getTipos()  != tipo.tipos.LLAMADA_VECTOR){
                     //valorFinal = this.valor.interpretar(tree,table);                         
                     var verificarTipo = this.verificacionTipos(this.valor,tree, table);
                     if (verificarTipo instanceof Excepcion){
@@ -208,8 +210,12 @@ export default class Declaracion extends Instruccion{
                         ||this.valor.getTipo().getTipos() === tipo.tipos.TO_STRING
                         ||this.valor.getTipo().getTipos() === tipo.tipos.TO_CHAR_ARRAY
                         ||this.valor.getTipo().getTipos() === tipo.tipos.TYPEOF
-                        ||this.valor.getTipo().getTipos() === tipo.tipos.TERNARIO){
+                        ||this.valor.getTipo().getTipos() === tipo.tipos.TERNARIO
+                        ||this.valor.getTipo().getTipos() === tipo.tipos.LLAMADA_LISTA
+                        ||this.valor.getTipo().getTipos() === tipo.tipos.LLAMADA_VECTOR){
                     this.asignacion.setPasada(1);
+                    this.asignacion.linea = this.linea;
+                    this.asignacion.columna = this.columna;
                     return this.asignacion.interpretar(tree,table);
                 }
             }else{
@@ -258,7 +264,9 @@ export default class Declaracion extends Instruccion{
                     &&this.valor.getTipo().getTipos()  != tipo.tipos.TO_STRING
                     &&this.valor.getTipo().getTipos()  != tipo.tipos.TO_CHAR_ARRAY
                     &&this.valor.getTipo().getTipos()  != tipo.tipos.TYPEOF
-                    &&this.valor.getTipo().getTipos()  != tipo.tipos.TERNARIO){
+                    &&this.valor.getTipo().getTipos()  != tipo.tipos.TERNARIO
+                    &&this.valor.getTipo().getTipos()  != tipo.tipos.LLAMADA_LISTA
+                    &&this.valor.getTipo().getTipos()  != tipo.tipos.LLAMADA_VECTOR){
                     //valorFinal = this.valor.interpretar(tree,table);                         
                     var verificarTipo = this.verificacionTipos(this.valor,tree, table);
                     if (verificarTipo instanceof Excepcion){
@@ -267,6 +275,8 @@ export default class Declaracion extends Instruccion{
                     }else{
                         let nTipo = verificarTipo.getTipo().getTipos();
                         let nuevoSimbolo = new Simbolo(new tipo.default(nTipo),this.id.getValor(),verificarTipo);
+                        verificarTipo.linea = this.linea;
+                        verificarTipo.columna = this.columna;
                         table.setVariableNueva(nuevoSimbolo);
                         //Si la verificación de tipos esta bien entonces asigna el valor
                         //let simbolo:any = table.tabla.get(this.id.getValor()); //Get el símbolo de la tabla
@@ -279,7 +289,9 @@ export default class Declaracion extends Instruccion{
                         ||this.valor.getTipo().getTipos() === tipo.tipos.TO_STRING
                         ||this.valor.getTipo().getTipos() === tipo.tipos.TO_CHAR_ARRAY
                         ||this.valor.getTipo().getTipos() === tipo.tipos.TYPEOF
-                        ||this.valor.getTipo().getTipos() === tipo.tipos.TERNARIO){
+                        ||this.valor.getTipo().getTipos() === tipo.tipos.TERNARIO
+                        ||this.valor.getTipo().getTipos() === tipo.tipos.LLAMADA_LISTA
+                        ||this.valor.getTipo().getTipos() === tipo.tipos.LLAMADA_VECTOR){
                     //Crear símbolo
                  
                     let nuevoSimbolo:any;
@@ -354,8 +366,11 @@ export default class Declaracion extends Instruccion{
                         table.tabla.delete(this.id.getValor()); //La elimino de la tabla de símbolos
                         return verificarTipo; //Retorno el error
                     }else{
-                        let nTipo = this.getNuevoTipo(verificarTipo);
+                        //let nTipo = this.getNuevoTipo(verificarTipo);
+                        let nTipo = verificarTipo.getTipo().getTipos();
                         let nuevoSimbolo = new Simbolo(new tipo.default(nTipo),this.id.getValor(),verificarTipo);
+                        verificarTipo.linea = this.linea;
+                        verificarTipo.columna = this.columna;
                         table.setVariableNueva(nuevoSimbolo);
                         //Si la verificación de tipos esta bien entonces asigna el valor
                         //let simbolo:any = table.tabla.get(this.id.getValor()); //Get el símbolo de la tabla
@@ -438,6 +453,7 @@ export default class Declaracion extends Instruccion{
                 //tree.getExcepciones().push(ex);
                 return ex;                 
             }else{
+                /*
                 let copiarLista:Array<any> = new Array();
                 var valor;
                 var size = this.valor.getSize();
@@ -453,9 +469,10 @@ export default class Declaracion extends Instruccion{
                 }else{
                     copiaVector = new vector.default(Tipo,0,0,id,size,Tipo,null);
                 }        
+                */
                 
                 //this.valor 
-                return copiaVector;
+                return this.valor;
             }
         }else if (this.valor instanceof Lista){
             if (this.valor.getTipo().getTipos()!= this.valor.getTipoCreacion().getTipos()){

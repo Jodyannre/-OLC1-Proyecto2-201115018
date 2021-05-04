@@ -4,6 +4,7 @@ import tablaSimbolos from "../tablaSimbolos/tablaSimbolos";
 import Tipo from "../tablaSimbolos/Tipo";
 import { nodoInstruccion } from "../Abstract/nodoInstruccion";
 import Identificador from "./Identificador";
+import Excepcion from "../Excepciones/Excepcion";
 const tipo = require('../tablaSimbolos/Tipo');
 const Primitivo = require('../Expresiones/Primitivo');
 
@@ -21,15 +22,14 @@ export default class Vector extends Instruccion{
         this.tipoCreacion = tipoCreacion;
         this.size = size;
         if (valor!=null){
-            this.valor = new Array();
+            this.valor = new Array<any>();
             while (valor.length>0){
-                this.valor.push(valor.pop());
+                this.valor.unshift(valor.pop());
             }
             //this.valor = valor;   
             this.size = this.valor.length;      
         }else{  
-            var array = new Array(size);           
-            this.valor = array;
+            this.valor = new Array<any>();           
         }
     }
 
@@ -41,13 +41,35 @@ export default class Vector extends Instruccion{
         this.valor = valor;
     }
 
-    public add(valor:any,posicion:number){
+    public add(valor:any,posicion:number):any{
         if (posicion < this.size){
             this.valor[posicion]=valor;
         }else{
             //Error no se puede agregar
+            var ex:Excepcion = new Excepcion("Error semántico", "Posición fuera del límite del vector.", this.linea, this.columna);
+            return ex;
         }
+        return true;
+    }
 
+    public get(pos:number):any{
+        let index = pos < this.size;   
+        if (index===false){
+            var ex:Excepcion = new Excepcion("Error semántico", "Esa posición no existe en la lista.", this.linea, this.columna);
+            return ex;
+        }
+        return this.valor[pos];
+    }
+
+    
+    public delete(pos:number):any{
+        let index = this.valor.indexOf(pos);   
+        if (index ===-1){
+            var ex:Excepcion = new Excepcion("Error semántico", "Esa posición no existe en la lista.", this.linea, this.columna);
+            return ex;
+        }
+        this.valor[pos]===null;
+        return true;
     }
 
     public getSize():number{
@@ -76,7 +98,7 @@ export default class Vector extends Instruccion{
 
     public getNodoInstruccion():nodoInstruccion{
         let nodo:nodoInstruccion = new nodoInstruccion("VECTOR");
-
+        let nodo2:nodoInstruccion = new nodoInstruccion("ELEMENTOS");
         nodo.agregarHijoNodo(this.tipo.getNodoInstruccion());
         nodo.agregarHijoCadena("[");
         nodo.agregarHijoCadena("]");
@@ -88,12 +110,13 @@ export default class Vector extends Instruccion{
             //nodo.agregarHijoCadena("valor");
             let contador = this.getSize()-1;
             for (let elemento of this.valor){
-                nodo.agregarHijoNodo(elemento.getNodoInstruccion());
+                nodo2.agregarHijoNodo(elemento.getNodoInstruccion());
                 if (contador > 0){
-                    nodo.agregarHijoCadena(",");
+                    nodo2.agregarHijoCadena(",");
                 }
                 contador--;
             }
+            nodo.agregarHijoNodo(nodo2);
             nodo.agregarHijoCadena("}");
             nodo.agregarHijoCadena(";");
         }else{

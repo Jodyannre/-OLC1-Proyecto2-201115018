@@ -69,10 +69,10 @@ export class Consola {
 
     public static generarTablaSimbolosSiguientes(actual:tablaSimbolos,array:Array<any>){
         let size = actual.Length();
+        this.rellenarArray(actual,array);
         if (size===0){
             return;
         }
-        this.rellenarArray(actual,array);
         for (let siguiente of actual.getSiguientes()){
             this.generarTablaSimbolosSiguientes(siguiente,array);
         }

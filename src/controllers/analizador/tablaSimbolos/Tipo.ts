@@ -89,5 +89,9 @@ export enum tipos
     LLAMADA_FUNCION = 66,
     VOID = 67,
     EXEC = 68,
-    TERNARIO = 69
+    TERNARIO = 69,
+    LLAMADA_LISTA = 70,
+    LLAMADA_VECTOR = 71,
+    ADD_LISTA = 72,
+    ADD_VECTOR = 73
 }
