@@ -5,6 +5,9 @@ import tablaSimbolos from "../tablaSimbolos/tablaSimbolos";
 import Tipo, { tipos } from "../tablaSimbolos/Tipo";
 import Primitivo from "../Expresiones/Primitivo";
 import { nodoInstruccion } from "../Abstract/nodoInstruccion";
+import llamadaArray from "./llamadaArray";
+import llamadaFuncion from "./llamadaFuncion";
+import Identificador from "../Expresiones/Identificador";
 const tipo = require('../tablaSimbolos/Tipo');
 
 export default class Casteo extends Instruccion{
@@ -34,7 +37,16 @@ export default class Casteo extends Instruccion{
 
         if (this.expresion instanceof Primitivo){
             resultado = this.expresion;
-        }else{
+        }else if (this.expresion instanceof Identificador){
+            this.expresion.setPasada(2);
+            resultado = this.expresion.interpretar(tree,table); //Get símbolo
+            if (resultado instanceof Excepcion){
+                return resultado;
+            }
+            resultado = resultado?.getValor(); //Get primitivo
+        }
+        else{
+            this.expresion.setPasada(2);
             resultado = this.expresion.interpretar(tree,table); //Get primitivo o error
         }
         
@@ -56,7 +68,7 @@ export default class Casteo extends Instruccion{
                     let nPrimitivo:Primitivo = new Primitivo(nTipo,nValor,this.linea,this.columna);
                     return nPrimitivo;
                 }else{
-                    var ex:Excepcion = new Excepcion("Semántico", "Tipos incompatibles.", this.linea, this.columna);
+                    var ex:Excepcion = new Excepcion("Error semántico", "Tipos incompatibles.", this.linea, this.columna);
                     //tree.getExcepciones().push(ex);
                     return ex;
                 }
@@ -75,7 +87,7 @@ export default class Casteo extends Instruccion{
                 let nPrimitivo:Primitivo = new Primitivo(nTipo,nValor,this.linea,this.columna);
                 return nPrimitivo;
             }else{
-                var ex:Excepcion = new Excepcion("Semántico", "Tipos incompatibles.", this.linea, this.columna);
+                var ex:Excepcion = new Excepcion("Error semántico", "Tipos incompatibles.", this.linea, this.columna);
                 //tree.getExcepciones().push(ex);
                 return ex;
             }            
@@ -85,7 +97,7 @@ export default class Casteo extends Instruccion{
                 ){
                     //Rango va desde 33 - 126
                     if (resultado.getValor()>93){ 
-                        var ex:Excepcion = new Excepcion("Semántico", "Char fuera de rango.", this.linea, this.columna);
+                        var ex:Excepcion = new Excepcion("Error semántico", "Char fuera de rango.", this.linea, this.columna);
                         //tree.getExcepciones().push(ex);
                         return ex;                        
                     }
@@ -94,7 +106,7 @@ export default class Casteo extends Instruccion{
                     let nPrimitivo:Primitivo = new Primitivo(nTipo,nValor,this.linea,this.columna);
                     return nPrimitivo;                   
                 }else{
-                    var ex:Excepcion = new Excepcion("Semántico", "Tipos incompatibles.", this.linea, this.columna);
+                    var ex:Excepcion = new Excepcion("Error semántico", "Tipos incompatibles.", this.linea, this.columna);
                     //tree.getExcepciones().push(ex);
                     return ex;
                 }
@@ -107,7 +119,7 @@ export default class Casteo extends Instruccion{
                     let nPrimitivo:Primitivo = new Primitivo(nTipo,nValor,this.linea,this.columna);
                     return nPrimitivo;
                 }else{
-                    var ex:Excepcion = new Excepcion("Semántico", "Tipos incompatibles.", this.linea, this.columna);
+                    var ex:Excepcion = new Excepcion("Error semántico", "Tipos incompatibles.", this.linea, this.columna);
                     //tree.getExcepciones().push(ex);
                     return ex;
                 }

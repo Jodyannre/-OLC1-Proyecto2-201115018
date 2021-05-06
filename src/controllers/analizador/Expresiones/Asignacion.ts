@@ -12,6 +12,7 @@ import Vector from "./Vector";
 import Lista from "./Lista";
 import Simbolo from "../tablaSimbolos/Simbolo";
 import Identificador from "./Identificador";
+import llamadaArray from "../Instrucciones/llamadaArray";
 const tipo = require('../tablaSimbolos/Tipo');
 const vector = require('../Expresiones/Vector');
 export default class Asignacion extends Instruccion{
@@ -49,11 +50,25 @@ export default class Asignacion extends Instruccion{
 
     public getNodoInstruccion(){
         let nodo:nodoInstruccion = new nodoInstruccion('ASIGNACION');
-        nodo.agregarHijoNodo(this.id.getNodoInstruccion());
-        nodo.agregarHijoCadena("=");
-        nodo.agregarHijoNodo(this.instruccion.getNodoInstruccion());
-        nodo.agregarHijoCadena(";");
-        return nodo;
+        let nodo2:nodoInstruccion = new nodoInstruccion('ASIGNACION_ARRAY');
+        let add_vector:boolean = false;
+        if (this.instruccion instanceof llamadaArray){
+            if (this.instruccion.getTipo().getTipos()=== tipo.tipos.ADD_LISTA
+            || this.instruccion.getTipo().getTipos()=== tipo.tipos.ADD_VECTOR){
+                add_vector = true;
+            }
+        }
+        if (add_vector){
+            nodo2.agregarHijoNodo(this.instruccion.getNodoInstruccion());
+            nodo2.agregarHijoCadena(";");
+            return nodo2;
+        }else{
+            nodo.agregarHijoNodo(this.id.getNodoInstruccion());
+            nodo.agregarHijoCadena("=");
+            nodo.agregarHijoNodo(this.instruccion.getNodoInstruccion());
+            nodo.agregarHijoCadena(";");
+            return nodo;
+        }       
     }
 
     public interpretar(tree:Arbol, table:tablaSimbolos){

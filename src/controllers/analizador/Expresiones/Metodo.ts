@@ -14,6 +14,9 @@ import Simbolo from "../tablaSimbolos/Simbolo";
 import BREAK from "../Sentencias/BREAK";
 import CONTINUE from "../Sentencias/CONTINUE";
 import RETURN from "../Sentencias/RETURN";
+import llamadaArray from "../Instrucciones/llamadaArray";
+import llamadaFuncion from "../Instrucciones/llamadaFuncion";
+import Parametro from "./Parametro";
 var Errors:Array<Excepcion> = new Array<Excepcion>();
 
 const tipo = require('../tablaSimbolos/Tipo');
@@ -157,13 +160,14 @@ export default class Metodo extends Instruccion{
         }
         
             try{
-                for (let m of nArbol.getInstrucciones()){
-                    m.setPasada(2);
+                for (let m of nArbol.getInstrucciones()){     
                     if(m instanceof Excepcion){ // ERRORES SINTACTICOS
                         //Errors.push(m);
                         nArbol.addError(m);
                         nArbol.updateConsola((<Excepcion>m).toString());
+                        continue;
                     }
+                    m.setPasada(2);
                     var result = m.interpretar(nArbol, nTabla);
                     if(result instanceof Excepcion){ // ERRORES SEMÁNTICOS
                         //Errors.push(result);
@@ -205,6 +209,7 @@ export default class Metodo extends Instruccion{
         let nSimbolo;
         for (let i:number=0; i< this.parametros.length;i++){
             if (this.parametrosRecibidos[i] instanceof Identificador){
+                this.parametrosRecibidos[i].setPasada(2);
                 nSimbolo = this.parametrosRecibidos[i].interpretar(tree,table);
                 if (nSimbolo instanceof Simbolo){
                     nSimbolo = nSimbolo.getValor();
@@ -213,12 +218,24 @@ export default class Metodo extends Instruccion{
                 if ((this.parametrosRecibidos[i]instanceof Primitivo)===true){
                     nSimbolo = this.parametrosRecibidos[i];
                 }else{
+                    this.parametrosRecibidos[i].setPasada(2);
                     nSimbolo = this.parametrosRecibidos[i].interpretar(tree,table);
                 }               
             }
+            if ((<Parametro>this.parametros[i]).isLista()){
+                if (!(nSimbolo instanceof Lista)){
+                    var ex:Excepcion = new Excepcion("Error semántico", "Se espera una lista como parámetro.", this.parametros[i].linea, this.parametros[i].columna);
+                    return ex;                      
+                }
+            }
+            else if ((<Parametro>this.parametros[i]).isVector()){
+                if (!(nSimbolo instanceof Vector)){
+                    var ex:Excepcion = new Excepcion("Error semántico", "Se espera una vector como parámetro.", this.parametros[i].linea, this.parametros[i].columna);
+                    return ex;                      
+                }
+            }
             if (this.parametros[i].getTipo().getTipos()!= nSimbolo.getTipo().getTipos()){
-                var ex:Excepcion = new Excepcion("Semantico", "Los tipos de los parámetros no concuerdan.", this.parametros[i].linea, this.parametros[i].columna);
-                //tree.getExcepciones().push(ex);
+                var ex:Excepcion = new Excepcion("Error semántico", "Los tipos de los parámetros no coinciden.", this.parametros[i].linea, this.parametros[i].columna);
                 return ex;                  
             }
         }
@@ -236,17 +253,30 @@ export default class Metodo extends Instruccion{
             columna = this.parametros[i].columna;
             nPrimitivo = this.parametrosRecibidos[i];
             if (nPrimitivo instanceof Lista || nPrimitivo instanceof Vector){ //Esto sería acceso a lista y vector
-                nPrimitivo = nPrimitivo.interpretar(tree,table);
+                //nPrimitivo = nPrimitivo.interpretar(tree,table);
+                nPrimitivo = nPrimitivo;
             }else if (nPrimitivo instanceof Identificador){
                 nPrimitivo = nPrimitivo.interpretar(tree,table);
                 nPrimitivo = nPrimitivo.getValor();
-            }else if (!(nPrimitivo instanceof Primitivo)){
-                nPrimitivo = nPrimitivo.interpretar(tree,table); //Get resultado en primitivo
+            }else if (nPrimitivo instanceof Primitivo){
+                //nPrimitivo = nPrimitivo.interpretar(tree,table); //Get resultado en primitivo
+            }else if (nPrimitivo instanceof llamadaArray){
+                nPrimitivo.setPasada(2);
+                nPrimitivo = nPrimitivo.interpretar(tree,table);
+            }else if (nPrimitivo instanceof llamadaFuncion){
+                nPrimitivo.setPasada(2);
+                nPrimitivo = nPrimitivo.interpretar(tree,table);
             }
             nValor = nPrimitivo.interpretar(tree,table);
-            nPrimitivo = new Primitivo(nTipo,nValor,linea,columna);
-            nSimbolo = new Simbolo(nTipo,this.parametros[i].getValor().getValor(),nPrimitivo);
-            table.setVariableNueva(nSimbolo);
+            if (nPrimitivo instanceof Lista || nPrimitivo instanceof Vector){
+                nSimbolo = new Simbolo(nTipo,this.parametros[i].getValor().getValor(),nPrimitivo);
+                table.setVariableNueva(nSimbolo);
+            }else{
+                nPrimitivo = new Primitivo(nTipo,nValor,linea,columna);
+                nSimbolo = new Simbolo(nTipo,this.parametros[i].getValor().getValor(),nPrimitivo);
+                table.setVariableNueva(nSimbolo);
+            }
+
         }
 
     }
@@ -276,6 +306,16 @@ export default class Metodo extends Instruccion{
             return false;                                     
         }catch(err){
             console.log(err);
+        }
+    }
+
+    public clonarArray(origen:any){
+        if (origen instanceof Vector){
+
+        }else if (origen instanceof Lista){
+
+        }else{
+            return false;
         }
     }
 

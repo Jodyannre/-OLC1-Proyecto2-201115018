@@ -15,6 +15,8 @@ const tipo = require('../tablaSimbolos/Tipo');
 export default class Parametro extends Instruccion{
     private tipoValor:any;
     private valor:any;
+    private vector:boolean;
+    private lista:boolean;
 
 
     public getNodoInstruccion(){
@@ -25,10 +27,20 @@ export default class Parametro extends Instruccion{
     }
 
 
-    constructor(tipo:Tipo, linea:number, columna:number,tipoValor:Tipo,valor:any) {
+    constructor(tipo:Tipo, linea:number, columna:number,tipoValor:Tipo,valor:any,lista:boolean,vector:boolean) {
         super(tipo, linea, columna);
         this.tipoValor = tipoValor;
         this.valor = valor;
+        this.lista = lista;
+        this.vector = vector;
+    }
+
+    public isLista(){
+        return this.lista;
+    }
+
+    public isVector(){
+        return this.vector;
     }
 
 

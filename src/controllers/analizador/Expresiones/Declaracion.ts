@@ -274,6 +274,7 @@ export default class Declaracion extends Instruccion{
                         return verificarTipo; //Retorno el error
                     }else{
                         let nTipo = verificarTipo.getTipo().getTipos();
+                        verificarTipo = this.crearSimbolo(verificarTipo);
                         let nuevoSimbolo = new Simbolo(new tipo.default(nTipo),this.id.getValor(),verificarTipo);
                         verificarTipo.linea = this.linea;
                         verificarTipo.columna = this.columna;
@@ -368,6 +369,7 @@ export default class Declaracion extends Instruccion{
                     }else{
                         //let nTipo = this.getNuevoTipo(verificarTipo);
                         let nTipo = verificarTipo.getTipo().getTipos();
+                        verificarTipo = this.crearSimbolo(verificarTipo);
                         let nuevoSimbolo = new Simbolo(new tipo.default(nTipo),this.id.getValor(),verificarTipo);
                         verificarTipo.linea = this.linea;
                         verificarTipo.columna = this.columna;
@@ -487,6 +489,9 @@ export default class Declaracion extends Instruccion{
             let simbolo = table.tabla.get(this.valor.getValor()); //Símbolo que trae el valor a asignar
             if (simbolo){
                 let especial:any = this.verificarEspeciales(valorFinal,tree,table);
+                if (especial ===true){
+                    return simbolo.getValor();
+                }
                 if (especial != false){
                     return especial;
                 }else               
@@ -501,6 +506,10 @@ export default class Declaracion extends Instruccion{
                     return ex;                      
                 }              
                 return simbolo.getValor();
+            }else{
+                var ex:Excepcion = new Excepcion("Semantico", "La variable no existe.", this.linea, this.columna);
+                //tree.getExcepciones().push(ex);
+                return ex;                    
             }
         }else{
             valorFinal.setPasada(1);
@@ -589,6 +598,14 @@ export default class Declaracion extends Instruccion{
         }
     }
 
+    public crearSimbolo(origen:any){
+        if (origen instanceof Primitivo){
+            let nTipo = new Tipo(origen.getTipo().getTipos());
+            let nPrimitivo = new Primitivo(nTipo,origen.getValor(),0,0);
+            return nPrimitivo;
+        }
+        return origen;
+    }
 
     public getNuevoTipo(result:any){
         if (typeof result === 'string'){

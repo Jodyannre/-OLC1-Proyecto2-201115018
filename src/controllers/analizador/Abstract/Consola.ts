@@ -5,6 +5,7 @@ import Vector from "../Expresiones/Vector";
 import Lista from "../Expresiones/Lista";
 import Funcion from "../Expresiones/Funcion";
 import Metodo from "../Expresiones/Metodo";
+import Excepcion from "../Excepciones/Excepcion";
 const tipo = require('../tablaSimbolos/Tipo');
 
 export class Consola {
@@ -12,12 +13,14 @@ export class Consola {
     public static consola:string="";
     public static arbol:Arbol;
     public static tabla:tablaSimbolos;
+    public static contadorErrores:number=1;
 
     public static updateConsola(cadena:string){
         this.consola = `${this.consola}${cadena}\n`;
     }
 
     public static getConsola(){
+        this.generarConsola();
         return this.arbol.getConsola();
     }
     public static getArbol(){
@@ -38,20 +41,25 @@ export class Consola {
         //this.updateConsola(this.arbol.getConsola()); 
         for (let siguiente of this.arbol.getSiguientes()){
             this.generarConsolaSiguientes(siguiente);
+            /*
             if (siguiente.getConsola()!=""){
-                this.updateConsola(siguiente.getConsola());
+                this.arbol.updateConsola(siguiente.getConsola());
             }
+            */
         }
     }
 
     public static generarConsolaSiguientes(arbol:Arbol){
-        if (arbol.getSiguientes()===null){
+        if (arbol.getSiguientes().length === 0){
+            if (arbol.getConsola()!=""){
+                this.arbol.updateConsola(arbol.getConsola());
+            }
             return;
         }
         for (let siguiente of arbol.getSiguientes()){
             this.generarConsolaSiguientes(siguiente);
             if (siguiente.getConsola()!=""){
-                this.updateConsola(siguiente.getConsola());
+                this.arbol.updateConsola(siguiente.getConsola());
             }
         }
     }
@@ -123,6 +131,45 @@ export class Consola {
         return false;
     }
 
+
+
+    public static generarTablaErrores():Array<any>{
+        let array:Array<any> = new Array<any>(); //Array que contendrá todos los datos de los símbolos de cada ámbito
+        //primero generar las globales
+        this.rellenarArrayErrores(this.arbol,array);
+        for (let siguiente of this.arbol.getSiguientes()){
+            this.generarTablaErroresSiguientes(siguiente,array);
+        }
+
+        return array;
+    }
+
+    public static generarTablaErroresSiguientes(actual:Arbol,array:Array<any>){
+        let size = actual.getExcepciones().length;
+        this.rellenarArrayErrores(actual,array);
+        if (size===0){
+            return;
+        }
+        for (let siguiente of actual.getSiguientes()){
+            this.generarTablaErroresSiguientes(siguiente,array);
+        }
+    }
+
+    public static rellenarArrayErrores(arbol:Arbol,array:Array<any>){
+        let simbolos;
+        let temp;
+        for (var error of arbol.getExcepciones()){
+            simbolos = new Array<any>();
+            simbolos.push(this.contadorErrores+"");
+            temp = <Excepcion>error;
+            simbolos.push(temp.getTipo());
+            simbolos.push(temp.getDesc());
+            simbolos.push(temp.getFila()+"");
+            simbolos.push(temp.getColumna()+"");
+            array.push(simbolos);
+            this.contadorErrores++;
+        }
+    }
 }
 
 

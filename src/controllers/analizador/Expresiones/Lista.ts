@@ -33,8 +33,8 @@ export default class Lista extends Instruccion{
     }
 
     public get(pos:number):any{
-        let index = this.valor.indexOf(pos);   
-        if (index ===-1){
+        let index = this.size > pos;   
+        if (!index){
             var ex:Excepcion = new Excepcion("Error semántico", "Esa posición no existe en la lista.", this.linea, this.columna);
             return ex;
         }
@@ -54,6 +54,16 @@ export default class Lista extends Instruccion{
     public add(valor:any):any{
         this.valor.push(valor);
         this.count();
+        return true;
+    }
+    public asignar(valor:any,posicion:number):any{
+        if (posicion < this.size && posicion >= 0){
+            this.valor[posicion]=valor;
+        }else{
+            //Error no se puede agregar
+            var ex:Excepcion = new Excepcion("Error semántico", "Posición fuera del límite del vector.", this.linea, this.columna);
+            return ex;
+        }
         return true;
     }
 

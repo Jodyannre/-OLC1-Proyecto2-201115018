@@ -60,7 +60,7 @@ export default class ELSE extends Instruccion{
 
         try{
             for (let m of nArbol.getInstrucciones()){
-                m.setPasada(2);
+                
                 if(m instanceof Excepcion){ // ERRORES SINTACTICOS
                     //Errors.push(m);
                     nArbol.addError(m);
@@ -75,6 +75,7 @@ export default class ELSE extends Instruccion{
                     */
                    continue;
                 }
+                m.setPasada(2);
                 var result = m.interpretar(nArbol, nTabla);
                 if(result instanceof Excepcion){ // ERRORES SEMÁNTICOS
                     //Errors.push(result);

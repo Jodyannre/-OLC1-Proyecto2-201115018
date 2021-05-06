@@ -58,6 +58,7 @@ export default class Logica extends Instruccion{
                 || this.operandoIzq instanceof Identificador){
                     izquierdo = this.operandoIzq;
             }else{
+                this.operandoIzq.setPasada(2);
                 izquierdo = this.operandoIzq.interpretar(tree,table);
             }
 
@@ -66,11 +67,14 @@ export default class Logica extends Instruccion{
                 //Estamos bien
                 //this.operadorIzq2 = izquierdo;
                 this.operadorIzq = izquierdo;
+                izquierdo.setPasada(2);
                 izquierdo = izquierdo.interpretar(tree,table);
             }else if (izquierdo instanceof Identificador){
                 //this.operadorIzq2 = izquierdo.getValor();
+                izquierdo.setPasada(2);
                 izquierdo = izquierdo.interpretar(tree,table);
                 this.operadorIzq = izquierdo.getValor();
+                this.operadorIzq.setPasada(2);
                 izquierdo = this.operadorIzq.interpretar(tree,table);
             }
             //derecho = this.operandoDer.interpretar(tree, table);
@@ -78,6 +82,7 @@ export default class Logica extends Instruccion{
                 || this.operandoDer instanceof Identificador){
                     derecho = this.operandoDer;
             }else{
+                this.operandoDer.setPasada(2);
                 derecho = this.operandoDer.interpretar(tree,table);
             }
             if (derecho instanceof Excepcion) return derecho; 
@@ -85,11 +90,14 @@ export default class Logica extends Instruccion{
                 //Estamos bien
                 //this.operadorDerecho = derecho;
                 this.operadorDerecho = derecho;
+                derecho.setPasada(2);
                 derecho = derecho.interpretar(tree,table);
             }else if (derecho instanceof Identificador){
                 //this.operadorDerecho = derecho.getValor();
+                derecho.setPasada(2);
                 derecho = derecho.interpretar(tree,table);
                 this.operadorDerecho = derecho.getValor();
+                this.operadorDerecho.setPasada(2);
                 derecho = this.operadorDerecho.interpretar(tree,table);
             }
             
@@ -99,6 +107,7 @@ export default class Logica extends Instruccion{
                 || this.operandoIzq instanceof Identificador){
                     unario = this.operandoIzq;
             }else{
+                this.operandoIzq.setPasada(2);
                 unario = this.operandoIzq.interpretar(tree,table);
             }
             if (unario instanceof Excepcion) return unario;
@@ -106,11 +115,14 @@ export default class Logica extends Instruccion{
                 //Estamos bien
                 //this.operandoIz2 = unario;
                 this.operadorIzq = izquierdo;
+                unario.setPasada(2);
                 unario = unario.interpretar(tree,table);
             }else if (unario instanceof Identificador){
                 //this.operadorIzq2 = unario.getValor();
+                izquierdo.setPasada(2);
                 izquierdo = izquierdo.interpretar(tree,table);
                 this.operadorIzq = izquierdo.getValor();
+                this.operadorIzq.setPasada(2);
                 unario = this.operadorIzq.interpretar(tree,table);
             }
         }

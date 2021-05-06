@@ -36,6 +36,7 @@ export default class Imprimir extends Instruccion{
 
     public interpretar(tree:Arbol, table:tablaSimbolos){
         //Obtener el valor a imprimir, puede venir un id o una operación 
+        let isFloat = false;
         if (this.pasada < 2){
             return true;
         }
@@ -47,23 +48,26 @@ export default class Imprimir extends Instruccion{
             value = this.expresion;
         }
         if (this.expresion instanceof Metodo){
-            var ex:Excepcion = new Excepcion("Semántico", "Más de un exec.", 0, 0);
+            var ex:Excepcion = new Excepcion("Error semántico", "Más de un exec.", this.linea, this.columna);
             //tree.getExcepciones().push(ex);
             return ex;
         }
 
         if (this.expresion instanceof Imprimir){
-            var ex:Excepcion = new Excepcion("Semántico", "Más de un exec.", 0, 0);
+            var ex:Excepcion = new Excepcion("Error semántico", "Más de un exec.", this.linea, this.columna);
             //tree.getExcepciones().push(ex);
             return ex;
         }
 
         if (this.expresion instanceof Exec){
-            var ex:Excepcion = new Excepcion("Semántico", "Más de un exec.", 0, 0);
+            var ex:Excepcion = new Excepcion("Error semántico", "Ese objeto no se puede imprimir.", this.linea, this.columna);
             //tree.getExcepciones().push(ex);
             return ex;
         }
-
+        value.setPasada(2);
+        if (value.getTipo().getTipos()===2){
+            isFloat = true;
+        }
         value = value.interpretar(tree, table); //Obtener valor final del primitivo
 
         if (value instanceof Primitivo){
@@ -74,7 +78,19 @@ export default class Imprimir extends Instruccion{
 
         //Get árbol global
         let treeGlobal:Arbol = Consola.getArbol();    
-        treeGlobal.updateConsola(value+"");
+        if (isFloat){
+            let result = value % 1 === 0;
+            if (result){
+                //Es entero
+                treeGlobal.updateConsola(value+".0");
+            }else{
+                //Es decimal
+                treeGlobal.updateConsola(value+"");
+            }
+        }else{
+            treeGlobal.updateConsola(value+"");
+        }
+        //treeGlobal.updateConsola(value+"");
         return true;
     }
 }

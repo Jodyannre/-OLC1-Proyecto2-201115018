@@ -8,6 +8,8 @@ const tipo = require('../tablaSimbolos/Tipo');
 import { nodoInstruccion } from "../Abstract/nodoInstruccion";
 import Vector from "../Expresiones/Vector";
 import Lista from "../Expresiones/Lista";
+import llamadaArray from "./llamadaArray";
+import llamadaFuncion from "./llamadaFuncion";
 const primitivo = require('../Expresiones/Primitivo');
 
 export default class Truncate extends Instruccion{
@@ -56,13 +58,20 @@ export default class Truncate extends Instruccion{
                 //tree.getExcepciones().push(ex);
                 return ex;      
             }
+            simbolo = simbolo.getValor();
             return this.verificarTipo(simbolo,tree); //Si tiene valor cadena la variable
+        }else if (this.expresion instanceof llamadaArray
+            || this.expresion instanceof llamadaFuncion){
+            this.expresion.setPasada(2);
+            let result = this.expresion.interpretar(tree,table);  //Se supone una cadena
+            if (result instanceof Excepcion){
+                return result;
+            }
+            return this.verificarTipo(result,tree); //Si tiene valor cadena la variable
         }else{
-
-            var ex:Excepcion = new Excepcion("Semántico", "El valor no es un número", this.linea, this.columna);
+            var ex:Excepcion = new Excepcion("Error semántico", "El valor no es una cadena", this.linea, this.columna);
             //tree.getExcepciones().push(ex);
-            return ex;            
-
+            return ex;   
         }
     }
 
@@ -70,12 +79,12 @@ export default class Truncate extends Instruccion{
     public verificarTipo(variable:any,tree:Arbol){
         if (variable.getTipo().getTipos()===tipo.tipos.ENTERO ){
             let nTipo = new tipo.default(tipo.tipos.ENTERO);
-            let nValor = variable.getValor().getValor();
+            let nValor = variable.getValor();
             let nPrimitivo = new primitivo.default( nTipo,nValor,this.linea,this.columna); 
             return nPrimitivo;
         }else if (variable.getTipo().getTipos()===tipo.tipos.DECIMAL){
             let nTipo = new tipo.default(tipo.tipos.ENTERO);
-            let nValor = Math.floor(variable.getValor().getValor());
+            let nValor = Math.floor(variable.getValor());
             let nPrimitivo = new primitivo.default( nTipo,nValor,this.linea,this.columna); 
             return nPrimitivo;
         }else{

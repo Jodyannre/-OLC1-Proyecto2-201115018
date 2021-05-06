@@ -72,6 +72,7 @@ export default class RETURN extends Instruccion{
             resultado = this.retorno.interpretar(tree,table); //Retornar el símbolo
             resultado = resultado.getValor(); //Get el símbolo
         }else{
+            this.retorno.setPasada(2);
             resultado = this.retorno.interpretar(tree,table); //Retornar un primitivo como resultado
         }
         

@@ -56,7 +56,7 @@ export default class llamadaArray extends Instruccion{
             nodo5.agregarHijoNodo(this.dato.getNodoInstruccion());
             nodo6.agregarHijoNodo(nodo5);
             return nodo6;
-        }else if (this.tipo.getTipos()===tipo.tipos.ADD_LISTA){
+        }else if (this.tipo.getTipos()===tipo.tipos.ADD_LISTA && this.posicion ===null){
             nodo4.agregarHijoNodo(this.id.getNodoInstruccion());
             nodo4.agregarHijoCadena(".");
             nodo4.agregarHijoCadena("ADD");
@@ -64,7 +64,18 @@ export default class llamadaArray extends Instruccion{
             nodo4.agregarHijoNodo(this.dato.getNodoInstruccion());
             nodo4.agregarHijoCadena(")");
             nodo6.agregarHijoNodo(nodo4);
-            return nodo;
+            return nodo6;
+        }else{
+            nodo4.agregarHijoNodo(this.id.getNodoInstruccion());
+            nodo4.agregarHijoCadena("[");
+            nodo4.agregarHijoCadena("[");
+            nodo4.agregarHijoNodo(this.posicion.getNodoInstruccion());
+            nodo4.agregarHijoCadena("]");
+            nodo4.agregarHijoCadena("]");
+            nodo4.agregarHijoCadena("=");
+            nodo4.agregarHijoNodo(this.dato.getNodoInstruccion());
+            nodo6.agregarHijoNodo(nodo4);
+            return nodo6;            
         }
 
         return false;
@@ -86,11 +97,19 @@ export default class llamadaArray extends Instruccion{
 
         if (simbolo.getValor() instanceof Lista && this.tipo.getTipos()===tipo.tipos.LLAMADA_LISTA){
             let lista = <Lista>simbolo.getValor();
-            let result = lista.get(this.posicion.interpretar(tree,table));
+            let pos = this.getPosicion(tree,table);
+            if (pos instanceof Excepcion){
+                return pos;
+            }
+            let result = lista.get(pos.interpretar(tree,table));
             return result;                
         }else if (simbolo.getValor() instanceof Vector && this.tipo.getTipos()===tipo.tipos.LLAMADA_VECTOR){
             let lista = <Vector>simbolo.getValor();
-            let result = lista.get(this.posicion.interpretar(tree,table));
+            let pos = this.getPosicion(tree,table);
+            if (pos instanceof Excepcion){
+                return pos;
+            }
+            let result = lista.get(pos.interpretar(tree,table));
             return result;   
         }else if (simbolo.getValor() instanceof Lista && this.tipo.getTipos()===tipo.tipos.ADD_LISTA){
             let lista = <Lista>simbolo.getValor();
@@ -104,6 +123,8 @@ export default class llamadaArray extends Instruccion{
                 }
                 nValor = nValor.getValor(); //Get valor del símbolo
             }else{
+                nValor = this.dato;
+                nValor.setPasada(2);
                 nValor = nValor.interpretar(tree,table); //Siempre devuelve un primitivo o error
             }
             //Verificar error
@@ -117,11 +138,20 @@ export default class llamadaArray extends Instruccion{
                     return ex;
             }
             //Verificar que el tipo del elemento a agregar es correcto
-            if (nValor.getTipo().getTipos()!= lista.getTipoCreacion()){
+            if (nValor.getTipo().getTipos()!= lista.getTipoCreacion().getTipos()){
                 var ex:Excepcion = new Excepcion("Semántico", "Ese valor no es compatible.", this.linea, this.columna);
                 return ex;
             }
-            let result = lista.add(this.posicion);
+            let result; 
+            if (this.posicion === null){
+                result = lista.add(nValor);
+            }else{
+                let pos = this.getPosicion(tree,table);
+                if (pos instanceof Excepcion){
+                    return pos;
+                }
+                result = lista.asignar(nValor,pos.interpretar(tree,table));
+            }
             return result;   
 
         }else if (simbolo.getValor() instanceof Vector && this.tipo.getTipos()===tipo.tipos.ADD_VECTOR){
@@ -155,12 +185,45 @@ export default class llamadaArray extends Instruccion{
                 var ex:Excepcion = new Excepcion("Semántico", "Ese valor no es compatible.", this.linea, this.columna);
                 return ex;
             }
-            let result = lista.add(nValor,this.posicion.interpretar(tree,table));
+            let pos = this.getPosicion(tree,table);
+            if (pos instanceof Excepcion){
+                return pos;
+            }
+            let result = lista.add(nValor,pos.interpretar(tree,table));
             return result;
         }else{
             var ex:Excepcion = new Excepcion("Semántico", "La variable no hace referencia a una lista o a un vector.", this.linea, this.columna);
             //tree.getExcepciones().push(ex);
             return ex; 
         }
+    }
+
+    public getPosicion(tree:Arbol,table:tablaSimbolos):any{
+        let pos;
+        if (this.posicion instanceof Primitivo){
+            pos = this.posicion;
+        }else if (this.posicion instanceof Identificador){
+            pos = this.posicion.interpretar(tree,table);
+            if (pos instanceof Excepcion){
+                return pos;
+            }
+            pos = pos?.getValor();
+        }else{
+            pos = this.posicion.interpretar(tree,table);
+        }
+        if (pos instanceof Excepcion){
+            return pos;
+        }
+        if (!(pos instanceof Primitivo)){
+            var ex:Excepcion = new Excepcion("Semántico", "La variable no hace referencia a un número.", this.linea, this.columna);
+            //tree.getExcepciones().push(ex);
+            return ex;                 
+        }
+        if (pos.getTipo().getTipos()!=1){
+            var ex:Excepcion = new Excepcion("Semántico", "La variable no hace referencia a un número.", this.linea, this.columna);
+            //tree.getExcepciones().push(ex);
+            return ex;                 
+        }
+        return pos;
     }
 }

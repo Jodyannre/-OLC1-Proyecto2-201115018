@@ -6,6 +6,8 @@ import Tipo, { tipos } from "../tablaSimbolos/Tipo";
 import Simbolo from "../tablaSimbolos/Simbolo";
 const tipo = require('../tablaSimbolos/Tipo');
 import { nodoInstruccion } from "../Abstract/nodoInstruccion";
+import llamadaArray from "./llamadaArray";
+import llamadaFuncion from "./llamadaFuncion";
 const primitivo = require('../Expresiones/Primitivo');
 
 export default class loLower extends Instruccion{
@@ -44,7 +46,7 @@ export default class loLower extends Instruccion{
         }else if(this.expresion.getTipo().getTipos()===tipo.tipos.IDENTIFICADOR){
             simbolo = this.expresion.interpretar(tree,table);
             if (simbolo ==null){
-                var ex:Excepcion = new Excepcion("Semántico", "La variable no existe.", this.linea, this.columna);
+                var ex:Excepcion = new Excepcion("Error semántico", "La variable no existe.", this.linea, this.columna);
                 //tree.getExcepciones().push(ex);
                 return ex;      
             }
@@ -55,12 +57,28 @@ export default class loLower extends Instruccion{
                 return nPrimitivo;
             }
 
+        }else if (this.expresion instanceof llamadaArray
+            || this.expresion instanceof llamadaFuncion){
+            this.expresion.setPasada(2);
+            let result = this.expresion.interpretar(tree,table);  //Se supone una cadena
+            if (result instanceof Excepcion){
+                return result;
+            }
+            if (this.verificarTipo(result)){
+                cadena = result.interpretar(tree,table);
+                let nTipo = new tipo.default(tipo.tipos.CADENA);
+                let nValor = cadena.toLowerCase();
+                let nPrimitivo = new primitivo.default( nTipo,nValor,this.linea,this.columna); 
+                return nPrimitivo;               
+            }else{
+                var ex:Excepcion = new Excepcion("Error semántico", "El valor no es una cadena", this.linea, this.columna);
+                //tree.getExcepciones().push(ex);
+                return ex;                  
+            }        
         }else{
-
-            var ex:Excepcion = new Excepcion("Semántico", "El valor no es una cadena", this.linea, this.columna);
+            var ex:Excepcion = new Excepcion("Error semántico", "El valor no es una cadena", this.linea, this.columna);
             //tree.getExcepciones().push(ex);
-            return ex;            
-
+            return ex;   
         }
     }
 

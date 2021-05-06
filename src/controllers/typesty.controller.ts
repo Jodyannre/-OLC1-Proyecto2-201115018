@@ -13,7 +13,8 @@ import Exec from './analizador/Instrucciones/Exec';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable'
 import 'jspdf-autotable'
-const doc = new jsPDF();
+//const doc = new jsPDF();
+//const doc2 = new jsPDF();
 const { exec } = require("child_process");
 var Errors:Array<Excepcion> = new Array<Excepcion>();
 var fs = require('fs');
@@ -85,6 +86,8 @@ class typestyController{
                 if (m instanceof llamadaFuncion){
                     continue;
                 }   
+                m.setPasada(1);
+                var result = m.interpretar(ast, tabla);
                 if(result instanceof Excepcion){ // ERRORES SEMÁNTICOS
                     //Errors.push(result);
                     ast.addError(result);
@@ -95,9 +98,7 @@ class typestyController{
                         instruccionesEliminar.push(index);
                         //ast.getInstrucciones().splice(index, 1);
                     }
-                }
-                m.setPasada(1);
-                var result = m.interpretar(ast, tabla);
+                }              
             }
             corrimiento = 0;
             for (let index of instruccionesEliminar){
@@ -109,7 +110,7 @@ class typestyController{
             
             //Verificar que no haya más de 1 exec
             if (numExec > 1){
-                var ex:Excepcion = new Excepcion("Semántico", "Más de un exec.", 0, 0);          
+                var ex:Excepcion = new Excepcion("Error semántico", "Más de un exec.", 0, 0);          
                 //ast.getExcepciones().push(ex);
                 ast.addError(ex);
                 ast.updateConsola((<Excepcion>ex).toString());
@@ -149,8 +150,9 @@ class typestyController{
             nodoInicial = nodoIns;
 
             typestyController.graficarAST(nodoInicial);
-
-            /////////////////////////////////////////////////////
+            const doc = new jsPDF();
+            const doc2 = new jsPDF();
+            ///////////////////CREAR TABLA DE SÍMBOLOS//////////////////////////////////
             try{
                 fs.unlinkSync('./dist/public/images/tablaSimbolos.pdf');
             }catch(err){
@@ -169,6 +171,27 @@ class typestyController{
             doc.save('./dist/public/images/tablaSimbolos.pdf')
             /////////////////////////////////////////////////////
             //console.log(ast.getConsola());
+
+            ///////////////////CREAR TABLA DE ERRORES//////////////////////////////////
+            try{
+                fs.unlinkSync('./dist/public/images/tablaErrores.pdf');
+            }catch(err){
+                console.log(err);
+            }
+            
+            const head2 = [['#', 'Tipo de error', 'Descripción', 'Línea','Columna']]
+            const data2 = Consola.generarTablaErrores();
+            autoTable(doc2, {
+                head: head2,
+                body: data2,
+                didDrawCell: (data) => {
+                  //console.log(data.column.index)
+                },
+              })
+            doc2.save('./dist/public/images/tablaErrores.pdf')
+
+            /////////////////////////////////////////////////////
+            Consola.contadorErrores = 1;
 
             
         }

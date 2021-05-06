@@ -64,15 +64,19 @@ export default class Aritmetica extends Instruccion{
                 || this.operandoIzq instanceof Identificador){
                     izquierdo = this.operandoIzq;
             }else{
+                this.operandoIzq.setPasada(2);
                 izquierdo = this.operandoIzq.interpretar(tree,table);
             }
             
             if (izquierdo instanceof Primitivo){
                 this.operadorIzq = izquierdo;
+                izquierdo.setPasada(2);
                 izquierdo = izquierdo.interpretar(tree,table);              
             }else if (izquierdo instanceof Identificador){
+                izquierdo.setPasada(2);
                 izquierdo = izquierdo.interpretar(tree,table); //Get símbolo
                 this.operadorIzq = izquierdo.getValor();
+                this.operadorIzq.setPasada(2);
                 izquierdo = this.operadorIzq.interpretar(tree,table);
             }
 
@@ -82,15 +86,19 @@ export default class Aritmetica extends Instruccion{
                 || this.operandoDer instanceof Identificador){
                     derecho = this.operandoDer;
             }else{
+                this.operandoDer.setPasada(2);
                 derecho = this.operandoDer.interpretar(tree,table);
             }
             //derecho = this.operandoDer;
             if (derecho instanceof Primitivo){
                 this.operadorDerecho = derecho;
+                derecho.setPasada(2);
                 derecho = derecho.interpretar(tree,table);
             }else if (derecho instanceof Identificador){
+                derecho.setPasada(2);
                 derecho = derecho.interpretar(tree,table);
                 this.operadorDerecho = derecho.getValor();
+                this.operadorDerecho.setPasada(2);
                 derecho = this.operadorDerecho.interpretar(tree,table);
             }
 
@@ -101,14 +109,18 @@ export default class Aritmetica extends Instruccion{
                 || this.operandoDer instanceof Identificador){
                     unario = this.operandoDer;
             }else{
+                this.operandoDer.setPasada(2);
                 unario = this.operandoDer.interpretar(tree,table);
             }
             if (unario instanceof Primitivo){
                 this.operadorDerecho = unario;
+                unario.setPasada(2);
                 unario = unario.interpretar(tree,table);
             }else if (unario instanceof Identificador){
+                unario.setPasada(2);
                 unario = unario.interpretar(tree,table);
                 this.operadorDerecho = unario.getValor();
+                this.operadorDerecho.setPasada(2);
                 unario = this.operadorDerecho.interpretar(tree,table);
             }
             if (unario instanceof Excepcion) return unario;

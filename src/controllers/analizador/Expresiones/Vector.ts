@@ -53,8 +53,8 @@ export default class Vector extends Instruccion{
     }
 
     public get(pos:number):any{
-        let index = pos < this.size;   
-        if (index===false){
+        let index = pos >= this.size || pos < 0;   
+        if (index===true){
             var ex:Excepcion = new Excepcion("Error semántico", "Esa posición no existe en la lista.", this.linea, this.columna);
             return ex;
         }

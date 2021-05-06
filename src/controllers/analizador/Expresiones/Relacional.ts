@@ -42,6 +42,7 @@ export default class Relacional extends Instruccion{
             || this.operandoIzq instanceof Identificador){
                 izquierdo = this.operandoIzq;
         }else{
+            this.operandoIzq.setPasada(2);
             izquierdo = this.operandoIzq.interpretar(tree,table);
         }
         if (izquierdo instanceof Excepcion) return izquierdo;
@@ -49,11 +50,14 @@ export default class Relacional extends Instruccion{
             //Estamos bien
             //this.operadorIzq2 = izquierdo;
             this.operadorIzq = izquierdo;
-            izquierdo = izquierdo.interpretar(tree,table);
+            izquierdo.setPasada(2);
+            izquierdo = izquierdo.interpretar(tree,table);           
         }else if (izquierdo instanceof Identificador){
             //this.operadorIzq2 = izquierdo.getValor();
+            izquierdo.setPasada(2);
             izquierdo = izquierdo.interpretar(tree,table);
             this.operadorIzq = izquierdo.getValor();
+            this.operadorIzq.setPasada(2);
             izquierdo = this.operadorIzq.interpretar(tree,table);
         }
 
@@ -62,6 +66,7 @@ export default class Relacional extends Instruccion{
             || this.operandoDer instanceof Identificador){
                 derecho = this.operandoDer;
         }else{
+            this.operandoDer.setPasada(2);
             derecho = this.operandoDer.interpretar(tree,table);
         }
 
@@ -70,11 +75,14 @@ export default class Relacional extends Instruccion{
             //Estamos bien
             //this.operadorDerecho2 = derecho;
             this.operadorDerecho = derecho;
+            derecho.setPasada(2);
             derecho = derecho.interpretar(tree,table);
         }else if (derecho instanceof Identificador){
             //this.operadorDerecho2 = derecho.getValor();
+            derecho.setPasada(2);
             derecho = derecho.interpretar(tree,table);
             this.operadorDerecho = derecho.getValor();
+            this.operadorDerecho.setPasada(2);
             derecho = this.operadorDerecho.interpretar(tree,table);
         }
         this.tipo = new tipo.default(tipo.tipos.BOOLEANO);

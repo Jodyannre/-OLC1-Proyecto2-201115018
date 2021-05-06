@@ -50,7 +50,7 @@ export default class Agrupacion extends Instruccion{
         }else if (this.operacion instanceof Identificador){
             result = this.operacion.interpretar(tree,table);
             if (result === null){
-                var ex:Excepcion = new Excepcion("Semántico", "La variable no existe.", this.linea, this.columna);
+                var ex:Excepcion = new Excepcion("Error semántico", "La variable no existe.", this.linea, this.columna);
                 //tree.getExcepciones().push(ex);
                 return ex;  
             }
