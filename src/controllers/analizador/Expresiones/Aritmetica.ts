@@ -14,7 +14,6 @@ const tipo = require('../tablaSimbolos/Tipo');
 
 export default class Aritmetica extends Instruccion{
     private valor: any;
-
     private operandoIzq:any;
     private operadorIzq:any;
     private operadorDerecho:any;

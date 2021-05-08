@@ -100,4 +100,8 @@ export default class llamadaFuncion extends Instruccion{
         let result = simbolo.getValor().interpretar(tree,table);
         return result;    
     }
+
+    public getId(){
+        return this.id;
+    }
 }

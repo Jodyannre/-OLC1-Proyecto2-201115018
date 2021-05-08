@@ -56,6 +56,7 @@ export default class Ternario extends Instruccion{
             cond = cond.getValor(); //Traer el primitivo valor
         }else{
             if (!(this.condicion instanceof Primitivo)){
+                this.condicion.setPasada(2);
                 cond = this.condicion.interpretar(tree,table);
             }else{
                 cond = this.condicion;
@@ -69,8 +70,13 @@ export default class Ternario extends Instruccion{
                 return exp_correcta;
             }
             exp_correcta = cond.getValor(); //Traer el primitivo valor
-        }else{
+        }else if (this.expCorrecta instanceof Primitivo){
             exp_correcta = this.expCorrecta;
+        }
+        else{
+            //Puede ser primitivo o cualquier cosa
+            this.expCorrecta.setPasada(2);
+            exp_correcta = this.expCorrecta.interpretar(tree,table);
         }
 
         if (this.expIncorrecta instanceof Identificador){
@@ -79,8 +85,13 @@ export default class Ternario extends Instruccion{
                 return exp_incorrecta;
             }
             exp_incorrecta = cond.getValor(); //Traer el primitivo valor
-        }else{
+        }else if (this.expIncorrecta instanceof Primitivo){
             exp_incorrecta = this.expIncorrecta;
+        }
+        else{
+            //Puede ser primitivo o cualquier cosa
+            this.expIncorrecta.setPasada(2);
+            exp_incorrecta = this.expIncorrecta.interpretar(tree,table);
         }
 
         if (cond.getTipo().getTipos()!=tipo.tipos.BOOLEANO){

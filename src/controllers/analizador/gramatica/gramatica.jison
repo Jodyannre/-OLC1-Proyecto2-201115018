@@ -293,6 +293,8 @@ expresion
 	| ID {$$ = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$1, @1.first_line, @1.first_column); }
 	| acceso_vector {$$ = $1}
 	| acceso_lista {$$ = $1}
+	| llamada_metodo_funcion {$$ = $1}
+	| metodos_nativos {$$ = $1}
 ; 
 /*GRAMATICA OPERACIONES LÓGICAS Y ARITMÉTICAS-------------------------------*/
 
@@ -306,19 +308,7 @@ metodos_nativos
 		var nodo = crearLength($3, @1.first_line, @1.first_column, tipo);
 		$$ = nodo;
 	}
-	| LENGTH PARENTESIS_A llamada_metodo_funcion PARENTESIS_C 		
-	{
-		var tipo = new Tipo.default(Tipo.tipos.ENTERO); 
-		var nodo = crearLength($3, @1.first_line, @1.first_column, tipo);
-		$$ = nodo;
-	}
 	| TRUNCATE PARENTESIS_A expresion PARENTESIS_C		
-	{
-		var tipo = new Tipo.default(Tipo.tipos.ENTERO); 
-		var nodo = crearTruncate($3, @1.first_line, @1.first_column, tipo);
-		$$ = nodo;		
-	}
-	| TRUNCATE PARENTESIS_A llamada_metodo_funcion PARENTESIS_C		
 	{
 		var tipo = new Tipo.default(Tipo.tipos.ENTERO); 
 		var nodo = crearTruncate($3, @1.first_line, @1.first_column, tipo);
@@ -330,19 +320,7 @@ metodos_nativos
 		var nodo = crearTypeof($3, @1.first_line, @1.first_column, tipo);
 		$$ = nodo;			
 	}
-	| TYPEOF PARENTESIS_A llamada_metodo_funcion PARENTESIS_C		
-	{
-		var tipo = new Tipo.default(Tipo.tipos.CADENA); 
-		var nodo = crearTypeof($3, @1.first_line, @1.first_column, tipo);
-		$$ = nodo;			
-	}
 	| TO_STRING PARENTESIS_A expresion PARENTESIS_C			
-	{
-		var tipo = new Tipo.default(Tipo.tipos.CADENA); 
-		var nodo = crearToString($3, @1.first_line, @1.first_column, tipo);
-		$$ = nodo;			
-	}
-	| TO_STRING PARENTESIS_A llamada_metodo_funcion PARENTESIS_C			
 	{
 		var tipo = new Tipo.default(Tipo.tipos.CADENA); 
 		var nodo = crearToString($3, @1.first_line, @1.first_column, tipo);
@@ -354,19 +332,7 @@ metodos_nativos
 		var nodo = crearToCharArray($3, @1.first_line, @1.first_column, tipo);
 		$$ = nodo;		
 	}
-	| TO_CHAR_ARRAY PARENTESIS_A llamada_metodo_funcion PARENTESIS_C	
-	{
-		var tipo = new Tipo.default(Tipo.tipos.LISTA); 
-		var nodo = crearToCharArray($3, @1.first_line, @1.first_column, tipo);
-		$$ = nodo;		
-	}
 	| ROUND PARENTESIS_A expresion PARENTESIS_C			
-	{
-		var tipo = new Tipo.default(Tipo.tipos.ENTERO); 
-		var nodo = crearRound($3, @1.first_line, @1.first_column, tipo);
-		$$ = nodo;		
-	}
-	| ROUND PARENTESIS_A llamada_metodo_funcion PARENTESIS_C			
 	{
 		var tipo = new Tipo.default(Tipo.tipos.ENTERO); 
 		var nodo = crearRound($3, @1.first_line, @1.first_column, tipo);
@@ -378,19 +344,7 @@ metodos_nativos
 		var nodo = crearToUpper($3, @1.first_line, @1.first_column, tipo);
 		$$ = nodo;
 	}
-	|  TO_UPPER PARENTESIS_A llamada_metodo_funcion PARENTESIS_C  	
-	{
-		var tipo = new Tipo.default(Tipo.tipos.CADENA); 
-		var nodo = crearToUpper($3, @1.first_line, @1.first_column, tipo);
-		$$ = nodo;
-	}
 	| TO_LOWER PARENTESIS_A condicion_logica PARENTESIS_C  	
-	{
-		var tipo = new Tipo.default(Tipo.tipos.CADENA); 
-		var nodo = crearToLower($3, @1.first_line, @1.first_column, tipo);
-		$$ = nodo;
-	}
-	| TO_LOWER PARENTESIS_A llamada_metodo_funcion PARENTESIS_C  	
 	{
 		var tipo = new Tipo.default(Tipo.tipos.CADENA); 
 		var nodo = crearToLower($3, @1.first_line, @1.first_column, tipo);
@@ -534,19 +488,7 @@ asignacion_valor_variable
 		var nodo = new Casteo.default(tipo,$5,@1.first_line, @1.first_column);
 		$$ = nodo;		
 	}
-	| ASIGNACION PARENTESIS_A INT PARENTESIS_C llamada_metodo_funcion PUNTOCOMA 		
-	{
-		var tipo = new Tipo.default(Tipo.tipos.ENTERO); 
-		var nodo = new Casteo.default(tipo,$5,@1.first_line, @1.first_column);
-		$$ = nodo;		
-	}
 	| ASIGNACION PARENTESIS_A CHAR PARENTESIS_C condicion_logica PUNTOCOMA 	
-	{
-		var tipo = new Tipo.default(Tipo.tipos.CARACTER); 
-		var nodo = new Casteo.default(tipo,$5,@1.first_line, @1.first_column);;
-		$$ = nodo;
-	}
-	| ASIGNACION PARENTESIS_A CHAR PARENTESIS_C llamada_metodo_funcion PUNTOCOMA 	
 	{
 		var tipo = new Tipo.default(Tipo.tipos.CARACTER); 
 		var nodo = new Casteo.default(tipo,$5,@1.first_line, @1.first_column);;
@@ -558,23 +500,9 @@ asignacion_valor_variable
 		var nodo = new Casteo.default(tipo,$5,@1.first_line, @1.first_column);
 		$$ = nodo;
 	}
-	| ASIGNACION PARENTESIS_A DOUBLE PARENTESIS_C llamada_metodo_funcion PUNTOCOMA 	
-	{
-		var tipo = new Tipo.default(Tipo.tipos.DECIMAL); 
-		var nodo = new Casteo.default(tipo,$5,@1.first_line, @1.first_column);
-		$$ = nodo;
-	}
-	| ASIGNACION metodos_nativos PUNTOCOMA 	
-	{
-		$$ = $2;
-	}
 	| ASIGNACION condicion_logica TERNARIO condicion_logica DOSPUNTOS condicion_logica PUNTOCOMA 
 	{
 		$$ = new Ternario.default(new Tipo.default(Tipo.tipos.TERNARIO),$2,$4,$6,@1.first_line, @1.first_column);
-	}
-	| ASIGNACION llamada_metodo_funcion PUNTOCOMA
-	{
-		$$ = $2;
 	}
 ;
 
@@ -878,23 +806,7 @@ elementos_coma
 	{
 		$1.push($3);
 	}
-	| elementos_coma COMA llamada_metodo_funcion	
-	{
-		$1.push($3);
-	}
-	| elementos_coma COMA metodos_nativos	
-	{
-		$1.push($3);
-	}
 	| condicion_logica 						
-	{
-		$$ = [$1];
-	}
-	| llamada_metodo_funcion
-	{
-		$$ = [$1];
-	}
-	| metodos_nativos
 	{
 		$$ = [$1];
 	}
@@ -1022,15 +934,7 @@ llamada_metodo_funcion
 		var nId = new Identificador.default( new Tipo.default(Tipo.tipos.IDENTIFICADOR),$1, @1.first_line, @1.first_column); 	
 		$$ = new llamadaFuncion.default(nntipo,nId,null,@1.first_line, @1.first_column); 
 	}
-	| PRINT PARENTESIS_A expresion PARENTESIS_C  
-	{ 
-		$$ = new Imprimir.default($3, @1.first_line, @1.first_column); 
-	}
-	| PRINT PARENTESIS_A llamada_metodo_funcion PARENTESIS_C  
-	{ 
-		$$ = new Imprimir.default($3, @1.first_line, @1.first_column); 
-	}
-	| PRINT PARENTESIS_A metodos_nativos PARENTESIS_C  
+	| PRINT PARENTESIS_A condicion_logica PARENTESIS_C  
 	{ 
 		$$ = new Imprimir.default($3, @1.first_line, @1.first_column); 
 	}

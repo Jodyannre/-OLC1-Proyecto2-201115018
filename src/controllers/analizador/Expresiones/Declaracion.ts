@@ -120,7 +120,7 @@ export default class Declaracion extends Instruccion{
             let nuevoSimbolo:any;
             if (this.valor instanceof Funcion || this.valor instanceof Metodo){
                 let id = this.valor.getId(); //Get id en string de la función
-                let nTipo = new tipo.default(this.valor.getTipo());
+                let nTipo = new tipo.default(this.valor.getTipo().getTipos());
                 if (this.valor instanceof Metodo){
                     nTipo = new tipo.default(67);
                 }

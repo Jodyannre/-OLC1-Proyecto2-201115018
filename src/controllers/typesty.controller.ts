@@ -20,9 +20,9 @@ var Errors:Array<Excepcion> = new Array<Excepcion>();
 var fs = require('fs');
 
 class typestyController{
-    private static contadorEstados:number = 0;
-    private static grafo:string;
-    private static fs = require('fs');
+    private static contadorEstados:number = 0; //Lleva el control del # de error encontrado
+    private static grafo:string; //Guarda toda la información necesaria para crear un .dot
+    private static fs = require('fs'); //Variable creada para la escritura y lectura de archivos
 
     public helloWorld (req:Request,res:Response){
         res.send("Hola Mundo");

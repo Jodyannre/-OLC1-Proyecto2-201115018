@@ -17,6 +17,8 @@ import BREAK from "../Sentencias/BREAK";
 import CONTINUE from "../Sentencias/CONTINUE";
 import RETURN from "../Sentencias/RETURN";
 import Parametro from "./Parametro";
+import FOR from "../Sentencias/FOR";
+import SWITCH from "../Sentencias/SWITCH";
 var Errors:Array<Excepcion> = new Array<Excepcion>();
 
 const tipo = require('../tablaSimbolos/Tipo');
@@ -150,7 +152,7 @@ export default class Funcion extends Instruccion{
 
         //Crear variables con los valores de los parámetros
         if (this.parametros != null){
-            this.crearVariablesParametros(nArbol,nTabla);
+            this.crearVariablesParametros(nArbol,nTabla,tree,table);
         }
 
         if (this.instrucciones===null){
@@ -165,9 +167,15 @@ export default class Funcion extends Instruccion{
             return ValidarRetorno;
         }
         if (ValidarRetorno === false){
-            var ex:Excepcion = new Excepcion("Semantico", "Función sin return.", this.linea, this.columna);
-            //tree.getExcepciones().push(ex);
-            return ex;              
+            let buscar = this.buscarReturn();
+
+            if (buscar instanceof RETURN){
+
+            }else{
+                var ex:Excepcion = new Excepcion("Semantico", "Función sin return.", this.linea, this.columna);
+                //tree.getExcepciones().push(ex);
+                return ex;    
+            } 
         }
             try{
                 for (let m of nArbol.getInstrucciones()){
@@ -232,7 +240,15 @@ export default class Funcion extends Instruccion{
             }else{
                 if ((this.parametrosRecibidos[i]instanceof Primitivo)===true){
                     nSimbolo = this.parametrosRecibidos[i];
-                }else{
+                }else if (this.parametrosRecibidos[i]instanceof llamadaFuncion){
+                    nSimbolo = this.parametrosRecibidos[i].getId();
+                    nSimbolo =table.existe(nSimbolo.getValor()); //Get símbolo
+                    if (nSimbolo instanceof Excepcion){
+                        return nSimbolo;
+                    }
+                }
+                else{
+                    this.parametrosRecibidos[i].setPasada(2);
                     nSimbolo = this.parametrosRecibidos[i].interpretar(tree,table);
                 }               
             }
@@ -257,7 +273,7 @@ export default class Funcion extends Instruccion{
 
     }
 
-    public crearVariablesParametros(tree:Arbol, table:tablaSimbolos){
+    public crearVariablesParametros(tree:Arbol, table:tablaSimbolos, treeGlobal:Arbol,tableGlobal:tablaSimbolos){
         let nTipo,nValor,linea,columna,nSimbolo,nId;
         let nPrimitivo:any;
 
@@ -272,15 +288,23 @@ export default class Funcion extends Instruccion{
             }else if (nPrimitivo instanceof Identificador){
                 nPrimitivo = nPrimitivo.interpretar(tree,table);
                 nPrimitivo = nPrimitivo.getValor();
-            }else if (!(nPrimitivo instanceof Primitivo)){
-                nPrimitivo = nPrimitivo.interpretar(tree,table); //Get resultado en primitivo
+            }else if (nPrimitivo instanceof Primitivo){
+                //nPrimitivo = nPrimitivo.interpretar(tree,table); //Get resultado en primitivo
             }else if (nPrimitivo instanceof llamadaArray){
+                nPrimitivo.setPasada(2);
                 nPrimitivo = nPrimitivo.interpretar(tree,table);
             }else if (nPrimitivo instanceof llamadaFuncion){
-                nPrimitivo = nPrimitivo.interpretar(tree,table);
+                nPrimitivo.setPasada(2);
+                nPrimitivo = nPrimitivo.interpretar(treeGlobal,tableGlobal);
             }
+            nPrimitivo.setPasada(2);
             nValor = nPrimitivo.interpretar(tree,table);
             if (nPrimitivo instanceof Lista || nPrimitivo instanceof Vector){
+                nSimbolo = new Simbolo(nTipo,this.parametros[i].getValor().getValor(),nPrimitivo);
+                table.setVariableNueva(nSimbolo);
+            }else if (nValor instanceof Primitivo){
+                nValor = nValor.interpretar(tree,table);
+                nPrimitivo = new Primitivo(nTipo,nValor,linea,columna);
                 nSimbolo = new Simbolo(nTipo,this.parametros[i].getValor().getValor(),nPrimitivo);
                 table.setVariableNueva(nSimbolo);
             }else{
@@ -320,10 +344,32 @@ export default class Funcion extends Instruccion{
                     return true;
                 }    
             } 
+
+
             return false;                                     
         }catch(err){
             console.log(err);
         }
+    }
+
+    public buscarReturn(){
+        let resultado:any = false;
+        let temp = false;
+        for (let m of this.instrucciones){
+            if (m instanceof RETURN){
+                return m;
+            }
+            try{
+                temp = m.buscarReturn();
+                resultado = temp;
+                if (resultado instanceof RETURN){
+                    return resultado;
+                }
+            }catch(err){
+                console.log("No tiene el método.");
+            }
+        }
+        return false;
     }
 
 }

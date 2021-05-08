@@ -200,4 +200,24 @@ export default class FOR extends Instruccion{
             return ex;             
         }
     }
+
+    public buscarReturn(){
+        let resultado:any = false;
+        let temp = false;
+        for (let m of this.instrucciones){
+            if (m instanceof RETURN){
+                return m;
+            }
+            try{
+                temp = m.buscarReturn();
+                resultado = temp;
+                if (resultado instanceof RETURN){
+                    return resultado;
+                }
+            }catch(err){
+                console.log("No tiene el método.");
+            }
+        }
+        return false;
+    }
 }

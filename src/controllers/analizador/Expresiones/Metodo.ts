@@ -152,7 +152,7 @@ export default class Metodo extends Instruccion{
         
         //Crear variables con los valores de los parámetros
         if (this.parametros != null){
-            this.crearVariablesParametros(nArbol,nTabla);
+            this.crearVariablesParametros(nArbol,nTabla,tree,table);
         }
 
         if (this.instrucciones===null){
@@ -243,7 +243,7 @@ export default class Metodo extends Instruccion{
 
     }
 
-    public crearVariablesParametros(tree:Arbol, table:tablaSimbolos){
+    public crearVariablesParametros(tree:Arbol, table:tablaSimbolos,treeGlobal:Arbol,tableGlobal:tablaSimbolos){
         let nTipo,nValor,linea,columna,nSimbolo,nId;
         let nPrimitivo:any;
 
@@ -265,10 +265,16 @@ export default class Metodo extends Instruccion{
                 nPrimitivo = nPrimitivo.interpretar(tree,table);
             }else if (nPrimitivo instanceof llamadaFuncion){
                 nPrimitivo.setPasada(2);
-                nPrimitivo = nPrimitivo.interpretar(tree,table);
+                nPrimitivo = nPrimitivo.interpretar(treeGlobal,tableGlobal);
             }
+            nPrimitivo.setPasada(2);
             nValor = nPrimitivo.interpretar(tree,table);
             if (nPrimitivo instanceof Lista || nPrimitivo instanceof Vector){
+                nSimbolo = new Simbolo(nTipo,this.parametros[i].getValor().getValor(),nPrimitivo);
+                table.setVariableNueva(nSimbolo);
+            }else if (nValor instanceof Primitivo){
+                nValor = nValor.interpretar(tree,table);
+                nPrimitivo = new Primitivo(nTipo,nValor,linea,columna);
                 nSimbolo = new Simbolo(nTipo,this.parametros[i].getValor().getValor(),nPrimitivo);
                 table.setVariableNueva(nSimbolo);
             }else{
