@@ -3,3 +3,4 @@ dist/controllers
 dist/routes
 dist/index.js
 dist/index.js.map
+!dist/controllers/analizador/gramatica
