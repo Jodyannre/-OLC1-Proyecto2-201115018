@@ -1,2 +1,5 @@
 node_modules
-dist
+dist/controllers
+dist/routes
+dist/index.js
+dist/index.js.map
