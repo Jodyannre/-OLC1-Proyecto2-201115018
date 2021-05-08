@@ -199,7 +199,7 @@ export default class llamadaArray extends Instruccion{
     }
 
     public getPosicion(tree:Arbol,table:tablaSimbolos):any{
-        let pos;
+        let pos:any;
         if (this.posicion instanceof Primitivo){
             pos = this.posicion;
         }else if (this.posicion instanceof Identificador){
@@ -207,7 +207,7 @@ export default class llamadaArray extends Instruccion{
             if (pos instanceof Excepcion){
                 return pos;
             }
-            pos = pos?.getValor();
+            pos = pos.getValor();
         }else{
             pos = this.posicion.interpretar(tree,table);
         }

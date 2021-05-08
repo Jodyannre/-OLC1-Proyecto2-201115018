@@ -33,7 +33,7 @@ export default class Casteo extends Instruccion{
 
     public interpretar(tree:Arbol, table:tablaSimbolos){
         //Interpretar la expresión y traer su tipo
-        let resultado;
+        let resultado:any;
 
         if (this.expresion instanceof Primitivo){
             resultado = this.expresion;
@@ -43,7 +43,7 @@ export default class Casteo extends Instruccion{
             if (resultado instanceof Excepcion){
                 return resultado;
             }
-            resultado = resultado?.getValor(); //Get primitivo
+            resultado = resultado.getValor(); //Get primitivo
         }
         else{
             this.expresion.setPasada(2);
