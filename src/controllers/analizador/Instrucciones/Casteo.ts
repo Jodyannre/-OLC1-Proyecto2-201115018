@@ -96,12 +96,12 @@ export default class Casteo extends Instruccion{
                 if (resultado.getTipo().getTipos()===1 //Desde Int
                 ){
                     //Rango va desde 33 - 126
-                    if (resultado.getValor()>93){ 
+                    if (resultado.getValor()>126 || resultado.getValor()<32){ 
                         var ex:Excepcion = new Excepcion("Error semántico", "Char fuera de rango.", this.linea, this.columna);
                         //tree.getExcepciones().push(ex);
                         return ex;                        
                     }
-                    let nValor = String.fromCharCode(33 + resultado.getValor());
+                    let nValor = String.fromCharCode(resultado.getValor());
                     let nTipo = new Tipo(tipo.tipos.CARACTER);
                     let nPrimitivo:Primitivo = new Primitivo(nTipo,nValor,this.linea,this.columna);
                     return nPrimitivo;                   

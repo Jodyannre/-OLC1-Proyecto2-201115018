@@ -93,7 +93,7 @@ export default class CASE extends Instruccion{
                         return result;
                     }
                     if (result instanceof BREAK){
-                        return true;
+                        return result;
                     }
                     if (result instanceof CONTINUE){
                         return result;

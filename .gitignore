@@ -1,15 +1,6 @@
 node_modules
+dist/controllers
 dist/routes
 dist/index.js
 dist/index.js.map
-dist/controllers/middleware.js
-dist/controllers/middleware.js.map
-dist/controllers/typesty.controller.js
-dist/controllers/typesty.controller.js.map
-dist/controllers/analizador/Abstract
-dist/controllers/analizador/Excepciones
-dist/controllers/analizador/Expresiones
-dist/controllers/analizador/Instrucciones
-dist/controllers/analizador/Sentencias
-dist/controllers/analizador/tablaSimbolos
-
+!dist/controllers/analizador/gramatica

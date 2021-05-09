@@ -11,6 +11,7 @@ import CASE from "./CASE";
 import Primitivo from "../Expresiones/Primitivo";
 import CONTINUE from "./CONTINUE";
 import RETURN from "./RETURN";
+import BREAK from "./BREAK";
 var Errors:Array<Excepcion> = new Array<Excepcion>();
 
 const tipo = require('../tablaSimbolos/Tipo');
@@ -99,15 +100,19 @@ export default class SWITCH extends Instruccion{
                     return resultado;
                 }
                 
-                if (resultado != false){
-                    return resultado;
-                }
                 if (resultado instanceof CONTINUE){
-                    return resultado;
+                    continue;
                 }
                 if (resultado instanceof RETURN){
                     return resultado;
                 }    
+                if (resultado instanceof BREAK){
+                    return true;
+                }  
+
+                if (resultado != false){
+                    return resultado;
+                }
             }
 
 

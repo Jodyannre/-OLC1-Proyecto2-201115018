@@ -97,7 +97,7 @@ export default class WHILE extends Instruccion{
                                 return true;
                             }       
                             if (result instanceof CONTINUE){
-                                break;;
+                                break;
                             }
                             if (result instanceof RETURN){
                                 return result;
