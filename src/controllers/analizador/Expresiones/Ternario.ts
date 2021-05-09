@@ -69,7 +69,7 @@ export default class Ternario extends Instruccion{
             if (exp_correcta instanceof Excepcion){
                 return exp_correcta;
             }
-            exp_correcta = cond.getValor(); //Traer el primitivo valor
+            exp_correcta = exp_correcta.getValor(); //Traer el primitivo valor
         }else if (this.expCorrecta instanceof Primitivo){
             exp_correcta = this.expCorrecta;
         }
@@ -84,7 +84,7 @@ export default class Ternario extends Instruccion{
             if (exp_incorrecta instanceof Excepcion){
                 return exp_incorrecta;
             }
-            exp_incorrecta = cond.getValor(); //Traer el primitivo valor
+            exp_incorrecta = exp_incorrecta.getValor(); //Traer el primitivo valor
         }else if (this.expIncorrecta instanceof Primitivo){
             exp_incorrecta = this.expIncorrecta;
         }

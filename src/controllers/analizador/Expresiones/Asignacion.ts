@@ -240,6 +240,7 @@ export default class Asignacion extends Instruccion{
             //Funciones
             var simbolo = this.id.interpretar(tree,table);
             if (simbolo != null){
+                this.instruccion.setPasada(2);
                 let result = this.instruccion.interpretar(tree,table);
                 if (result instanceof Excepcion){
                     return result;
@@ -249,13 +250,20 @@ export default class Asignacion extends Instruccion{
                     //tree.addError(ex);
                     return ex;                       
                 }
-                if (simbolo.getTipo().getTipos()!= result.getTipo().getTipos()){
+                let tipoEspecial = this.verificarEspeciales(simbolo,result,tree,table);
+                if (tipoEspecial != true){
+                    tipoEspecial.linea = simbolo.getValor().linea;
+                    tipoEspecial.columna = simbolo.getValor().columna;
+                    simbolo.setValor(tipoEspecial);
+                    return true;
+                }
+                else if (simbolo.getTipo().getTipos()!= result.getTipo().getTipos()){
                     var ex:Excepcion = new Excepcion("Semántico", "Los tipos no coinciden", this.linea, this.columna);
                     //tree.addError(ex);
                     return ex;                    
                 }
-                result.linea = this.linea;
-                result.columna = this.columna;
+                result.linea = simbolo.getValor().linea;
+                result.columna = simbolo.getValor().columna;
                 simbolo.setValor(result);
                 return true;
             }else{
@@ -273,6 +281,14 @@ export default class Asignacion extends Instruccion{
                 if (result instanceof Excepcion){
                     return result;
                 }
+                let tipoEspecial = this.verificarEspeciales(simbolo,result,tree,table);
+                if (tipoEspecial != true){
+                    tipoEspecial.linea = simbolo.getValor().linea;
+                    tipoEspecial.columna = simbolo.getValor().columna;
+                    simbolo.setValor(tipoEspecial);
+                    return true;
+                }
+
                 if (simbolo.getTipo().getTipos()!= result.getTipo().getTipos()){
                     var ex:Excepcion = new Excepcion("Semántico", "Los tipos no coinciden", this.linea, this.columna);
                     //tree.addError(ex);
@@ -347,6 +363,7 @@ export default class Asignacion extends Instruccion{
             valorFinal = valorFinal.interpretar(tree,table); //Se convierte en un símbolo
         }
 
+
         if (variable.getTipo().getTipos()=== tipo.tipos.DECIMAL && valorFinal.getTipo().getTipos()===tipo.tipos.ENTERO){
             let numero:Primitivo = valorFinal instanceof Simbolo? valorFinal.getValor(): valorFinal;
             if (numero.getValor() > 2147483647 || numero.getValor() < -2147483647){
@@ -354,7 +371,15 @@ export default class Asignacion extends Instruccion{
                 //tree.getExcepciones().push(ex);
                 //return ex;                        
             }
-            variable.getValor().setValor(valorFinal.getValor());
+            let nTipo = new Tipo(tipo.tipos.DECIMAL);
+            let nValor;
+            if (valorFinal instanceof Primitivo){
+                nValor = valorFinal.getValor();
+            }else if (valorFinal instanceof Simbolo){
+                nValor = valorFinal.getValor().getValor();
+            }
+            let resultado:Primitivo = new Primitivo(nTipo,nValor,variable.getValor().linea,variable.getValor().columna);
+            variable.getValor().setValor(resultado);
             return variable.getValor();
         }
         else

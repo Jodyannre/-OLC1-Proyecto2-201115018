@@ -488,7 +488,7 @@ export default class Declaracion extends Instruccion{
         }else if (this.valor instanceof Identificador){
             let simbolo = table.tabla.get(this.valor.getValor()); //Símbolo que trae el valor a asignar
             if (simbolo){
-                let especial:any = this.verificarEspeciales(valorFinal,tree,table);
+                let especial:any = this.verificarEspeciales(simbolo.getValor(),tree,table);
                 if (especial ===true){
                     return simbolo.getValor();
                 }
@@ -553,7 +553,7 @@ export default class Declaracion extends Instruccion{
 
     public verificarEspeciales(valorFinal:any,tree:Arbol, table:tablaSimbolos){
 
-        if (this.tipo.getTipos()=== tipo.tipos.DECIMAL && this.valor.getTipo().getTipos()===tipo.tipos.ENTERO){
+        if (this.tipo.getTipos()=== tipo.tipos.DECIMAL && valorFinal.getTipo().getTipos()===tipo.tipos.ENTERO){
             let numero = valorFinal.interpretar(tree,table);
             if (numero > 2147483647 || numero < -2147483647){
                 var ex:Excepcion = new Excepcion("Semántico", "Número fuera de límite", this.linea, this.columna);
@@ -566,8 +566,8 @@ export default class Declaracion extends Instruccion{
             return resultado;
         }
         else
-        if (this.tipo.getTipos()=== tipo.tipos.ENTERO && this.valor.getTipo().getTipos()===tipo.tipos.BOOLEANO){
-            let booleano = this.valor.interpretar(tree,table);
+        if (this.tipo.getTipos()=== tipo.tipos.ENTERO && valorFinal.getTipo().getTipos()===tipo.tipos.BOOLEANO){
+            let booleano = valorFinal.interpretar(tree,table);
             let nTipo = new Tipo(tipo.tipos.ENTERO);
             let resultado:Primitivo;
             if (booleano === true){             
@@ -581,7 +581,7 @@ export default class Declaracion extends Instruccion{
             }
         }
         else
-        if (this.tipo.getTipos()=== tipo.tipos.ENTERO && this.valor.getTipo().getTipos()===tipo.tipos.ENTERO){
+        if (this.tipo.getTipos()=== tipo.tipos.ENTERO && valorFinal.getTipo().getTipos()===tipo.tipos.ENTERO){
             let numero = valorFinal.interpretar(tree,table);
             if (numero> 2147483647 || numero < -2147483647){
                 var ex:Excepcion = new Excepcion("Semántico", "Número fuera de límite", this.linea, this.columna);
@@ -593,7 +593,10 @@ export default class Declaracion extends Instruccion{
                 let resultado:Primitivo = new primitivo.default(nTipo,nValor,this.linea,this.columna);
                 return resultado;
             }
-        }else{
+        }else if (this.tipo.getTipos() != valorFinal.getTipo().getTipos()){
+            return false;
+        }
+        else{
             return true;
         }
     }
